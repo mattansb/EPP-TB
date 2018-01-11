@@ -1,0 +1,11 @@
+Bug: time smoothing doesn't work!
+Instantaneous amplitude (if time window is of length 1, double it, find nearest sample, and measure 'mean')
+eeglab import - from study?
+add reliabilty test when possible?
+bootstrap errors when plotting
+wavlet - change time-resampling to just cutting + downsampling!
+change output file names to use this: https://www.mathworks.com/help/matlab/ref/tempname.html 
+
+
+re-write wiki. focus on get vs plot + R
+write README (in markdown?)
