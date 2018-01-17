@@ -8,7 +8,7 @@ library(scales)
 library(magrittr)
 
 # ==== Load data ====
-raw.data <- read.csv("filename") %>%
+raw.data <- read.csv("@filename@") %>%
   as.tbl() %>% 
   mutate(Condition   = as.factor(Condition),
          # convert Theta and Radius to (x,y)
