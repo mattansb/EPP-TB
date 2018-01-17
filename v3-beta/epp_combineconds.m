@@ -53,9 +53,13 @@ IDs = unique(IDs);
 
 %% Combine
 [nchans, ntime, ~] = size(study(1).Data);
+% ERSP
+% ITC
 
 for id = 1:length(IDs)
     id_data = zeros([nchans, ntime, 1]);
+    % ERSP
+    % ITC
     id_nTrials = [0];
     for c = 1:length(study)
         id_ind = find(strcmpi(IDs{id},study(c).IDs.ID));
@@ -72,14 +76,19 @@ for id = 1:length(IDs)
             w = 1;
         end
         
-        id_data(:,:,end+1) = study(1).Data(:,:,id_ind)*w;
-        id_nTrials(end+1) = w;
+        id_data(:,:,end+1)  = study(1).Data(:,:,id_ind)*w;
+        % ERSP
+        % ITC
+        id_nTrials(end+1)   = w;
         
         
         clear id_ind w
     end
-    data(:,:,id) = mean(id_data(:,:,2:end),3);
-    nTrials(id) = sum(id_nTrials);
+    data(:,:,id)    = mean(id_data(:,:,2:end),3);
+    % ERSP
+    % ITC
+    
+    nTrials(id)     = sum(id_nTrials);
     clear id_data id_nTrials
 end
 
