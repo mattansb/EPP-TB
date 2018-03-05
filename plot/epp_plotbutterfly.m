@@ -29,13 +29,15 @@
 %{
 Change log:
 -----------
+05-03-2018  Fix title printing
+04-03-2018  Added ability to plot Trace plots
 18-06-2017  Added ability to plot Jackknifed waves.
 18-06-2017  Removed ability to plot time window.
 04-04-2017  Added ability to mark subjects on Z axis
 25-11-2016  New function (written in MATLAB R2015a)
 
 2DO
-- make option to plot across subjects, all electrodes.
+- Make option to export to R.
 %}
 
 function epp_plotbutterfly(study,conditions, electrodes,varargin)
@@ -51,22 +53,20 @@ p = inputParser;
     addParameter(p,'all', false, @islogical)
 parse(p, study, conditions, electrodes, varargin{:}); % validate
 
-if p.Results.all
-    [study, nsubs]  = suppMatchSubjects(study,conditions);
-    electrodes      = 1:nsubs;
-    for c = 1:length(study)
-        study(c).Data = permute(study(c).Data,[3 2 1]);
-    end
-end
-
-
 %% Get only relevant conditions (in order!)
 
 cInd = cellfun(@(x) find(ismember({study(:).Condition}, x)), conditions);
 
 study = study(cInd);
 
-if p.Results.jackknife
+if p.Results.all
+    [study, nsubs]  = suppMatchSubjects(study,conditions);
+    electrodes      = 1:nsubs;
+    for c = 1:length(study)
+        study(c).Data   = permute(study(c).Data,[3 2 1]);
+        study(c).IDs    = table([1:size(study(c).Data,3)]','VariableNames',{'ID'});
+    end
+elseif p.Results.jackknife
     for c = 1:length(study)
         study(c).Data = suppJackknife('in',study(c).Data);
     end
@@ -138,7 +138,7 @@ for c = 1:length(study) % for each condition
     
     % Titles (and label)
     % ------------------
-    title(conditions(c))
+    title(conditions(c), 'Interpreter', 'none')
     if c == 1 % for first plot only
         xlabel('Time');
         ylabel('\muV')

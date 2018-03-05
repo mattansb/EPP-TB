@@ -31,6 +31,9 @@
 %{
 Change log:
 -----------
+05-03-2018  Fix title printing
+28-02-2018  ITC (abs) is now computed in function, to allow for the
+            combination of conditions.
 17-08-2017  New function (written in MATLAB R2015a)
 %}
 
@@ -63,6 +66,7 @@ for c = 1:length(conditions)
     ersp_min(c)     = min(min(ersp(c).data)); % find min point
     
     % Get ITC
+    if ~isreal(study(c).itc), study(c).itc = abs(study(c).itc); end
     itc(c).data     = flipud(squeeze(mean(mean(study(c).itc(electrodes,:,:,:),4),1))');
     itc_max(c)      = max(max(itc(c).data)); % find max point
     itc_min(c)      = min(min(itc(c).data)); % find min point
@@ -93,7 +97,7 @@ for c = 1:length(conditions) % for each condition
 
     end
     hold on
-    title(conditions{c})                                                % add title
+    title(conditions{c}, 'Interpreter', 'none')                     % add title
     plot([0 0],[freqs(1) freqs(end)],'Color', 'k', 'LineStyle', '-','LineWidth',1);
     plot([0 0],[freqs(1) freqs(end)],'Color', 'w', 'LineStyle', '-');
     

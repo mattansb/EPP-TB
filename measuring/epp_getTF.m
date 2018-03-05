@@ -29,6 +29,8 @@
 %{
 Change log:
 -----------
+28-02-2018  ITC (abs) is now computed in function, to allow for the
+            combination of conditions.
 17-08-2017  New function (written in MATLAB R2015a)
 
 2DO
@@ -89,6 +91,7 @@ for c = 1:length(study)
                 temp_data = study(c).ersp(electrodes,bool_freq,bool_time,:);    % this is the ersp data we want
             case 'itc'
                 temp_data = study(c).itc(electrodes,bool_freq,bool_time,:);     % this is the itc data we want
+                temp_data = abs(temp_data);
         end
         
         study(c).measure(:,fr,:) = squeeze(mean(mean(temp_data,2),3));    % compute mean: across electrodes, time window & freq window

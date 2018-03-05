@@ -36,6 +36,7 @@
 %{
 Change log:
 -----------
+05-03-2018  Fix title printing
 04-07-2017  Added time-smoothing
 16-06-2017  Minor fix for plotting channels in R code
 23-04-2017  New function (written in MATLAB R2015a)
@@ -153,7 +154,7 @@ end
 % Each conditions has its own figure.
 % Multiple time points are plotted in same figure. 
 
-for c = 1:size(meanData,3); % each condition
+for c = 1:size(meanData,3) % each condition
     fig = figure();
     clf
     hold on;
@@ -184,7 +185,7 @@ for c = 1:size(meanData,3); % each condition
         % Add Title(s)
         % ------------
         if nTimes==1
-            title([study(c).Condition ':  ' num2str(timePoints(:,t)') 'ms']);
+            title([study(c).Condition ':  ' num2str(timePoints(:,t)') 'ms'], 'Interpreter', 'none');
         else
             if t==1
                 if strcmpi(p.Results.t,'off')
@@ -194,7 +195,7 @@ for c = 1:size(meanData,3); % each condition
                 end
             end
             
-            title([num2str(timePoints(:,t)') ' ms']);
+            title([num2str(timePoints(:,t)') ' ms'], 'Interpreter', 'none');
         end
         
     end
