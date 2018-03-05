@@ -34,6 +34,7 @@
 %{
 Change log:
 -----------
+05-03-2018  Fix title printing
 17-05-2017  Fixed bug when exporting to R
 23-03-2017  Fixed error when plotting errors with single condition
 07-02-2017  Fixed error plotting according to Morey (2008) and r-cookbook
@@ -208,7 +209,7 @@ ylabel('\muV')                          % label Y-axis
 ylim(1.1*[min(minAmp) max(maxAmp)]);    % set Y limits
 
 % Add Legend
-legend([meanPlot],{study.Condition});
+legend([meanPlot],{study.Condition}, 'Interpreter', 'none');
 
 
 
