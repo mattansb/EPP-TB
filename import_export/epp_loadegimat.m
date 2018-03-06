@@ -3,7 +3,7 @@
 %
 % FORMAT
 % ------
-% study = epp_load(type,nchan,baseLine)
+% study = epp_loadegimat(type,nchan,baseLine)
 %
 % 
 %
@@ -49,7 +49,7 @@ Change log:
 25-11-2016  New function (written in MATLAB R2015a)
 %}
 
-function study = epp_load(type,nchan,baseLine)
+function study = epp_loadegimat(type,nchan,baseLine)
 
 %% Validate
 p = inputParser;

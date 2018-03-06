@@ -3,7 +3,7 @@
 %
 % FORMAT
 % ------
-% study = epp_erplab_import(ALLERP)
+% study = epp_loaderplab(ALLERP)
 % 
 %
 % INPUTS
@@ -25,7 +25,7 @@
 %                   6. IDs - table containing IDs of subject in the
 %                      condition.
 %
-% See also epp_load
+% See also epp_loadegimat
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -41,7 +41,7 @@ need baseline! found it here (in ALLERP(s).history:
 EEG = pop_epochbin( EEG , [-200.0  800.0],''pre'');
 %}
 
-function study = epp_erplab_import(ALLERP)
+function study = epp_loaderplab(ALLERP)
 
 %% Import from ERPLABs ALLERP
 ERPs.Condition = '';
