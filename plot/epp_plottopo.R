@@ -85,7 +85,7 @@ group_channels <- function(chanlocs,...){
 # Prepare Data for Plotting -----------------------------------------------
 
 # Channel Data
- <- raw.data %>% 
+chanlocs <- raw.data %>% 
   select(Channel, x, y) %>%
   distinct()
 

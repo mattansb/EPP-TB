@@ -10,6 +10,11 @@
 % ------
 % EEG_list      - a cell-array of '.set' (full) file locations. If empty
 %                 will skip, and will combine the files in 'savePath.
+%
+% Condition names are taken from EEG.condition and EEG.group. Thus it is
+% assumed that each file contains only a single condition.
+% Subject IDs are taken from EEG.subject.
+%
 % 
 % Optional arguments
 % ------------------
@@ -26,6 +31,9 @@
 %                 suppWaveletConv3. If 'wavelet' is true, and 'waveletVars'
 %                 is empty or not specified, a pop-up will asks for the
 %                 parameters (which will also then be returned).
+% 'combine'     - if true (defult) will combine all files in 'savePath'
+%                 into study structure. Else, won't - will only conver
+%                 eeglab files to '.eppf' files.
 % 
 %
 %
@@ -45,6 +53,7 @@ p = inputParser;
     addParameter(p,'wavelet', false, @islogical)
     addParameter(p,'savePath', '', @ischar)
     addParameter(p,'waveletVars', [], @isstruct)
+    addParameter(p,'combine', true, @islogical)
 parse(p, EEG_list, varargin{:}); % validate
 
 % Wavelet parameters
@@ -54,10 +63,10 @@ if p.Results.wavelet
        [~, ~, ~, res] = inputgui(...
         'geometry', {[1.25 1 0.5] [1 1 0.75] [1 1 0.75] [1 0.5 1.25] [2.75] [2.75] [1 1 0.75] [1 1 0.75] [1 0.5 1.25]},...
         'geomvert', [1 1 1 1 1 1 1 1 1],...
-        'title', 'wavelet',...
+        'title', 'Specify Wavelet Paramters',...
         'uilist', { ...
             {'Style', 'text', 'string', 'Frequencies and Cycles', 'fontweight', 'bold'  } {}...
-            {'Style', 'pushbutton', 'string', 'help', 'callback', 'help suppWaveletConv3'} ...
+            {'Style', 'pushbutton', 'string', 'help', 'callback', 'pophelp(''suppWaveletConv3'')'} ...
             {'Style', 'text', 'string', 'Frequency Range' }...
             {'Style', 'edit', 'string', '', 'tag' 'freqRange' }...
             {'Style', 'checkbox', 'string' 'log-space' 'value' 1 'tag' 'log' }...
@@ -135,7 +144,6 @@ for f = 1:nFiles
     
     %% Wavelet
     if p.Results.wavelet
-        % to do!
         [power,itpc,frex,times] = suppWaveletConv3(temp_EEG,...
             res_wave{:},...
             'sound','off');
@@ -151,7 +159,7 @@ for f = 1:nFiles
     %% Save
     fname_parts = {output.Condition,output.IDs.ID{:}};
     fname_parts = fname_parts(~cellfun(@isempty, fname_parts));
-    fname = [strjoin(fname_parts,'_') '.eppf'];
+    fname       = [strjoin(fname_parts,'_') '.eppf'];
     
     if exist(fullfile(savePath, fname))==2
         output1 = output;
@@ -168,33 +176,39 @@ end
 
 %% Combine all files
 
-% list files in savePath
-all_files   = dir([savePath '\\*.eppf']);
-nFiles      = length(all_files);
+if p.Results.combine
+    % list files in savePath
+    all_files   = dir([savePath '\\*.eppf']);
+    nFiles      = length(all_files);
 
-study.Condition = '';
-for f = 1:nFiles
-    % Load
-    load(fullfile(savePath, all_files(f).name), '-mat')
-    
-    % Orgenize
-    for c = 1:length(output)
-        c_ind = find(strcmpi(output(c).Condition,{study.Condition}));
-        if isempty(c_ind)
-            if strcmpi(study(end).Condition,'')
-                study = output(c);
+    study.Condition = '';
+    for f = 1:nFiles
+        % Load
+        load(fullfile(savePath, all_files(f).name), '-mat')
+
+        % Orgenize
+        for c = 1:length(output)
+            c_ind = find(strcmpi(output(c).Condition,{study.Condition}));
+            if isempty(c_ind)
+                if strcmpi(study(end).Condition,'')
+                    study = output(c);
+                else
+                    study(end+1) = output(c);
+                end
             else
-                study(end+1) = output(c);
+                try study(c_ind).ersp(:,:,:,end+1)  = output(c).ersp;   end
+                try study(c_ind).itc(:,:,:,end+1)   = output(c).itc;    end
+                try study(c_ind).Data(:,:,end+1)    = output(c).Data;   end
+                study(c_ind).IDs = [study(c_ind).IDs;output(c).IDs];
             end
-        else
-            try study(c_ind).ersp(:,:,:,end+1)  = output(c).ersp;   end
-            try study(c_ind).itc(:,:,:,end+1)   = output(c).itc;    end
-            try study(c_ind).Data(:,:,end+1)    = output(c).Data;   end
-            study(c_ind).IDs             = [study(c_ind).IDs;output(c).IDs];
         end
+        clear output c_ind
     end
-    clear output c_ind
+else
+    % return an empty struct
+    study = struct;
 end
+
 
 end
 
