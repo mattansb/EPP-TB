@@ -58,6 +58,7 @@
 %{
 Change log:
 -----------
+06-03-2018  Removed samplingRate & baseLine fields from study struct.
 07-02-2017  Added support for data interpolating
 19-01-2017  Support for saving data
 25-11-2016  New function (written in MATLAB R2015a)
@@ -97,6 +98,8 @@ p = inputParser;
     end
 parse(p ,study, conditions, electrodes, timeWindow, varargin{:}); % validate
 
+samplingRate = 1000/(study(1).timeLine(2) - study(1).timeLine(1));
+
 %% Orgenize Data Before Measuring
 
 study = suppPrep4stats(study, conditions, electrodes, timeWindow, p.Results.average, p.Results.jackknife, p.Results.interpolate);
@@ -115,7 +118,7 @@ for c = 1:length(study)
             study(c).amplitudes = permute(study(c).amplitudes,[3 1 2]);         % reorder dimentions
         case 'integral'
             study(c).amplitudes = sum(study(c).cutData,2);                      % compute integral
-            study(c).amplitudes = study(c).amplitudes/study(c).samplingRate;    % convert to mv/sec
+            study(c).amplitudes = study(c).amplitudes/samplingRate;    % convert to mv/sec
             study(c).amplitudes = permute(study(c).amplitudes,[3 1 2]);         % reorder dimentions
         case 'area'
             study(c).cutData = study(c).cutData-p.Results.boundary;             % offset by boundary
@@ -130,7 +133,7 @@ for c = 1:length(study)
             end
 
             study(c).amplitudes = sum(study(c).cutData,2);                      % compute area
-            study(c).amplitudes = study(c).amplitudes/study(c).samplingRate;    % convert to mv/sec
+            study(c).amplitudes = study(c).amplitudes/samplingRate;    % convert to mv/sec
             study(c).amplitudes = permute(study(c).amplitudes,[3 1 2]);         % reorder dimentions
     end
     study(c).measure = study(c).amplitudes;

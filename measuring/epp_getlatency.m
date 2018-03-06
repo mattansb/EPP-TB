@@ -47,6 +47,7 @@
 %           'criterion'     - Latency is the first point to be larger
 %                             (smaller) than X standard deviations
 %                             calculated on the baseline.
+%           'baseline'      - length of base line (negative or positive)
 %       for 'absolute_criterion'
 %           'criterion'     - Latency is the first point to be larger
 %                             (smaller) than X mV (positive or negative).
@@ -75,6 +76,7 @@
 %{
 Change log:
 -----------
+06-03-2018  Removed samplingRate & baseLine fields from study struct.
 11-07-2017  Fix bug when measuring local peak with interpolation
 07-02-2017  Added support for data interpolating
 19-01-2017  Support for saving data
@@ -106,6 +108,7 @@ p = inputParser;
             addParameter(p,'percentage',0.5,@isnumeric);
         case 'baseline_deviation' % first pass of X sd (measured in the baseline)
             addParameter(p,'criterion',1,@isnumeric); % required!!
+            addParameter(p,'baseline',1,@isnumeric); % required!!
         case 'absolute_criterion'
             addParameter(p,'criterion',1,@isnumeric); % required!!
         case 'fractional_area'
@@ -179,10 +182,10 @@ for c = 1:length(study)
                         switch lower(measure)
                             case 'baseline_deviation' % first pass of X sd (measured in the baseline)
                                 % Find baseline time window
-                                if study(c).baseLine < 0
-                                    baselineT = study(c).timeLine >= study(c).baseLine & study(c).timeLine < 0;
-                                elseif study(c).baseLine > 0
-                                    baselineT = study(c).timeLine <= study(c).baseLine & study(c).timeLine > 0;
+                                if p.Results.baseline < 0
+                                    baselineT = study(c).timeLine >= p.Results.baseline & study(c).timeLine < 0;
+                                elseif p.Results.baseline > 0
+                                    baselineT = study(c).timeLine <= p.Results.baseline & study(c).timeLine > 0;
                                 end
 
                                 Cr = std(study(c).Data(e,baselineT,s))*p.Results.criterion; % compute criterion = n*SD

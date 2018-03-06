@@ -36,6 +36,7 @@
 %{
 Change log:
 -----------
+06-03-2018  Removed samplingRate & baseLine fields from study struct.
 05-03-2018  Fix title printing
 04-07-2017  Added time-smoothing
 16-06-2017  Minor fix for plotting channels in R code
@@ -91,7 +92,7 @@ if p.Results.smooth{1}~=0
         case 'ms'           
             smooth = p.Results.smooth{1};
         otherwise
-            smooth = p.Results.smooth{1}*(1000/study(1).samplingRate);
+            smooth = p.Results.smooth{1}*(study(1).timeLine(2) - study(1).timeLine(1));
     end
     timePoints(2,:) = timePoints(1,:)-smooth;
     timePoints(3,:) = timePoints(1,:)+smooth;

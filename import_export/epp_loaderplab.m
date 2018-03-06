@@ -18,11 +18,9 @@
 %                   1. Condition - name of condition (string)
 %                   2. Data - ERP data, orgenized in 3D matrix
 %                      (electrode*time*subject).
-%                   3. samplingRate - sampling rate in Hz (e.g. 250)
-%                   4. baseLine - same as input.
-%                   5. timeLine - vector of time points corresponding to
+%                   3. timeLine - vector of time points corresponding to
 %                      the time dimention in study.Data matrix.
-%                   6. IDs - table containing IDs of subject in the
+%                   4. IDs - table containing IDs of subject in the
 %                      condition.
 %
 % See also epp_loadegimat
@@ -33,12 +31,8 @@
 %{
 Change log:
 -----------
+06-03-2018  Removed samplingRate & baseLine fields from study struct.
 25-11-2016  New function (written in MATLAB R2015a)
-
-2DO:
-----
-need baseline! found it here (in ALLERP(s).history:
-EEG = pop_epochbin( EEG , [-200.0  800.0],''pre'');
 %}
 
 function study = epp_loaderplab(ALLERP)
@@ -53,8 +47,6 @@ for s = 1:length(ALLERP)
         if ~any(strcmpi(ALLERP(s).bindescr{c},{ERPs(:).Condition}))     % if condition hasn't been previously loaded:
             ERPs(end+1).Condition       = ALLERP(s).bindescr{c};
             ERPs(end).Data              = ALLERP(s).bindata(:,:,c);
-            ERPs(end).samplingRate      = ALLERP(s).srate;
-            ERPs(end).baseLine          = []; %??????????????????????????????????????? EEG = pop_epochbin( EEG , [-200.0  800.0],''pre'');
             ERPs(end).timeLine          = ALLERP(s).times;
             ERPs(end).IDs               = table({ALLERP(s).filename},'VariableNames',{'ID'});
         else

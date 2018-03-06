@@ -8,6 +8,7 @@
 %{
 Change log:
 -----------
+06-03-2018  Removed samplingRate & baseLine fields from study struct.
 29-01-2017  Support for sampling interpolation
 19-12-2016  Support for Jackknife adjustment
 25-11-2016  New function (written in MATLAB R2015a)
@@ -35,14 +36,11 @@ for c = 1:length(studyIn)
     
     %% Interpolate
     if interpolate~=1 % if any need for interpolation
-        samplingRate_1  = studyIn(c).samplingRate;                                          % old sampling rate
-        samplingRate_2  = samplingRate_1*interpolate;                                       % new sampling rate
         timeLine_1      = studyIn(c).timeLine;                                              % old time line
         timeLine_2      = timeLine_1(1):(1000/samplingRate_2):timeLine_1(end);              % new time line
         Data_1          = permute(studyIn(c).Data,[2,1,3]);                                 % old data
         Data_2          = permute(interp1(timeLine_1,Data_1,timeLine_2,'spline'),[2,1,3]);  % new data (interpolated!)
         
-        studyIn(c).samplingRate = samplingRate_2;   % save new sampling rate
         studyIn(c).timeLine     = timeLine_2;       % save new time line
         studyIn(c).Data         = Data_2;           % save new data (interpolated!)
     end
