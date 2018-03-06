@@ -51,6 +51,7 @@ p = inputParser;
     addParameter(p,'minusUp', false, @islogical)
     addParameter(p,'jackknife', false, @islogical)
     addParameter(p,'all', false, @islogical)
+    addParameter(p,'R', false, @islogical)
 parse(p, study, conditions, electrodes, varargin{:}); % validate
 
 %% Get only relevant conditions (in order!)
@@ -99,6 +100,7 @@ clf
 
 for c = 1:length(study) % for each condition
     cond(c) = subplot(a,b,c);                   % open new subplot
+    
     if p.Results.minusUp
         set(gca,'YDir','reverse');
         hold on
@@ -154,4 +156,57 @@ for c = 1:length(study) % set all plots to same scale
     ylim(cond(c),[min(minA) max(maxA)]); 
 end
 
+
+%% Export to R
+if p.Results.R
+    % Save the data in long format
+    % ----------------------------
+    nTmPnts = length(study(1).timeLine);    % length of time axis
+    nCond   = length(study);                % number of conditions
+    nSumID  = sum(cellfun(@(x) size(x,1),{study.IDs}));
+    
+    % make empty matrices
+    ERPamp      = nan(nTmPnts,nSumID);
+    ERPcond     = cell(nTmPnts,nSumID);
+    ERPID       = cell(nTmPnts,nSumID);
+
+    for c = 1:nCond
+        x_start = find(all(isnan(ERPamp),1),1);
+        x_end   = x_start + size(study(c).Data,2) - 1;
+        
+        ERPamp(:,x_start:x_end)     = study(c).Data;
+        ERPcond(:,x_start:x_end)    = {study(c).Condition};
+        ERPID(:,x_start:x_end)      = table2cell(repmat(study(c).IDs(:,1), 1, nTmPnts))';
+    end
+    
+    ERPtime = repmat(study(1).timeLine',1,nSumID); % get time line
+    
+    % Reshape all:
+    ERPamp  = reshape(ERPamp,1,[]);
+    ERPID   = reshape(ERPID,1,[]);
+    ERPcond = reshape(ERPcond,1,[]);
+    ERPtime = reshape(ERPtime,1,[]);
+    
+    % Convert to table and write to CSV:
+    T   = table(ERPcond', ERPtime', ERPID', ERPamp', 'VariableNames', {'Condition','Time','ID','amp'});
+    fn  = ['butterflyplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
+    writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true) % save as csv
+    
+    
+    % Make R code file
+    % ----------------
+    Rpath = strrep(which(mfilename),[mfilename '.m'],'');
+    fid  = fopen([Rpath '\epp_plotbutterfly.R'],'rt');
+    f = fread(fid,'*char')';
+    fclose(fid);
+    
+    f = strrep(f,'@filename@',[fn '_data.csv']);
+    
+    fid  = fopen([fn '_code.R'],'wt');
+    fprintf(fid,'%s',f);
+    fclose(fid);
+        
+else
+    fprintf('NOTE: consiter plotting with ggplot in ''R'', \nNOTE: by setting ''R'' to true.\n')
+end
 end
