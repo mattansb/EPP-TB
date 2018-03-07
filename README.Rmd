@@ -28,9 +28,12 @@ All user-end functions start with `epp_*`.
 
 To use EPP-TB you will need:
 
-- Matlab (2015a+).
-- [eeglab](https://sccn.ucsd.edu/eeglab/index.php) (14.X.X) for importing `.set` files, and plotting topos.
-- R + [`tidyverse`](https://github.com/tidyverse/tidyverse) + [`scales`](https://github.com/hadley/scales) for plotting in R.
+* Matlab (2015a+).
+* [eeglab](https://sccn.ucsd.edu/eeglab/index.php) (14.X.X) for importing `.set` files, and plotting topos.
+* R  
+    + [`tidyverse`](https://github.com/tidyverse/tidyverse) + [`purrr`](https://github.com/tidyverse/purrr).
+    + [`scales`](https://github.com/hadley/scales) for plotting in R.
+    + [`mgcv`](https://cran.r-project.org/package=mgcv) for plotting topo plots.
 
 ### Installing
 
