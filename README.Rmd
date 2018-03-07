@@ -1,9 +1,10 @@
 ---
-title: 'EPP-TB: The ERP Post-Processing Tool Box  <img src="doc\logo.png" align="right" />'
-output:
-  html_document:
-    keep_md: true
+output: github_document
 ---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# EPP-TB: The ERP Post-Processing Tool Box <img src="doc\logo.png" align="right"/>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.path = "doc/")
