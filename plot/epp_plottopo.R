@@ -1,7 +1,8 @@
-
 library(tidyverse)
 library(magrittr)
 library(scales)
+library(mgcv)
+library(purrr)
 
 # ==== Load data ====
 raw.data <- read.csv("@filename@") %>%
@@ -15,34 +16,21 @@ raw.data <- read.csv("@filename@") %>%
 
 # Support functions -------------------------------------------------------
 
+
 expand.topo <- function(data, gridRes = NULL) {
-  library(mgcv)
   if (is.null(gridRes))
-    gridRes <- data[[1]] %$% unique(Channel) %>% {length(.)/2}
+    gridRes <- data %$% unique(Channel) %>% {length(.)/2}
   
-  res <- list()
-  pb <- txtProgressBar(1,length(data)+1)
-  for (c in 1:length(data)) {
-    LL <- data[[c]]
-    
-    minx <- min(LL$x)*1.1
-    miny <- min(LL$y)*1.1
-    maxx <- max(LL$x)*1.1
-    maxy <- max(LL$y)*1.1
-    
-    tmp.GAM <- expand.grid(x = seq(minx*1.05,maxx*1.05,length = gridRes),
-                           y = seq(miny*1.05,maxy*1.05,length = gridRes)) %>%
-      data.frame()
-    
-    tmp.GAM$Amp <- LL %>%
-      gam(Amp ~ s(x, y, bs = 'ts'), data = .) %>% 
-      predict(tmp.GAM, type = "response")
-    res[[c]] <- tmp.GAM %>% 
-      filter(sqrt(x^2 + y^2) <= max(diff(range(x)),diff(range(y)))/2)
-    rm(tmp.GAM)
-    setTxtProgressBar(pb, c)
-  }
-  return(res)
+  range_x <- range(data$x)*1.15
+  range_y <- range(data$y)*1.15
+  
+  tmp.GAM <- expand.grid(x = seq(range_x[1],range_x[2],length = gridRes),
+                         y = seq(range_y[1],range_y[2],length = gridRes)) %>%
+    data.frame()
+  tmp.GAM$Amp <- gam(Amp ~ s(x, y, bs = 'ts'), data = data) %>% 
+    predict(tmp.GAM, type = "response")
+  tmp.GAM %>% 
+    filter(sqrt(x^2 + y^2) <= max(diff(range(x)),diff(range(y)))/2)
 }
 
 circleFun <- function(diameter = 1, center = c(0,0), npoints = 100) {
@@ -67,15 +55,15 @@ theme_topo <- function(base_size = 12) {
 group_channels <- function(chanlocs,...){
   # '...' is a series of names vectors listing the channels in each group 
   channel.groups <- list(...)
-  lapply(1:length(channel.groups), function(x) {
+  
+  match_chans <- function(x) {
     y <- chanlocs[chanlocs$Channel %in% channel.groups[[x]],]
     y$Chan.Group <- names(channel.groups)[x]
     return(y)
-  }) %>% 
-    tibble(data = .) %>% 
-    unnest() %>% 
-    mutate(Chan.Group = factor(Chan.Group)) %>% 
-    return()
+  }
+  
+  map_df(seq_along(channel.groups), match_chans) %>% 
+    mutate(Chan.Group = factor(Chan.Group))
 }
 
 # Prepare Data for Plotting -----------------------------------------------
@@ -91,20 +79,23 @@ chanlocs <- raw.data %>%
 ## e.g.: group_channels(Frontal = c("E15","E23","E18","E16"))
 
 # Head Shapes
-diam      <- chanlocs %$%
-  max(diff(range(x)),diff(range(y))) # can be adjusted
-head <- list()
-head$shape <- circleFun(diam*0.75)
-head$mask  <- circleFun(diam*1.15)
-head$nose  <- data.frame(x = c(-.075,0,.075),
-                         y = c(-.005,.075,-.005) + max(head$shape$y))
+diam <- chanlocs %>%
+  select(x,y) %>% 
+  map_dbl(~diff(range(.))) %>% max()
+head <- list(
+  shape = circleFun(diam*0.75),
+  mask  = circleFun(diam*1.15),
+  nose  = data.frame(x = c(-.075,0,.075),
+                     y = c(-.005,.075,-.005) + diam*0.375)
+  
+)
 
 # Topo Data
 topo.data <- raw.data %>% 
   group_by(Condition,TimePnt) %>% 
   select(Condition,TimePnt,Channel,x,y,Amp) %>% 
   nest() %>%
-  mutate(data = expand.topo(data)) %>% 
+  mutate(data = map(data,expand.topo)) %>% 
   unnest() # %>% 
   # If you only want whats inside the head
   # filter(!sqrt(x^2 + y^2) > diff(range(head$shape$x))/2)
@@ -116,6 +107,7 @@ topo.data <- raw.data %>%
 ggplot(mapping = aes(x,y)) +
   geom_path(data = head$shape) +
   geom_line(data = head$nose) +
+  geom_point(data = chanlocs, aes(label = Channel)) +
   geom_text(data = chanlocs, aes(label = Channel)) +
   theme_topo() +
   coord_equal()
