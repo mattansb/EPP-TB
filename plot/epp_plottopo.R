@@ -1,11 +1,7 @@
-# This code has been adapted from Matt Craddock's code.
-# (see https://craddm.github.io/blog/2017/02/25/EEG-topography)
 
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(scales)
+library(tidyverse)
 library(magrittr)
+library(scales)
 
 # ==== Load data ====
 raw.data <- read.csv("@filename@") %>%
