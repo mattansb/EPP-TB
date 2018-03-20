@@ -25,6 +25,7 @@
 %{
 Change log:
 -----------
+20-03-2018  Bug fix.
 05-03-2018  Added support for TF data
             Added ability to name output condition.
 23-12-2017  New function (written in MATLAB R2017a)
@@ -104,11 +105,11 @@ for id = 1:length(IDs)
     end
     
     % Average for ID    
-    if has_erp,  data(:,:,id)   = mean(id_data(:,:,2:end),3);   end
-    if has_ersp, ersp(:,:,:,id) = mean(id_ersp(:,:,:,2:end),4); end
-    if has_itc,  itc(:,:,:,id)  = mean(id_itc(:,:,:,2:end),4);  end
-    
     nTrials(id) = sum(id_nTrials);
+    if has_erp,  data(:,:,id)   = mean(id_data(:,:,2:end)/nTrials(id),3);   end
+    if has_ersp, ersp(:,:,:,id) = mean(id_ersp(:,:,:,2:end)/nTrials(id),4); end
+    if has_itc,  itc(:,:,:,id)  = mean(id_itc(:,:,:,2:end)/nTrials(id),4);  end
+    
     clear id_data id_nTrials
 end
 

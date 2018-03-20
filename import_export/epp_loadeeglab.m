@@ -42,6 +42,7 @@
 %{
 Change log:
 -----------
+20-03-2018  Fix naming of subject files.
 06-03-2018  New function (written in MATLAB R2017a)
 %}
 function [study, savePath, waveletVars] = epp_loadeeglab(EEG_list,varargin)
@@ -157,9 +158,7 @@ for f = 1:nFiles
     end
     
     %% Save
-    fname_parts = {output.Condition,output.IDs.ID{:}};
-    fname_parts = fname_parts(~cellfun(@isempty, fname_parts));
-    fname       = [strjoin(fname_parts,'_') '.eppf'];
+    fname = [output.IDs.ID{:} '.eppf'];
     
     if exist(fullfile(savePath, fname))==2
         output1 = output;
