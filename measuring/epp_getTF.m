@@ -29,6 +29,7 @@
 %{
 Change log:
 -----------
+07-04-2018  Rewrite of function.
 28-02-2018  ITC (abs) is now computed in function, to allow for the
             combination of conditions.
 17-08-2017  New function (written in MATLAB R2015a)
@@ -50,6 +51,7 @@ p = inputParser;
     addRequired(p,'freqs',@(x) isnumeric(x) && size(x,2)==2);
     
     addParameter(p,'average',false,@islogical);
+    addParameter(p,'jackknife',false,@islogical); % not supported
     addParameter(p,'plot',false,@islogical);
     addParameter(p,'save','no', @ischar);
 parse(p, measure ,study, conditions, electrodes, timeWindow, freqs, varargin{:}); % validate
@@ -57,129 +59,30 @@ parse(p, measure ,study, conditions, electrodes, timeWindow, freqs, varargin{:})
 
 %% Orgenize Data Before Measuring
 
-% Get only relevant conditions
-cInd    = cellfun(@(x) find(ismember({study(:).Condition}, x)), conditions);
-study   = study(cInd);
+[study, timeWindow_ind, freqs_name] = suppPrep4statsTF(study, conditions, electrodes,...
+    timeWindow, freqs,...
+    p.Results.average, p.Results.average);
 
-% Find Closest time window
-timeWindow(1)   = dsearchn(study(1).timeLine',timeWindow(1)); % closest point to start of defined time window
-timeWindow(2)   = dsearchn(study(1).timeLine',timeWindow(2)); % closest point to end of defined time window
-timeWindow      = study(1).timeLine(timeWindow);
-bool_time       = study(1).timeLine >= timeWindow(1) & study(1).timeLine <= timeWindow(2);
+%% Get Measure 
 
-% Find Closest Frequencies
-% fr = 1
-for fr = 1:size(freqs,1)
-    freqs1(fr,1) = dsearchn(study(1).freqs',freqs(fr,1)); % closest point to start of defined frequency window
-    freqs1(fr,2) = dsearchn(study(1).freqs',freqs(fr,2)); % closest point to end of defined frequency window
-    freqs1(fr,:)  = study(1).freqs(freqs1(fr,:));
-    freqs_name(fr) = {[num2str(freqs(fr,1)) 'to' num2str(freqs(fr,2)) 'Hz']};
-end
-
-%% Get Measure
-
-% c = 1
 for c = 1:length(study)
     fprintf('\nCalculating for %s (condition %d of %d)..',study(c).Condition, c ,length(study))
-%     fr = 1
-    for fr = 1:size(freqs1,1)
-        
-        bool_freq = study(c).freqs >= freqs1(fr,1) & study(c).freqs <= freqs1(fr,2);
-        
+    res = nan(size(study(c).ersp,2),1);
+    for ie = 1:size(study(c).ersp,2)
         switch measure
             case 'ersp'
-                temp_data = study(c).ersp(electrodes,bool_freq,bool_time,:);    % this is the ersp data we want
+                res(ie) = m_tfERSP(study(c).ersp(:,ie),timeWindow_ind);
             case 'itc'
-                temp_data = study(c).itc(electrodes,bool_freq,bool_time,:);     % this is the itc data we want
-                temp_data = abs(temp_data);
+                res(ie) = m_tfITC(study(c).itc(:,ie),timeWindow_ind);
         end
-        
-        study(c).measure(:,fr,:) = squeeze(mean(mean(temp_data,2),3));    % compute mean: across time window & freq window
     end
-    
-    
-    
-    if p.Results.average
-        study(c).measure = permute(study(c).measure,[3 2 1]);         % reorder dimentions
-        study(c).measure = mean(study(c).measure,3);
-    else
-        study(c).measure = permute(study(c).measure,[3 1 2]);         % reorder dimentions
-    end
+    study(c).measure = res;
+    clear res
     fprintf('. Done!')
 end
 
-%% Save for export
+%% Prep for export & save(?)
 
-fprintf('\n\nSaving results..')
-for c = 1:length(study)
-    
-    for fr = 1:size(freqs,1)
-        if p.Results.average
-            measure_name{fr} = sprintf('%s_%s_ave', conditions{c}, freqs_name{fr});
-        else
-            for e = 1:length(electrodes)
-                measure_name{fr,e} = sprintf('%s_%s_%de', conditions{c}, freqs_name{fr},electrodes(e));
-            end
-        end
-    end
-    
-    if ~p.Results.average
-        measure_name = reshape(measure_name',1,[]);
-        study(c).measure = reshape(study(c).measure,size(study(c).measure,1),[]); 
-    end
-    
-    study(c).exp = array2table(study(c).measure, 'VariableNames', measure_name);   % convert results to table
-    study(c).exp = [study(c).IDs,study(c).exp];                                     % merge results with IDS
-    
-    clear measure_name
-end
-
-% Merge all conditions:
-results.(measure) = study(1).exp;
-
-for c = 2:length(study)
-    results.(measure) = outerjoin(results.(measure),study(c).exp,'MergeKeys',true);
-end
-
-% Add measuemnt info
-results.info = rmfield(p.Results,'study'); 
-
-%% Save to file
-
-if ~strcmpi(p.Results.save,'no')
-    fprintf('. Done!\n\n\n\nWriting to file..')
-    
-    save_data = results.(measure);
-    
-    if strcmpi(p.Results.save,'long')
-        % get number of IDs and columns
-        [nID, nCond] = size(save_data);
-        nCond = nCond-1;
-        
-        save_vals = table2array(save_data(:,2:end));
-        save_vals = reshape(save_vals,1,[])';
-        
-        % shape IDs
-        save_ID = repmat(table2cell(save_data(:,1)),nCond,1);
-        
-        % shape condition column
-        save_cond = save_data.Properties.VariableNames(2:end);
-        save_cond = repmat(save_cond,nID,1);
-        save_cond = reshape(save_cond,1,[])';
-        
-        % combine to long table
-        save_data = table(save_ID, save_cond, save_vals, 'VariableNames', {'ID','Condition',measure});
-    end
-    
-    results.info.freqs = freqs_name;
-    save_info = struct2table(results.info);
-    
-    
-    fn  = ['wavelet_' measure '_' datestr(datetime, 'yyyymmdd_HHMMSS')]; % file name
-    writetable(save_data,fn,'FileType','spreadsheet','Sheet',1) % write values
-    writetable(save_info,fn,'FileType','spreadsheet','Sheet',2) % write info
-end
-
-fprintf('. Done!\n\n')
+results = suppPrep4exportTF(measure,study,conditions,electrodes,freqs_name,p.Results);
 
 end
