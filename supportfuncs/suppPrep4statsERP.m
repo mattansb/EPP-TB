@@ -11,12 +11,21 @@ Change log:
 07-04-2018  New function (written in MATLAB R2015a)
 %}
 
-function [studyOut, T] = suppPrep4stats2(studyIn, conditions, electrodes, timeWindow, ave, jackknife, interpolate)
+function [studyOut, T] = suppPrep4statsERP(studyIn, conditions, electrodes, timeWindow, ave, jackknife, interpolate)
 
 %% Get only relevant conditions
 % cInd	= cellfun(@(x) find(ismember({studyIn(:).Condition}, x)), conditions);
 cInd    = cellfun(@(x) find(strcmp(x,{studyIn(:).Condition})), conditions);
 studyIn = studyIn(cInd);
+
+
+%% Find Time Window
+T    = dsearchn(studyIn(1).timeLine',timeWindow(1)); % closest point to start of defined time window
+if length(timeWindow)==2
+    T(2)    = dsearchn(studyIn(1).timeLine',timeWindow(2)); % closest point to end of defined time window
+    T       = T(1):T(2);
+end
+
 
 for c = 1:length(studyIn)
     %% Get only relevant electrodes
@@ -42,13 +51,6 @@ for c = 1:length(studyIn)
         
         studyIn(c).timeLine     = timeLine_2;       % save new time line
         studyIn(c).Data         = Data_2;           % save new data (interpolated!)
-    end
-    
-    %% Find Time Window
-    T    = dsearchn(studyIn(c).timeLine',timeWindow(1)); % closest point to start of defined time window
-    if length(timeWindow)==2
-        T(2)    = dsearchn(studyIn(c).timeLine',timeWindow(2)); % closest point to end of defined time window
-        T       = T(1):T(2);
     end
 
     %% Reduce dims

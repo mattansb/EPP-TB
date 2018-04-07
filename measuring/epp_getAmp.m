@@ -107,7 +107,7 @@ samplingRate = 1000/(study(1).timeLine(2) - study(1).timeLine(1));
 
 %% Prep data
 
-[study, timeWindow_ind] = suppPrep4stats2(study, conditions, electrodes, timeWindow,...
+[study, timeWindow_ind] = suppPrep4statsERP(study, conditions, electrodes, timeWindow,...
     p.Results.average, p.Results.jackknife, p.Results.interpolate);
 
 try
@@ -140,7 +140,7 @@ end
 
 %% Prep for export & save(?)
 
-[results, study] = suppPrep4export2(measure,study,conditions,electrodes,p.Results);
+[results, study] = suppPrep4exportERP(measure,study,conditions,electrodes,p.Results);
 
 %% Plot Results
 

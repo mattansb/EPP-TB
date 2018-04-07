@@ -116,7 +116,7 @@ parse(p ,study, conditions, electrodes, timeWindow, direction, varargin{:}); % v
 
 %% Orgenize Data Before Measuring
 
-[study, timeWindow_ind] = suppPrep4stats2(study, conditions, electrodes, timeWindow,...
+[study, timeWindow_ind] = suppPrep4statsERP(study, conditions, electrodes, timeWindow,...
     p.Results.average, p.Results.jackknife, p.Results.interpolate);
 
 try
@@ -153,7 +153,7 @@ end
 
 %% Prep for export & save(?)
 
-[results, study] = suppPrep4export2(measure,study,conditions,electrodes,p.Results);
+[results, study] = suppPrep4exportERP(measure,study,conditions,electrodes,p.Results);
 
 %% Plot Results
 

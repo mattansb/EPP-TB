@@ -13,7 +13,7 @@ Change log:
 25-11-2016  New function (written in MATLAB R2015a)
 %}
 
-function [results, study] = suppPrep4export2(measure,study,conditions,electrodes,pResults)
+function [results, study] = suppPrep4exportERP(measure,study,conditions,electrodes,pResults)
 
 fprintf('\n\nSaving results..')
 
