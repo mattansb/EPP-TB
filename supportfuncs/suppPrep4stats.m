@@ -8,6 +8,7 @@
 %{
 Change log:
 -----------
+07-04-2018  Added samplingRate calculation
 06-03-2018  Removed samplingRate & baseLine fields from study struct.
 29-01-2017  Support for sampling interpolation
 19-12-2016  Support for Jackknife adjustment
@@ -36,6 +37,8 @@ for c = 1:length(studyIn)
     
     %% Interpolate
     if interpolate~=1 % if any need for interpolation
+        samplingRate_2  = interpolate*1000/(studyIn(c).timeLine(2)-studyIn(c).timeLine(1));
+        
         timeLine_1      = studyIn(c).timeLine;                                              % old time line
         timeLine_2      = timeLine_1(1):(1000/samplingRate_2):timeLine_1(end);              % new time line
         Data_1          = permute(studyIn(c).Data,[2,1,3]);                                 % old data
