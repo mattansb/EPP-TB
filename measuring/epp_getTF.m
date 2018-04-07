@@ -94,7 +94,7 @@ for c = 1:length(study)
                 temp_data = abs(temp_data);
         end
         
-        study(c).measure(:,fr,:) = squeeze(mean(mean(temp_data,2),3));    % compute mean: across electrodes, time window & freq window
+        study(c).measure(:,fr,:) = squeeze(mean(mean(temp_data,2),3));    % compute mean: across time window & freq window
     end
     
     
