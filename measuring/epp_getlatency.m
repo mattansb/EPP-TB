@@ -256,8 +256,6 @@ if p.Results.plot
     suppPlotResults(study, timeWindow)
 end
 
-warning('======================================')
-warning('epp_getlatency is no longer supported.')
-warning('Use epp_getLat instead.')
-warning('======================================')
+warning('epp_getlatency is no longer supported. Use epp_getLat instead.')
+
 end

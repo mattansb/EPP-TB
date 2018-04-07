@@ -150,9 +150,6 @@ if p.Results.plot
     suppPlotResults(study, timeWindow)
 end
 
-warning('======================================')
-warning('epp_getamplitude is no longer supported.')
-warning('Use epp_getAmp instead.')
-warning('======================================')
+warning('epp_getamplitude is no longer supported. Use epp_getAmp instead.')
 
 end
