@@ -373,26 +373,33 @@ All plots can be exported to R and plotted with [`ggplot2`](https://github.com/t
 
 ## Measuring
 
-When saving, all are saved in a 2-sheet xlsx file, with the second sheet containing the parameters used in measuring - this is to insure reproducibility of results. Thus, if you have the output `.xlsx` file, you'll never find yourself asking "what was the time window we used last time?".
+Measuring can be done via the `epp_get*` functions. These are wrapper functions for the various `m_*` functions (with one functions per method), **which should not be called directly** (unless you know what you're doing).
+
+Saving results always produces a 2-sheet `.xlsx` file, with the second sheet containing the parameters used in measuring - this is to insure reproducibility of results. Thus, if you have the output `.xlsx` file, you'll never find yourself asking "what was the time window we used last time?".
 
 ### ERP Amplitude
 
-The function `epp_getamplitude` implements the methods for measuring amplitudes described in chapter 9 of [Steven J. Luck's intro to ERP book](https://mitpress.mit.edu/books/introduction-event-related-potential-technique-0).
+The function `epp_getAmp` implements the methods for measuring amplitudes described in chapter 9 of [Steven J. Luck's intro to ERP book](https://mitpress.mit.edu/books/introduction-event-related-potential-technique-0).
 
  - (Local) Peak amplitude
+ - Point amplitude
  - Mean amplitude
  - Integral
  - Area
 
+_Please note that `epp_getamplitude` is no longer supported and should not be used._
+
 ### ERP Latency
 
-The function `epp_getlatency` implements the methods for measuring latencies described in chapter 9 of [Steven J. Luck's intro to ERP book](https://mitpress.mit.edu/books/introduction-event-related-potential-technique-0), as well as those described in [Kiesel et al.'s Jakknife paper](http://onlinelibrary.wiley.com/doi/10.1111/j.1469-8986.2007.00618.x/abstract).
+The function `epp_getLat` implements the methods for measuring latencies described in chapter 9 of [Steven J. Luck's intro to ERP book](https://mitpress.mit.edu/books/introduction-event-related-potential-technique-0), as well as those described in [Kiesel et al.'s Jakknife paper](http://onlinelibrary.wiley.com/doi/10.1111/j.1469-8986.2007.00618.x/abstract).
 
 - (Local) Peak latency
 - Relative criterion
 - Fractional area
 - Baseline deviation
 - Absolute criterion
+
+_Please note that `epp_getlatency` is no longer supported and should not be used._
 
 ### TF Power
 
