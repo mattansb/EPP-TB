@@ -84,7 +84,7 @@ p = inputParser;
     addParameter(p,'interpolate',1, @isnumeric);
     
     switch lower(measure)
-        % case 'point' %????????????????????????????????????????????
+%         case 'point'
         case 'peak'
             addParameter(p,'direction', 1, @isnumeric);
             addParameter(p,'local', 1, @isnumeric);
@@ -118,7 +118,7 @@ for c = 1:length(study)
             study(c).amplitudes = permute(study(c).amplitudes,[3 1 2]);         % reorder dimentions
         case 'integral'
             study(c).amplitudes = sum(study(c).cutData,2);                      % compute integral
-            study(c).amplitudes = study(c).amplitudes/samplingRate;    % convert to mv/sec
+            study(c).amplitudes = study(c).amplitudes/samplingRate;             % convert to mv/sec
             study(c).amplitudes = permute(study(c).amplitudes,[3 1 2]);         % reorder dimentions
         case 'area'
             study(c).cutData = study(c).cutData-p.Results.boundary;             % offset by boundary
@@ -149,5 +149,10 @@ results = suppPrep4export(measure,study,conditions,electrodes,p.Results);
 if p.Results.plot
     suppPlotResults(study, timeWindow)
 end
+
+warning('======================================')
+warning('epp_getamplitude is no longer supported.')
+warning('Use epp_getAmp instead.')
+warning('======================================')
 
 end

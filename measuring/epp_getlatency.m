@@ -76,6 +76,7 @@
 %{
 Change log:
 -----------
+07-04-2018  Added error for baseline_deviation.
 06-03-2018  Removed samplingRate & baseLine fields from study struct.
 11-07-2017  Fix bug when measuring local peak with interpolation
 07-02-2017  Added support for data interpolating
@@ -84,7 +85,7 @@ Change log:
 %}
 
 function results = epp_getlatency(measure,study,conditions, electrodes,timeWindow,direction,varargin)
-% aa = tic;
+
 %% Validate
 
 p = inputParser;
@@ -109,8 +110,10 @@ p = inputParser;
         case 'baseline_deviation' % first pass of X sd (measured in the baseline)
             addParameter(p,'criterion',1,@isnumeric); % required!!
             addParameter(p,'baseline',1,@isnumeric); % required!!
+            error('DO NOT USE THIS METHOD HERE! USE epp_getLat instead!')
         case 'absolute_criterion'
             addParameter(p,'criterion',1,@isnumeric); % required!!
+            error('DO NOT USE THIS METHOD HERE! USE epp_getLat instead!')
         case 'fractional_area'
             addParameter(p,'area',0,@isnumeric);
             addParameter(p,'percentage',0.5,@isnumeric);
@@ -253,5 +256,8 @@ if p.Results.plot
     suppPlotResults(study, timeWindow)
 end
 
-% toc(aa)
+warning('======================================')
+warning('epp_getlatency is no longer supported.')
+warning('Use epp_getLat instead.')
+warning('======================================')
 end
