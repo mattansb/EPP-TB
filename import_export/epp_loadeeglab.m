@@ -22,7 +22,7 @@
 % 'wavelet'     - if true, will compute ersp and itc for each file.
 % 'savePath'    - char-vector of a folder in cd into which converted files
 %                 will be saved. If the folder contains any '.eppf' files,
-%                 these will be also be combined. (If the run colapses - as
+%                 these will be also be combined. (If the run crashes - as
 %                 might happen with wavelet analysis - you can pick off
 %                 from where it stopped.)
 %                 If not specified, a folder with a random name will be
@@ -101,6 +101,8 @@ if p.Results.wavelet
         'dB',waveletVars.db==1,...
         'downsample',waveletVars.Downsample,...
         };
+else
+    waveletVars = p.Results.waveletVars;
 end
 
 % load eeglab
