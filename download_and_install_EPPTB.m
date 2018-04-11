@@ -22,6 +22,22 @@ if save_path==0
     error('Aborted download...')
 end
 
+% Rmoving old version
+path_list   = strsplit(path,";")';
+path_ind    = contains(path_list,'EPP-TB','IgnoreCase',true);
+unin_txt    = '';
+if any(path_ind)
+    fprintf(['Uninstalling old version of EPP-TB\n'])
+    EPP_path_list = path_list(path_ind);
+    for p = 1:length(EPP_path_list)
+        rmpath(EPP_path_list{p})
+    end
+    fprintf(['\b... Done.\n'])
+    unin_txt = ['Previous version on EPP-TB was uninstalled, but files '...
+        'may still be locally saved on your computer.)'];
+end
+
+
 % Download .zip file
 fprintf(['Downloading .zip from GitHub\n'])
 download_url    = 'https://api.github.com/repos/mattansb/EPP-TB/zipball';
@@ -47,7 +63,11 @@ fprintf([...
     '\n\tWelcome to EPP-TB!'...
     '\n\tGet started by reading the <a href="https://github.com/mattansb/EPP-TB">README</a> file.'...
     '\n\t======================================='...
-    '\n'...
+    '\n\n'...
     ])
+
+if ~isempty(unin_txt)
+    warning(unin_txt)
+end
 
 end
