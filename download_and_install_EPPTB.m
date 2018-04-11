@@ -4,6 +4,14 @@
 % ------
 % download_and_install_EPPTB()
 %
+% Process:
+%   1.  Ask user to select a folder to install EPP-TB.
+%   2.  Download the latest stable version of EPP-TB from GitHub.
+%   3.  If a previous version is installed, will remove from Matlab path
+%       (but wont delete the files.)
+%   4.  Add the downloaded functions' paths to Matlab paths.
+%   5.  Say hi (:
+%
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
 
@@ -60,7 +68,7 @@ fprintf(['\b... Done.\n'])
 % Say hi!
 fprintf([...
     '\n\t======================================='...
-    '\n\tWelcome to EPP-TB!'...
+    '\n\tWelcome to EPP-TB! (:'...
     '\n\tGet started by reading the <a href="https://github.com/mattansb/EPP-TB">README</a> file.'...
     '\n\t======================================='...
     '\n\n'...
