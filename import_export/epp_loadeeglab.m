@@ -42,6 +42,7 @@
 %{
 Change log:
 -----------
+11-04-2018  Added errors when subject ID
 20-03-2018  Fix naming of subject files.
 06-03-2018  New function (written in MATLAB R2017a)
 %}
@@ -56,6 +57,11 @@ p = inputParser;
     addParameter(p,'waveletVars', [], @isstruct)
     addParameter(p,'combine', true, @islogical)
 parse(p, EEG_list, varargin{:}); % validate
+
+if p.Results.wavelet || p.Results.ERP || p.Results.combine
+    error('You seem to have called the function without asking it to make ERPs or Wavelets. Oops?')
+end
+
 
 % Wavelet parameters
 % ------------------
@@ -110,7 +116,6 @@ end
 eeglab redraw
 close
 
-
 %% Set up temp dir
 
 % folder name
@@ -126,53 +131,67 @@ if ~exist(savePath,'dir')
 end
 
 %% Run on all files
+
 nFiles = length(EEG_list);
 
-for f = 1:nFiles
-    %% Load
-    temp_EEG = pop_loadset('filename',EEG_list{f});
-    
-    % condition name
-    cond_parts = {temp_EEG.condition,temp_EEG.group};
-    cond_parts = cond_parts(~cellfun(@isempty, cond_parts));
-    
-    output.Condition    = strjoin(cond_parts,'_');
-    output.IDs          = table({temp_EEG.subject},temp_EEG.trials,'VariableNames',{'ID' 'nTrials'});
-    
-    %% ERP
-    if p.Results.erp
-        output.Data     = mean(temp_EEG.data,3);
-        output.timeLine = temp_EEG.times;
-    end
-    
-    %% Wavelet
-    if p.Results.wavelet
-        [power,itpc,frex,times] = suppWaveletConv3(temp_EEG,...
-            res_wave{:},...
-            'sound','off');
+if p.Results.wavelet || p.Results.ERP
+    for f = 1:nFiles
+        % Load and validate sub\group\condition
+        % =====================================
+        temp_EEG = pop_loadset('filename',EEG_list{f});
         
-        output.ersp     = power;
-        output.itc      = itpc;
-        output.freqs    = frex;
-        output.timeLine = times;
+        if isempty(output.Condition)
+            error('Undefined EEG.condition or EEG.group (at least one must be defined)')
+        end
         
-        clear power itpc frex times
+        if isempty(temp_EEG.condition) && isempty(temp_EEG.group)
+            error('EEG.condition and EEG.group are both missing (Need at least one of them).')
+        elseif isempty(temp_EEG.subject)
+            error('EEG.subject not speficied.')
+        end
+        
+        cond_parts          = {temp_EEG.condition,temp_EEG.group};
+        cond_parts          = cond_parts(~cellfun(@isempty, cond_parts));
+        output.Condition    = strjoin(cond_parts,'_');
+        output.IDs          = table({temp_EEG.subject},temp_EEG.trials,'VariableNames',{'ID' 'nTrials'});
+        
+        
+        
+        % ERP
+        %====
+        if p.Results.erp
+            output.Data     = mean(temp_EEG.data,3);
+            output.timeLine = temp_EEG.times;
+        end
+
+        % Wavelet
+        % =======
+        if p.Results.wavelet
+            [power,itpc,frex,times] = suppWaveletConv3(temp_EEG,...
+                res_wave{:},...
+                'sound','off');
+
+            output.ersp     = power;
+            output.itc      = itpc;
+            output.freqs    = frex;
+            output.timeLine = times;
+
+            clear power itpc frex times
+        end
+
+        %% Save
+        fname = [output.IDs.ID{:} '.eppf'];
+
+        if exist(fullfile(savePath, fname))==2
+            output1 = output;
+            load(fullfile(savePath, fname), '-mat')
+            output(end+1) = output1;
+        end
+
+        save(fullfile(savePath, fname), 'output','-mat');
+
+        clear output output1 fname fname_parts cond_parts temp_EEG
     end
-    
-    %% Save
-    fname = [output.IDs.ID{:} '.eppf'];
-    
-    if exist(fullfile(savePath, fname))==2
-        output1 = output;
-        load(fullfile(savePath, fname), '-mat')
-        output(end+1) = output1;
-    end
-    
-    save(fullfile(savePath, fname), 'output','-mat');
-    
-    clear output output1 fname fname_parts cond_parts temp_EEG
-    
-    
 end
 
 %% Combine all files
