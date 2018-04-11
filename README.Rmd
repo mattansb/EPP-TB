@@ -1,0 +1,419 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# EPP-TB: The ERP Post-Processing Tool Box <img src="doc\logo.png" align="right"/>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.path = "doc/")
+
+library(tidyverse)
+library(magrittr)
+library(scales)
+library(patchwork)
+
+```
+
+Once completing pre-processing in eeglab/erplab/Net Station, you're ready to get to the fun stuff: plotting and measuring with EPP-TB!
+This package is aimed at simple (readable), concise (one function per action) and reproducible code writing.
+Additionally, a major component is the ability to export data and plots to be used and further manipulated elsewhere (say, `ggplot2`?).
+
+All user-end functions start with `epp_*`.
+
+## Getting Started
+
+### Prerequisites
+
+To use EPP-TB you will need:
+
+* Matlab (2015a+).
+* [eeglab](https://sccn.ucsd.edu/eeglab/index.php) (14.X.X) for importing `.set` files, and plotting topos.
+* R (for plotting in R)  
+    + [`tidyverse`](https://github.com/tidyverse/tidyverse) + [`purrr`](https://github.com/tidyverse/purrr).
+    + [`scales`](https://github.com/hadley/scales) for plotting in R.
+    + [`mgcv`](https://cran.r-project.org/package=mgcv) for plotting topo plots.
+
+### Installing
+
+Download [`download_and_install_EPPTB.m`](./download_and_install_EPPTB.m)and run it in Matlab. This will download the latest stable version of EPP-TB and add it to your Matlab paths.
+
+Alternatively, you can install the package by [downloading](https://github.com/mattansb/EPP-TB/releases) and adding the EPP-TB folder (and sub-folders) to your Matlab paths manually (but why would you wanna do that?).
+
+## Importing Data into an EPP structure
+
+Three import methods are currently supported:
+
+- `epp_loadeeglab` - Import multiple `.set` files from eeglab (supports wavelet analysis based on [Mike X. Cohen's great book and code](http://www.mikexcohen.com/)).
+- `epp_loaderplab` - Import from [erplab](http://www.erpinfo.org/erplab.html).
+- `epp_loadegimat` - Import multiple `.mat` files exported from Net Station (EGI).
+
+The resulting structure array has `length(struct)` equal to the number of conditions, and contains the following fields, per condition:
+
+- **Condition**: the name of the conditions.
+- **timeLine**: a vector of time points.
+- **IDs**: a table with two variables - _**ID**_ and _**nTrials**_ (the number of trials a ERP has been averaged across).
+- **Data**: a channels$\times$`length(timeLine)`$\times$`length(IDs)` matrix for ERP data.
+
+If a wavelet analysis has been preformed, the Data field is replaced with:
+
+- **Freqs**: a vector of frequencies used.
+- **ersp** and **itc**: channels$\times$`length(Freqs)`$\times$`length(timeLine)`$\times$`length(IDs)` matrices.
+
+### Data Reduction
+
+These functions can be used to compute new conditions or manipulate existing data:
+
+- Merge 2 or more conditions with `epp_combineconds`.
+- Compute differences between 2 conditions with `epp_diffwave`.
+- Compute LRP with `epp_LRP`
+- Compute global field potentials with `epp_GFP`.
+
+
+
+## Plotting
+
+### ERP Plots
+
+#### Grand averages
+Grand averages can be plotted by specifying the conditions and channel indices (averaged across) to plot:
+
+```Matlab
+conds         = {'Control_Crr_plus','Control_L5_plus'};
+channel_inds  = [5 6 11 12];
+epp_plotgrands(study,conds,channel_inds)
+```
+
+```{r grand_plot}
+
+grand_data <- read_csv("doc/grand_plot_data.csv") %>%    # load the data file
+  as.tbl() %>% 
+  mutate_at(.vars = c("Time","mean","sd"), .funs = as.numeric) %>% 
+  mutate(Condition = as.factor(Condition),
+         N  = as.integer(N),
+         se = sd/sqrt(N))
+
+grand_data %>% 
+  ggplot(aes(x = Time, y = mean,
+             color = Condition, fill = Condition,
+             group = Condition)) + geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0) +
+  geom_line() + 
+  scale_x_continuous(expand = c(0, 0)) +
+  labs(x = "Time", y = expression(paste(mu,"V")))
+
+```
+
+
+You can also plot error envelopes:
+
+```Matlab
+epp_plotgrands(study,conds,channel_inds,'errorType','SE')
+% can also be set to 'SD' or 'CIXX' 
+% (with XX replaced with any percent: 'CI95','CI80', etc...).
+```
+
+```{r grand_plot_se}
+grand_data %>% 
+  ggplot(aes(x = Time, y = mean,
+             color = Condition, fill = Condition,
+             group = Condition)) + geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0) +
+  geom_ribbon(aes(ymin = mean-se, ymax = mean+se),
+              alpha = 0.25, color = NA) + 
+  geom_line() + 
+  scale_x_continuous(expand = c(0, 0)) +
+  labs(x = "Time", y = expression(paste(mu,"V")))
+```
+
+
+#### Topo Plots
+
+Topo plotting is dependent on eeglab functions. Additionally, you will need to provide a eeglab-like chanlocs structure to these functions, with `length(chanlocs)==size(study.Data,1)`.
+
+```Matlab
+times = [185];
+epp_plottopo(study,chanlocs,conds,channel_inds,times)
+```
+```{r topo_plot}
+
+raw.data <- read.csv("doc/topo_plot_data.csv") %>%
+  as.tbl() %>% 
+  mutate(Condition   = as.factor(Condition),
+         # convert Theta and Radius to (x,y)
+         radianTheta = pi/180*Theta,
+         x           = Radius*sin(radianTheta),
+         y           = Radius*cos(radianTheta),
+         r           = sqrt(x^2 + y^2))
+
+expand.topo <- function(data, gridRes = NULL) {
+  library(mgcv)
+  if (is.null(gridRes))
+    gridRes <- data[[1]] %$% unique(Channel) %>% {length(.)/2}
+  
+  res <- list()
+  for (c in 1:length(data)) {
+    LL <- data[[c]]
+    
+    minx <- min(LL$x)*1.1
+    miny <- min(LL$y)*1.1
+    maxx <- max(LL$x)*1.1
+    maxy <- max(LL$y)*1.1
+    
+    tmp.GAM <- expand.grid(x = seq(minx*1.05,maxx*1.05,length = gridRes),
+                           y = seq(miny*1.05,maxy*1.05,length = gridRes)) %>%
+      data.frame()
+    
+    tmp.GAM$Amp <- LL %>%
+      gam(Amp ~ s(x, y, bs = 'ts'), data = .) %>% 
+      predict(tmp.GAM, type = "response")
+    res[[c]] <- tmp.GAM %>% 
+      filter(sqrt(x^2 + y^2) <= max(diff(range(x)),diff(range(y)))/2)
+    rm(tmp.GAM)
+  }
+  return(res)
+}
+
+circleFun <- function(diameter = 1, center = c(0,0), npoints = 100) {
+  r  <- diameter / 2
+  tt <- seq(0,2*pi,length.out = npoints)
+  xx <- center[1] + r * cos(tt)
+  yy <- center[2] + r * sin(tt)
+  return(data.frame(x = xx, y = yy))
+}
+
+# Topo theme
+theme_topo <- function(base_size = 12) {
+  theme_bw(base_size = base_size) %+replace%
+    theme(rect       = element_blank(),
+          line       = element_blank(),
+          axis.text  = element_blank(),
+          axis.title = element_blank()
+    )
+}
+
+chanlocs <- raw.data %>% 
+  select(Channel, x, y) %>%
+  distinct()
+
+diam      <- chanlocs %$%
+  max(diff(range(x)),diff(range(y))) # can be adjusted
+head <- list()
+head$shape <- circleFun(diam*0.75)
+head$mask  <- circleFun(diam*1.15)
+head$nose  <- data.frame(x = c(-.075,0,.075),
+                         y = c(-.005,.075,-.005) + max(head$shape$y))
+
+topo.data <- raw.data %>% 
+  group_by(Condition,TimePnt) %>% 
+  select(Condition,TimePnt,Channel,x,y,Amp) %>% 
+  nest() %>%
+  mutate(data = expand.topo(data)) %>% 
+  unnest()
+
+ggplot(topo.data,aes(x, y)) +
+  ## The Topos
+  geom_raster(aes(fill = Amp))+
+  facet_grid(TimePnt~Condition) +
+  ## The Head
+  geom_path(data = head$mask, color = "white",size = 4) +
+  geom_path(data = head$nose, size = 1.5) +
+  geom_path(data = head$shape, size = 1.5) +
+  ## The Channels
+  geom_point(data = chanlocs) +
+  ## Design
+  scale_fill_distiller(palette = "RdYlBu", direction = -1,
+                       limits = range(topo.data$Amp), oob = squish) +
+  labs(fill = "Amplitude") +
+  theme_topo() +
+  coord_equal()
+
+```
+
+#### Butterfly and Trace Plots
+
+Butterfly plots can be used to plot the mean ERP for each subject individually.
+
+```Matlab
+epp_plotbutterfly(study,conds,channel_inds)
+```
+
+```{r butterfly_plot}
+
+butterfly_data <- read_csv("doc/butterfly_plot_data.csv") %>% # load the data file
+  group_by(Condition,Time) %>% 
+  mutate(meanAmp = mean(amp)) %>% 
+  ungroup()
+
+butterfly_data %>% 
+  ggplot(aes(x = Time, y = amp,
+             color = Condition,
+             group = ID)) + 
+  facet_wrap(~Condition) +
+  geom_vline(xintercept = 0) + 
+  geom_hline(yintercept = 0) + 
+  geom_line(alpha = 0.8) + 
+  geom_line(aes(y = meanAmp), color = "black", size = 1) +
+  scale_x_continuous(expand = c(0, 0)) +  
+  labs(x = "Time", y = expression(paste(mu,"V"))) 
+
+```
+
+
+Trace plots are similar to butterfly plots, but the mean activation (across subjects) is plotted for each channel separately.
+
+```Matlab
+epp_plotbutterfly(study,conds,channel_inds,'all',true)
+% if channels are indicated, they are ignored.
+```
+```{r trace_plot}
+
+trace_data <- read_csv("doc/trace_plot_data.csv")
+
+trace_data %>% 
+  ggplot(aes(x = Time, y = amp,
+             color = Condition,
+             group = ID)) + 
+  facet_wrap(~Condition) +
+  geom_vline(xintercept = 0) + 
+  geom_hline(yintercept = 0) + 
+  geom_line(alpha = 0.8) + 
+  scale_x_continuous(expand = c(0, 0)) + 
+  labs(x = "Time", y = expression(paste(mu,"V"))) 
+
+```
+
+### TF Plots
+
+Time Frequency plots plot both ersp and itc:
+
+```Matlab
+epp_plotTF(study,conds,channel_inds)
+```
+
+```{r TFplot}
+
+TF_data <- read_csv("doc/TFplot_data.csv")
+
+
+# Plot --------------------------------------------------------------------
+
+# Use geom_raster to plot y-axis scale as is
+ersp <- ggplot(TF_data,aes(Time, Frequencies, fill = ersp)) + # or fill = itc
+  geom_raster(interpolate = T) +
+  facet_grid(.~Condition) +
+  scale_y_log10(breaks = sort(unique(TF_data$Frequencies))[seq(1,50, by = 4)] %>% round()) + # if Frequencies are log-spaced
+  scale_fill_distiller(palette = "OrRd", limits = c(-1,2), oob = squish)
+
+itc <- ggplot(TF_data,aes(Time, Frequencies, fill = itc)) + # or fill = itc
+  geom_raster(interpolate = T) +
+  facet_grid(.~Condition) +
+  scale_y_log10(breaks = sort(unique(TF_data$Frequencies))[seq(1,50, by = 4)] %>% round()) + # if Frequencies are log-spaced
+  scale_fill_distiller(palette = "OrRd", oob = squish)
+
+
+ersp / itc
+
+```
+
+Topo Plots-  is a wrapper around `epp_plottopo`.
+Need to specify bands:
+
+```Matlab
+bands = [4, 8; 8, 12];
+% a matrix of frequencies, with each row containing a range of frequencies
+% to plot (1st column is lower limit, 2nd column is upper limit of band).
+epp_plottopoTF(study,chanlocs,conds,channel_inds,times,bands)
+```
+```{r TFtopo}
+raw.data <- read.csv("doc/TFtopo_data.csv") %>%
+  as.tbl() %>% 
+  mutate(Condition   = as.factor(Condition),
+         # convert Theta and Radius to (x,y)
+         radianTheta = pi/180*Theta,
+         x           = Radius*sin(radianTheta),
+         y           = Radius*cos(radianTheta),
+         r           = sqrt(x^2 + y^2))
+  
+
+topo.data <- raw.data %>% 
+  group_by(Condition,TimePnt) %>% 
+  select(Condition,TimePnt,Channel,x,y,Amp) %>% 
+  nest() %>%
+  mutate(data = expand.topo(data)) %>% 
+  unnest()# %>% 
+  # separate(Condition, into = c("Group","Level","Oper","Freq")) %>% 
+  # unite("Condition",Group:Oper)
+
+ggplot(topo.data,aes(x, y)) +
+  ## The Topos
+  geom_raster(aes(fill = Amp))+
+  facet_grid(TimePnt~Condition) +
+  ## The Head
+  geom_path(data = head$mask, color = "white",size = 4) +
+  geom_path(data = head$nose, size = 1.5) +
+  geom_path(data = head$shape, size = 1.5) +
+  ## The Channels
+  geom_point(data = chanlocs) +
+  ## Design
+  scale_fill_distiller(palette = "OrRd",
+                       limits = c(-1,2), oob = squish) +
+  labs(fill = "Amplitude") +
+  theme_topo() +
+  coord_equal()
+
+```
+
+### Exporting to R
+
+All plots can be exported to R and plotted with [`ggplot2`](https://github.com/tidyverse/ggplot2) by setting `'R',true` in any of the plotting function. This produces two time-stamped files: 
+
+- A data file (`*_data.csv`)
+- A code file (`*_code.R`), to plot said data using `ggplot2`.
+
+
+## Measuring
+
+Measuring can be done via the `epp_get*` functions. These are wrapper functions for the various `m_*` functions (with one functions per method), **which should not be called directly** (unless you know what you're doing).
+
+Saving results always produces a 2-sheet `.xlsx` file, with the second sheet containing the parameters used in measuring - this is to insure reproducibility of results. Thus, if you have the output `.xlsx` file, you'll never find yourself asking "what was the time window we used last time?".
+
+### ERP Amplitude
+
+The function `epp_getAmp` implements the methods for measuring amplitudes described in chapter 9 of [Steven J. Luck's intro to ERP book](https://mitpress.mit.edu/books/introduction-event-related-potential-technique-0).
+
+ - (Local) Peak amplitude
+ - Point amplitude
+ - Mean amplitude
+ - Integral
+ - Area
+
+_Please note that `epp_getamplitude` is no longer supported and should not be used._
+
+### ERP Latency
+
+The function `epp_getLat` implements the methods for measuring latencies described in chapter 9 of [Steven J. Luck's intro to ERP book](https://mitpress.mit.edu/books/introduction-event-related-potential-technique-0), as well as those described in [Kiesel et al.'s Jakknife paper](http://onlinelibrary.wiley.com/doi/10.1111/j.1469-8986.2007.00618.x/abstract).
+
+- (Local) Peak latency
+- Relative criterion
+- Fractional area
+- Baseline deviation
+- Absolute criterion
+
+_Please note that `epp_getlatency` is no longer supported and should not be used._
+
+### TF Power
+
+The function `epp_getTF` measure the *mean* ersp / itc from selected channels, within a specified time-window,separately for specified frequency bands (as shown above, for `epp_plottopoTF`).
+
+## Authors
+
+- **Mattan S. Ben-Shachar** [aut, cre].
+- **Rachel Rac** [ctb].
+
+## Acknowledgments
+
+- **Mike X. Cohen** - who's [code](http://www.mikexcohen.com/) was implemented in `suppWaveletConv3.m`.
+- **Matt Craddock** - who's [code](https://craddm.github.io/blog/2017/02/25/EEG-topography) was implemented in `epp_plottopo.R`.
+- **Winston Chang** - who's [code](http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/) for computing within-subject (and mixed model) CI's was implemented in `epp_plotgrands.m`.

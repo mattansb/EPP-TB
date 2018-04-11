@@ -3,7 +3,7 @@
 %
 % FORMAT
 % ------
-% study = epp_load(type,nchan,baseLine)
+% study = epp_loadegimat(type,nchan,baseLine)
 %
 % 
 %
@@ -35,7 +35,7 @@
 %                   6. IDs - table containing IDs of subject in the
 %                      condition. (ONLY IF USING THE 'MULTI' OPTION)
 %
-% See also epp_erplab_import
+% See also epp_loaderplab, epp_loadeeglab
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -43,13 +43,14 @@
 %{
 Change log:
 -----------
+06-03-2018  Removed samplingRate & baseLine fields from study struct.
 07-05-2017  Minor fix for importing data that was exported badly from NS
 22-01-2017  Minor fix for selecting data
 26-11-2016  Fix ID names, so saved without file extention
 25-11-2016  New function (written in MATLAB R2015a)
 %}
 
-function study = epp_load(type,nchan,baseLine)
+function study = epp_loadegimat(type,nchan,baseLine)
 
 %% Validate
 p = inputParser;
@@ -74,12 +75,9 @@ matF = matfile(fullfile(File.Path, File.Name));
 for c = 1:length(CondVars) % for each condition
     ERPs(c).Condition       = CondVars{c};          % save condition name
     ERPs(c).Data            = matF.(CondVars{c});   % load data
-    
-    ERPs(c).samplingRate    = matF.samplingRate;    % save sampling rate
-    ERPs(c).baseLine        = baseLine;             % save base line length
-    
+            
     % Calculate time-line baed on base-line and sampling rate:
-    Hz = 1000/(ERPs(c).samplingRate);
+    Hz = 1000/(matF.samplingRate);
     if baseLine<0
         ERPs(c).timeLine    = baseLine:Hz:Hz*size(ERPs(c).Data,2)+baseLine-1; % this is better than using linspace(bl,x2,n)
     elseif baseLine>0
@@ -117,12 +115,9 @@ for s = 1:length(File.Name)
         if ~any(strcmpi(CondVars{c},{ERPs(:).Condition})) % if condition hasn't been previously loaded:
             ERPs(end+1).Condition   = CondVars{c};          % add new condition (name)
             ERPs(end).Data          = temp_data;   % load data
-            
-            ERPs(end).samplingRate  = matF.samplingRate;    % save sampling rate
-            ERPs(end).baseLine      = baseLine;             % save base line length
-
+                       
             % Calculate time-line baed on base-line and sampling rate:
-            Hz = 1000/(ERPs(end).samplingRate);
+            Hz = 1000/(matF.samplingRate);
             if baseLine<0
                 ERPs(end).timeLine    = baseLine:Hz:Hz*size(ERPs(end).Data,2)+baseLine-1; % this is better than using linspace(bl,x2,n)
             elseif baseLine>0

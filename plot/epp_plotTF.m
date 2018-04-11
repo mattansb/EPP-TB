@@ -17,13 +17,15 @@
 % The available parameters are as follows:
 %           'scale'         - 'linear','log'. Y axis scale type (default:
 %                             'linear'). 
+%           'erspmaplimits' - [min max] values for the ersp color scale.
+%           'itcmaplimits'  - [min max] values for the itc color scale.
 %           'R'             - if true, plot data is saved into a csv file
 %                             in the current directory + an R file with
 %                             code to plot your data. (in R you can
 %                             continue to format you plot - colors,
 %                             annotations, etc.)
 %
-% See also epp_plotbutterfly, epp_plottopo, epp_plotgrands
+% See also epp_plotbutterfly, epp_plotgrands, epp_plottopo, epp_plottopoTF
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -31,6 +33,7 @@
 %{
 Change log:
 -----------
+15-03-2018  Fix and improvment to color limits
 05-03-2018  Fix title printing
 28-02-2018  ITC (abs) is now computed in function, to allow for the
             combination of conditions.
@@ -48,6 +51,8 @@ p = inputParser;
     addRequired(p,'electrodes',@(x) isvector(x) && isnumeric(x));
     addParameter(p,'scale', 'linear', @(x) any(strcmpi(x,{'linear','log'})))
     addParameter(p,'R', false, @islogical)
+    addParameter(p,'erspmaplimits',nan,@isnumeric)
+    addParameter(p,'itcmaplimits',nan,@isnumeric)
 parse(p, study, conditions, electrodes, varargin{:}); % validate
 
 %% Get only relevant conditions (in order!)
@@ -75,6 +80,21 @@ end
 times   = study(c).timeLine;
 frex    = study(c).freqs;
 ytick   = round(logspace(log10(frex(1)),log10(frex(end)),10)*100)/100;
+
+% Set ERSP color lims
+if ~isnan(p.Results.erspmaplimits)
+    ersp_range = p.Results.erspmaplimits;
+else
+    ersp_range = [min(ersp_min) max(ersp_max)];
+end
+
+% Set ITC color lims
+if ~isnan(p.Results.itcmaplimits)
+    itc_range = p.Results.itcmaplimits;
+else
+    itc_range = [min(itc_min) max(itc_max)];
+end
+    
 %% Plot
 
 figure() % open new fig
@@ -86,6 +106,7 @@ for c = 1:length(conditions) % for each condition
     contourf(times,frex,ersp(c).data',40,'linecolor','none');
     set(gca,'ytick',ytick,'yscale',p.Results.scale)
     colormap(hot)                                                       % set colot to 'hot'
+    caxis(ersp_range)
     
     if c == 1 % if this is the first plot
         xlabel('Time (ms)')
@@ -107,7 +128,9 @@ for c = 1:length(conditions) % for each condition
     subplot(2,length(conditions),length(conditions)+c)              % new subplot
     contourf(times,frex,itc(c).data',40,'linecolor','none')
     set(gca,'ytick',ytick,'yscale',p.Results.scale)
-    colormap(hot)                                                   % set colot to 'hot'
+    colormap(hot)
+    caxis(itc_range)
+    % set colot to 'hot'
     set(gca,'YDir','normal')
     if c == 1 % if this is the first plot
         cl              = colorbar('west','AxisLocation','out');

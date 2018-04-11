@@ -2,9 +2,6 @@
 % is called internaly by them when needed.
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
-%
-% See also epp_getamplitude & epp_getamplitude
-
 %{
 Change log:
 -----------

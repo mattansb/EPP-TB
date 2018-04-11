@@ -7,9 +7,6 @@
 % ------
 % DIFF = epp_diffwave(study, conditions)
 %
-% The available parameters are as follows:
-%           'name'      - name of new combined condition. Defults is to
-%                         concatenate the condition names.
 %
 % INPUTS
 % ------
@@ -17,12 +14,19 @@
 % conditions    - cell list of conditions to be plotted. Must correspond to
 %                 conditions in study(:).Condition.(e.g. {'freq', 'rare'}).
 %
+% The available parameters are as follows:
+%           'name'      - name of new combined condition. Defults is to
+%                         concatenate the condition names.
+%
+% See also epp_combineconds, epp_LRP, epp_GFP
+%
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
 
 %{
 Change log:
 -----------
+20-03-2018  Fix documentation.
 05-03-2018  Added support for TF data
             Added ability to name output condition.
 22-03-2017  Better naming of diffwave condition

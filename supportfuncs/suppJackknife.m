@@ -2,9 +2,6 @@
 % internaly by measument supplumetary functions.
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
-%
-% See also epp_getamplitude & epp_getamplitude
-
 %{
 Change log:
 -----------
@@ -25,7 +22,6 @@ switch d
         end
     case 'out'
         for ob = 1:size(dataIn,2) % each electrode
-    %         N = sum(~isnan(study(c).measure(:,ob)))
             N = length(dataIn(:,ob));
             J = nanmean(dataIn(:,ob));
 
