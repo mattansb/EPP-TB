@@ -59,7 +59,7 @@ p = inputParser;
     addParameter(p,'combine', true, @islogical)
 parse(p, EEG_list, varargin{:}); % validate
 
-if p.Results.wavelet || p.Results.ERP || p.Results.combine
+if ~(p.Results.wavelet || p.Results.ERP || p.Results.combine)
     error('You seem to have called the function without asking it to make ERPs or Wavelets. Oops?')
 end
 
