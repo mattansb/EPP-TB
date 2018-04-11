@@ -68,7 +68,7 @@
 % ||    fractional_area     r = 0.99        e = 1.15            ||
 %  ==============================================================
 %
-% See also epp_getamplitude
+% See also epp_getAmp, epp_getTF
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -143,7 +143,7 @@ for c = 1:length(study)
                 res(ie) = m_latAbsolute_criterion(study(c).Data(:,ie),timeWindow_ind,...
                     direction,study(c).timeLine,p.Results.criterion);
             case 'fractional_area'
-                res(ie) = m_latfractional_area(study(c).Data(:,ie),timeWindow_ind,...
+                res(ie) = m_latFractional_area(study(c).Data(:,ie),timeWindow_ind,...
                     direction,p.Results.boundary,study(c).timeLine,p.Results.percentage);
         end
     end

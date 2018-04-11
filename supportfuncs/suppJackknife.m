@@ -2,9 +2,6 @@
 % internaly by measument supplumetary functions.
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
-%
-% See also epp_getamplitude & epp_getamplitude
-
 %{
 Change log:
 -----------

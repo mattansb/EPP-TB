@@ -23,7 +23,7 @@
 %                   4. IDs - table containing IDs of subject in the
 %                      condition.
 %
-% See also epp_loadegimat
+% See also epp_loadegimat, epp_loadeeglab
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel

@@ -1,4 +1,19 @@
-function res = m_latfractional_area(data,timeWindow_ind,direction,boundary,times,percentage)
+% PURPOSE:  measure latency (Fractional area)
+%
+% FORMAT
+% ------
+% res = m_latFractional_area(data,timeWindow_ind,direction,boundary,times,percentage)
+%
+% See also epp_getLat
+%
+% Author: Mattan S. Ben Shachar, BGU, Israel
+%{
+Change log:
+-----------
+11-04-2018  Added help
+07-04-2018  New function (written in MATLAB R2017a)
+%}
+function res = m_latFractional_area(data,timeWindow_ind,direction,boundary,times,percentage)
 
 try
     data = data-boundary;

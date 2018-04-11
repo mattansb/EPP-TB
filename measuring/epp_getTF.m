@@ -26,6 +26,11 @@
 %           'save'          - 'long' / 'wide'; will save the results in the
 %                             current directory in the specified format.
 %
+% See also epp_getAmp, epp_getLat
+%
+%
+% Author: Mattan S. Ben Shachar, BGU, Israel
+%
 %{
 Change log:
 -----------

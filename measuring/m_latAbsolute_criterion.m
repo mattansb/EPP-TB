@@ -1,3 +1,18 @@
+% PURPOSE:  measure latency (Absolute criterion)
+%
+% FORMAT
+% ------
+% res = m_latAbsolute_criterion(data,timeWindow_ind,direction,times,criterion)
+%
+% See also epp_getLat
+%
+% Author: Mattan S. Ben Shachar, BGU, Israel
+%{
+Change log:
+-----------
+11-04-2018  Added help
+07-04-2018  New function (written in MATLAB R2017a)
+%}
 function res = m_latAbsolute_criterion(data,timeWindow_ind,direction,times,criterion)
 
 try

@@ -56,7 +56,7 @@
 % ||    area            r = 0.99        e = 0.00                ||
 %  ==============================================================
 %
-% See also epp_getlatency
+% See also epp_getLat, epp_getTF
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel

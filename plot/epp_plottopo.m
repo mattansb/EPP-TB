@@ -28,7 +28,7 @@
 %           'smooth'        - {num,'ms'} | {num,'sample'} avarage on each
 %                             side of each time point. 
 %
-% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF
+% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopoTF
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel

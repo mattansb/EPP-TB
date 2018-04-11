@@ -34,7 +34,8 @@
 % 'combine'     - if true (defult) will combine all files in 'savePath'
 %                 into study structure. Else, won't - will only conver
 %                 eeglab files to '.eppf' files.
-% 
+%
+% See also epp_loaderplab, epp_loadegimat
 %
 %
 % Author: Mattan S. Ben Shachar & Rachel Rac, BGU, Israel

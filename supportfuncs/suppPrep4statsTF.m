@@ -1,3 +1,12 @@
+% This function prepares ERP data to be measured by the measurement
+% functions - and is called internaly by them when needed.
+%
+% Author: Mattan S. Ben Shachar, BGU, Israel
+%{
+Change log:
+-----------
+07-04-2018  New function (written in MATLAB R2015a)
+%}
 function [studyOut, TW, freqs_name] = suppPrep4statsTF(studyIn, conditions, electrodes, timeWindow, freqs, ave, jackknife)
 
 %% Get only relevant conditions

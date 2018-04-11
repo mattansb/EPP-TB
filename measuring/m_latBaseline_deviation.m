@@ -1,3 +1,18 @@
+% PURPOSE:  measure latency (Baseline deviation)
+%
+% FORMAT
+% ------
+% res = m_latBaseline_deviation(data,timeWindow_ind,direction,baselineOS,times,SDcriterion)
+%
+% See also epp_getLat
+%
+% Author: Mattan S. Ben Shachar, BGU, Israel
+%{
+Change log:
+-----------
+11-04-2018  Added help
+07-04-2018  New function (written in MATLAB R2017a)
+%}
 function res = m_latBaseline_deviation(data,timeWindow_ind,direction,baselineOS,times,SDcriterion)
 
 try

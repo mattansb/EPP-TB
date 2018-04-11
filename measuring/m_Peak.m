@@ -1,3 +1,18 @@
+% PURPOSE:  measure latency \ amplitude (Peak)
+%
+% FORMAT
+% ------
+% [amp,lat] = m_Peak(data,timeWindow_ind,direction,local,times)
+%
+% See also epp_getLat, epp_getAmp
+%
+% Author: Mattan S. Ben Shachar, BGU, Israel
+%{
+Change log:
+-----------
+11-04-2018  Added help
+07-04-2018  New function (written in MATLAB R2017a)
+%}
 function [amp,lat] = m_Peak(data,timeWindow_ind,direction,local,times)
 
 try

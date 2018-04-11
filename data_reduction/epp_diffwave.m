@@ -18,6 +18,8 @@
 %           'name'      - name of new combined condition. Defults is to
 %                         concatenate the condition names.
 %
+% See also epp_combineconds, epp_LRP, epp_GFP
+%
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
 

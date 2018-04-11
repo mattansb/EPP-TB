@@ -35,7 +35,7 @@
 %                   6. IDs - table containing IDs of subject in the
 %                      condition. (ONLY IF USING THE 'MULTI' OPTION)
 %
-% See also epp_erplab_import
+% See also epp_loaderplab, epp_loadeeglab
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel

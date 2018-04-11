@@ -21,7 +21,7 @@
 %           'all'           - if true, plots all channels across subjects.
 %                             (electrodes is ignored.)
 %
-% See also epp_plotgrands, epp_plotTF, epp_plottopo
+% See also epp_plotgrands, epp_plotTF, epp_plottopo, epp_plottopoTF
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
