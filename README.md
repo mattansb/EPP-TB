@@ -16,14 +16,16 @@ To use EPP-TB you will need:
 
 -   Matlab (2015a+).
 -   [eeglab](https://sccn.ucsd.edu/eeglab/index.php) (14.X.X) for importing `.set` files, and plotting topos.
--   R
+-   R (for plotting in R)
     -   [`tidyverse`](https://github.com/tidyverse/tidyverse) + [`purrr`](https://github.com/tidyverse/purrr).
     -   [`scales`](https://github.com/hadley/scales) for plotting in R.
     -   [`mgcv`](https://cran.r-project.org/package=mgcv) for plotting topo plots.
 
 ### Installing
 
-Install the package [downloading](https://github.com/mattansb/EPP-TB/releases) and adding the EPP-TB folder (and sub-folders) to your Matlab paths.
+Download and run the [`download_install_EPPTB`](./download_install_EPPTB.m) matlab function. This will download the latest stable version of EPP-TB and add it to your Matlab paths.
+
+Alternativly, you can manually install the package by [downloading](https://github.com/mattansb/EPP-TB/releases) and adding the EPP-TB folder (and sub-folders) to your Matlab paths.
 
 Importing Data into an EPP structure
 ------------------------------------
