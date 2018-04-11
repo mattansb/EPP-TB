@@ -2,7 +2,7 @@
 %
 % FORMAT
 % ------
-% download_install_EPPTB()
+% download_and_install_EPPTB()
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -12,7 +12,7 @@ Change log:
 -----------
 11-04-2018  New function (written in MATLAB R2017a)
 %}
-function download_install_EPPTB()
+function download_and_install_EPPTB()
 
 % Get instalation dir
 save_path       = uigetdir([],'Select folder where EPP-TB will be installed');
