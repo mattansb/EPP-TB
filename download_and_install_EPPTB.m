@@ -31,7 +31,7 @@ if save_path==0
 end
 
 % Rmoving old version
-path_list   = strsplit(path,";")';
+path_list   = strsplit(path,';')';
 path_ind    = contains(path_list,'EPP-TB','IgnoreCase',true);
 unin_txt    = '';
 if any(path_ind)
