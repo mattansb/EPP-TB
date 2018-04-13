@@ -59,7 +59,7 @@ p = inputParser;
     addParameter(p,'combine', true, @islogical)
 parse(p, EEG_list, varargin{:}); % validate
 
-if ~(p.Results.wavelet || p.Results.ERP || p.Results.combine)
+if ~(p.Results.wavelet || p.Results.erp || p.Results.combine)
     error('You seem to have called the function without asking it to make ERPs or Wavelets. Oops?')
 end
 
@@ -112,11 +112,6 @@ else
     waveletVars = p.Results.waveletVars;
 end
 
-% load eeglab
-% -----------
-eeglab redraw
-close
-
 %% Set up temp dir
 
 % folder name
@@ -135,15 +130,16 @@ end
 
 nFiles = length(EEG_list);
 
-if p.Results.wavelet || p.Results.ERP
+if p.Results.wavelet || p.Results.erp
     for f = 1:nFiles
+        % load eeglab
+        % ===========
+        eeglab redraw
+        close
+        
         % Load and validate sub\group\condition
         % =====================================
         temp_EEG = pop_loadset('filename',EEG_list{f});
-        
-        if isempty(output.Condition)
-            error('Undefined EEG.condition or EEG.group (at least one must be defined)')
-        end
         
         if isempty(temp_EEG.condition) && isempty(temp_EEG.group)
             error('EEG.condition and EEG.group are both missing (Need at least one of them).')
@@ -237,6 +233,6 @@ function x = eval_res(x)
 if ischar(x)
     eval(['x = [' x '];'])
 else
-    x = x;
+    x;
 end
 end
