@@ -131,12 +131,10 @@ end
 nFiles = length(EEG_list);
 
 if p.Results.wavelet || p.Results.erp
+    eeglab redraw
+    close
+    
     for f = 1:nFiles
-        % load eeglab
-        % ===========
-        eeglab redraw
-        close
-        
         % Load and validate sub\group\condition
         % =====================================
         temp_EEG = pop_loadset('filename',EEG_list{f});
