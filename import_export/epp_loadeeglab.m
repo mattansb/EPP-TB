@@ -43,6 +43,7 @@
 %{
 Change log:
 -----------
+13-04-2018  A million little bug fixes
 11-04-2018  Added errors when subject ID
 20-03-2018  Fix naming of subject files.
 06-03-2018  New function (written in MATLAB R2017a)

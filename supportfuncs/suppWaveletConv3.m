@@ -33,6 +33,7 @@
 %{
 Change log:
 -----------
+13-04-2018  Added suuport for no time cuts
 01-03-2018  Added support for downsampling.
 28-02-2018  absolute ITC values are not computed,to allow for the
             combination of conditions.
@@ -57,7 +58,7 @@ p = inputParser;
     addRequired(p,'num_frex',@(x) length(x)==1 && isnumeric(x));
     addRequired(p,'cycles_range',@(x) length(x)==2 && isnumeric(x));
     addRequired(p,'baselinetime',@(x) length(x)==2 && isnumeric(x));
-    addOptional(p,'cut_times',[],@(x) length(x)==2 && isnumeric(x));
+    addOptional(p,'cut_times',[],@(x) isempty(x) | (length(x)==2 && isnumeric(x)));
     addParameter(p,'log',true, @islogical);
     addParameter(p,'dB',true, @islogical);
     addParameter(p,'downsample',1, @(x) floor(x) == x);
