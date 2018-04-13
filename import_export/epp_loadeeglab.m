@@ -130,14 +130,16 @@ end
 
 nFiles = length(EEG_list);
 
-if p.Results.wavelet || p.Results.erp
-    eeglab redraw
-    close
-    
+if p.Results.wavelet || p.Results.erp    
     for f = 1:nFiles
         % Load and validate sub\group\condition
         % =====================================
-        temp_EEG = pop_loadset('filename',EEG_list{f});
+        try
+            temp_EEG = pop_loadset('filename',EEG_list{f});
+        catch
+            eeglab; close
+            temp_EEG = pop_loadset('filename',EEG_list{f});
+        end
         
         if isempty(temp_EEG.condition) && isempty(temp_EEG.group)
             error('EEG.condition and EEG.group are both missing (Need at least one of them).')
