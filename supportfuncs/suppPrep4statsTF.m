@@ -47,8 +47,8 @@ for c = 1:length(studyIn)
     
     %% Jackknife
     if jackknife
-        warning('Not supported yet')
-        % maybe add?
+        studyIn(c).ersp = suppJackknife('in',studyIn(c).ersp,4);
+        studyIn(c).itc  = suppJackknife('in',studyIn(c).itc,4);
     end
     
     %% Reduce dims   

@@ -34,7 +34,7 @@ for c = 1:length(studyIn)
     
     %% Jackknife
     if jackknife
-        studyIn(c).Data = suppJackknife('in',studyIn(c).Data);
+        studyIn(c).Data = suppJackknife('in',studyIn(c).Data,3);
     end
     
     %% Interpolate

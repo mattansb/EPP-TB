@@ -27,7 +27,7 @@ for c = 1:length(study) % for each condition
     
     % Correct for jackknifing:
     if pResults.jackknife
-        study(c).measure = suppJackknife('out',study(c).measure);
+        study(c).measure = suppJackknife('out',study(c).measure,1);
     end
     
     % Make variable name:

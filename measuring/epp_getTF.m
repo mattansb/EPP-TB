@@ -23,6 +23,8 @@
 % The available parameters are as follows:
 %           'average'       - average across electrodes before measuring?
 %                             (false my default). 
+%           'jackknife'     - measure using the jackknife technique?
+%                             (default: false)
 %           'save'          - 'long' / 'wide'; will save the results in the
 %                             current directory in the specified format.
 %
@@ -34,6 +36,7 @@
 %{
 Change log:
 -----------
+14-04-2018  Support for jackknife
 07-04-2018  Rewrite of function.
 28-02-2018  ITC (abs) is now computed in function, to allow for the
             combination of conditions.
@@ -56,7 +59,7 @@ p = inputParser;
     addRequired(p,'freqs',@(x) isnumeric(x) && size(x,2)==2);
     
     addParameter(p,'average',false,@islogical);
-    addParameter(p,'jackknife',false,@islogical); % not supported
+    addParameter(p,'jackknife',false,@islogical);
     addParameter(p,'plot',false,@islogical);
     addParameter(p,'save','no', @ischar);
 parse(p, measure ,study, conditions, electrodes, timeWindow, freqs, varargin{:}); % validate
