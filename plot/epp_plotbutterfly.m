@@ -29,6 +29,7 @@
 %{
 Change log:
 -----------
+14-04-2018  Fixed error when plotting more than 6 conditions
 05-03-2018  Fix title printing
 04-03-2018  Added ability to plot Trace plots
 18-06-2017  Added ability to plot Jackknifed waves.
@@ -108,7 +109,9 @@ for c = 1:length(study) % for each condition
     
     % Plot the lines
     % --------------
-    color = co(mod(c,length(co)),:);
+    co_ind = mod(c,length(co));
+    if co_ind==0, co_ind = length(co); end
+    color = co(co_ind,:);
     
     [nTime, nID]=size(study(c).Data);
     plot3(study(c).timeLine,study(c).Data,repmat(1:nID,[nTime 1]),...
