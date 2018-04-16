@@ -26,7 +26,7 @@
 % NOTE that output has only the number of selected electrodes (ordered as
 % they were input).
 %
-% See also epp_combineconds, epp_GFP, epp_diffwave
+% See also epp_combineconds, epp_GFP, epp_diffwave, epp_makegrands
 % 
 % 
 % Author: Mattan S. Ben Shachar, BGU, Israel

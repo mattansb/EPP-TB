@@ -19,7 +19,7 @@
 %           'name'      - name of new combined condition. Defults is to
 %                         concatenate the condition names.
 %
-% See also epp_LRP, epp_GFP, epp_diffwave
+% See also epp_LRP, epp_GFP, epp_diffwave, epp_makegrands
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
 
