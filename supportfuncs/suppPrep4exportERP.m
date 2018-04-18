@@ -33,7 +33,7 @@ for c = 1:length(study) % for each condition
     
     % Make variable name:
     if pResults.average
-        VariableNames = [study(c).Condition '_ave'];
+        VariableNames = {[study(c).Condition '_ave']};
     else
         for e = 1:length(electrodes)
             VariableNames{e} = sprintf('%s_%d', conditions{c}, electrodes(e));
