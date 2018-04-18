@@ -5,6 +5,7 @@
 %{
 Change log:
 -----------
+18-04-2018  Fix to bad chars in condition names (remove them)
 07-04-2018  New function (written in MATLAB R2017a)
 %}
 
@@ -28,13 +29,16 @@ for c = 1:length(study) % for each condition
     VariableNames = {};
     for fr = 1:length(freqs_name)
         if pResults.average
-            VariableNames{end+1} = {[study(c).Condition '_' freqs_name{fr} '_ave']};
+            VariableNames{end+1} = [study(c).Condition '_' freqs_name{fr} '_ave'];
         else
             for e = 1:length(electrodes)
                 VariableNames{end+1} = sprintf('%s_%s_%d', conditions{c},freqs_name{fr}, electrodes(e));
             end
         end
     end
+    % remove any bad chars from names
+    VariableNames = regexp(VariableNames,'[0-9a-zA-Z_]+','match');
+    VariableNames = cellfun(@(x) [x{:}],VariableNames,'UniformOutput',false);
     
     study(c).exp = array2table(study(c).measure, 'VariableNames', VariableNames);   % convert results to table
     study(c).exp = [study(c).IDs.ID,study(c).exp];                                  % merge results with IDS
@@ -78,7 +82,7 @@ if any(strcmpi(pResults.save, {'wide','long'}))
         
     save_info = struct2table(results.info);
     
-    fn  = ['erp_' measure '_' datestr(datetime, 'yyyymmdd_HHMMSS')]; % file name
+    fn  = ['wavelet_' measure '_' datestr(datetime, 'yyyymmdd_HHMMSS')]; % file name
     
     writetable(save_data,fn,'FileType','spreadsheet','Sheet',1) % write values
     writetable(save_info,fn,'FileType','spreadsheet','Sheet',2) % write info
