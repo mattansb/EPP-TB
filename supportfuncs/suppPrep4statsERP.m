@@ -26,10 +26,10 @@ end
 
 for c = 1:length(studyIn)
     %% Get only relevant electrodes
+    
+    studyIn(c).Data = studyIn(c).Data(electrodes,:,:);
     if ave
-        studyIn(c).Data = mean(studyIn(c).Data(electrodes,:,:),1);
-    else
-        studyIn(c).Data = studyIn(c).Data(electrodes,:,:);
+        studyIn(c).Data = mean(studyIn(c).Data,1);        
     end
     
     %% Jackknife

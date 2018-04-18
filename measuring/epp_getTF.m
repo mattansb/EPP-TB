@@ -36,6 +36,7 @@
 %{
 Change log:
 -----------
+18-04-2018  Fix bug when sending to suppPrep4statsTF
 14-04-2018  Support for jackknife
 07-04-2018  Rewrite of function.
 28-02-2018  ITC (abs) is now computed in function, to allow for the
@@ -69,7 +70,7 @@ parse(p, measure ,study, conditions, electrodes, timeWindow, freqs, varargin{:})
 
 [study, timeWindow_ind, freqs_name] = suppPrep4statsTF(study, conditions, electrodes,...
     timeWindow, freqs,...
-    p.Results.average, p.Results.average);
+    p.Results.average, p.Results.jackknife);
 
 %% Get Measure 
 
