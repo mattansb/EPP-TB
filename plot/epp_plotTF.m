@@ -28,11 +28,12 @@
 % See also epp_plotbutterfly, epp_plotgrands, epp_plottopo, epp_plottopoTF
 %
 %
-% Author: Mattan S. Ben Shachar, BGU, Israel
+% Author: Mattan S. Ben Shachar & Michael Shmueli, BGU, Israel
 
 %{
 Change log:
 -----------
+01-05-2018  Fixed bug that caused time-line to be flipped!
 15-03-2018  Fix and improvment to color limits
 05-03-2018  Fix title printing
 28-02-2018  ITC (abs) is now computed in function, to allow for the
@@ -61,25 +62,22 @@ cInd    = cellfun(@(x) find(ismember({study(:).Condition}, x)), conditions);
 study   = study(cInd);
 
 %% Get all Data
-times = study(1).timeLine;      % get times for x-axis
-freqs = flip(study(1).freqs);   % get freqs for y-axis
+times   = study(1).timeLine;
+frex    = study(1).freqs;
+ytick   = round(logspace(log10(frex(1)),log10(frex(end)),10)*100)/100;
 
 for c = 1:length(conditions)
     % Get ERSP
-    ersp(c).data    = flipud(squeeze(mean(mean(study(c).ersp(electrodes,:,:,:),4),1))');
+    ersp(c).data    = squeeze(mean(mean(study(c).ersp(electrodes,:,:,:),4),1))';
     ersp_max(c)     = max(max(ersp(c).data)); % find max point
     ersp_min(c)     = min(min(ersp(c).data)); % find min point
     
     % Get ITC
     if ~isreal(study(c).itc), study(c).itc = abs(study(c).itc); end
-    itc(c).data     = flipud(squeeze(mean(mean(study(c).itc(electrodes,:,:,:),4),1))');
+    itc(c).data     = squeeze(mean(mean(study(c).itc(electrodes,:,:,:),4),1))';
     itc_max(c)      = max(max(itc(c).data)); % find max point
     itc_min(c)      = min(min(itc(c).data)); % find min point
 end
-
-times   = study(c).timeLine;
-frex    = study(c).freqs;
-ytick   = round(logspace(log10(frex(1)),log10(frex(end)),10)*100)/100;
 
 % Set ERSP color lims
 if ~isnan(p.Results.erspmaplimits)
@@ -105,7 +103,7 @@ for c = 1:length(conditions) % for each condition
     subplot(2,length(conditions),c);                                    % new subplot
     contourf(times,frex,ersp(c).data',40,'linecolor','none');
     set(gca,'ytick',ytick,'yscale',p.Results.scale)
-    colormap(hot)                                                       % set colot to 'hot'
+    colormap(gca,hot) % or jet?
     caxis(ersp_range)
     
     if c == 1 % if this is the first plot
@@ -119,8 +117,8 @@ for c = 1:length(conditions) % for each condition
     end
     hold on
     title(conditions{c}, 'Interpreter', 'none')                     % add title
-    plot([0 0],[freqs(1) freqs(end)],'Color', 'k', 'LineStyle', '-','LineWidth',1);
-    plot([0 0],[freqs(1) freqs(end)],'Color', 'w', 'LineStyle', '-');
+    plot([0 0],[frex(1) frex(end)],'Color', 'k', 'LineStyle', '-','LineWidth',1);
+    plot([0 0],[frex(1) frex(end)],'Color', 'w', 'LineStyle', '-');
     
     
     % Plot ITC
@@ -128,7 +126,7 @@ for c = 1:length(conditions) % for each condition
     subplot(2,length(conditions),length(conditions)+c)              % new subplot
     contourf(times,frex,itc(c).data',40,'linecolor','none')
     set(gca,'ytick',ytick,'yscale',p.Results.scale)
-    colormap(hot)
+    colormap(gca,hot) % or jet?
     caxis(itc_range)
     % set colot to 'hot'
     set(gca,'YDir','normal')
@@ -139,8 +137,8 @@ for c = 1:length(conditions) % for each condition
         cl.Label.String = 'ITC';
     end
     hold on
-    plot([0 0],[freqs(1) freqs(end)],'Color', 'k', 'LineStyle', '-','LineWidth',1);
-    plot([0 0],[freqs(1) freqs(end)],'Color', 'w', 'LineStyle', '-');
+    plot([0 0],[frex(1) frex(end)],'Color', 'k', 'LineStyle', '-','LineWidth',1);
+    plot([0 0],[frex(1) frex(end)],'Color', 'w', 'LineStyle', '-');
 end
 
 %% Export to R?
