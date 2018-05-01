@@ -53,6 +53,7 @@ If a wavelet analysis has been preformed, the Data field is replaced with:
 These functions can be used to compute new conditions or manipulate existing data:
 
 -   Merge 2 or more conditions with `epp_combineconds`.
+-   Make grand-average ERP/ERSP/ITC with `epp_makegrands` (useful for plotting large data sets).
 -   Compute differences between 2 conditions with `epp_diffwave`.
 -   Compute LRP with `epp_LRP`
 -   Compute global field potentials with `epp_GFP`.
@@ -182,6 +183,7 @@ Authors
 
 -   **Mattan S. Ben-Shachar** \[aut, cre\].
 -   **Rachel Rac** \[ctb\].
+-   **Micael Shmueli** \[ctb\].
 
 Acknowledgments
 ---------------

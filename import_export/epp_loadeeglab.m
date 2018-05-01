@@ -43,6 +43,9 @@
 %{
 Change log:
 -----------
+25-04-2018  Fix when combining
+16-04-2018  Improvments to speed when combining data
+15-04-2018  Reduced printing from eeglab pop_*
 13-04-2018  A million little bug fixes
 11-04-2018  Added errors when subject ID
 20-03-2018  Fix naming of subject files.
@@ -133,13 +136,14 @@ nFiles = length(EEG_list);
 
 if p.Results.wavelet || p.Results.erp    
     for f = 1:nFiles
+        fprintf('Processing file %d of %d\n',f,nFiles)
         % Load and validate sub\group\condition
         % =====================================
         try
-            temp_EEG = pop_loadset('filename',EEG_list{f});
+            evalc('temp_EEG = pop_loadset(''filename'',EEG_list{f});');
         catch
             eeglab; close
-            temp_EEG = pop_loadset('filename',EEG_list{f});
+            evalc('temp_EEG = pop_loadset(''filename'',EEG_list{f});');
         end
         
         if isempty(temp_EEG.condition) && isempty(temp_EEG.group)
@@ -194,37 +198,100 @@ end
 
 %% Combine all files
 
+study = struct;
+
 if p.Results.combine
     % list files in savePath
     all_files   = dir([savePath '\\*.eppf']);
     nFiles      = length(all_files);
 
     study.Condition = '';
+    % Load and append data
+    % --------------------
+    fprintf('\n\n')
     for f = 1:nFiles
         % Load
+        fprintf('Loading file %d of %d\n',f,nFiles)
         load(fullfile(savePath, all_files(f).name), '-mat')
 
         % Orgenize
         for c = 1:length(output)
             c_ind = find(strcmpi(output(c).Condition,{study.Condition}));
-            if isempty(c_ind)
-                if strcmpi(study(end).Condition,'')
+            if isempty(c_ind) % if there is no such condition
+                if isempty(study(end).Condition) % if this is the first condition
                     study = output(c);
                 else
                     study(end+1) = output(c);
                 end
-            else
-                try study(c_ind).ersp(:,:,:,end+1)  = output(c).ersp;   end
-                try study(c_ind).itc(:,:,:,end+1)   = output(c).itc;    end
-                try study(c_ind).Data(:,:,end+1)    = output(c).Data;   end
+                
+                % build data
+                if isfield(study,'Data')
+                    study(end).Data     = cell([1 nFiles]);
+                    study(end).Data{1}  = output(c).Data;  
+                    
+                end
+                
+                % build ersp
+                if isfield(study,'ersp')
+                    study(end).ersp     = cell([1 nFiles]);
+                    study(end).ersp{1}  = output(c).ersp;  
+                end
+                
+                % build itc
+                if isfield(study,'itc')
+                    study(end).itc      = cell([1 nFiles]);
+                    study(end).itc{1}   = output(c).itc;  
+                end
+                    
+                
+            else % condition exists
                 study(c_ind).IDs = [study(c_ind).IDs;output(c).IDs];
+                
+                % append data
+                if isfield(study,'Data')
+                    next_ind = find(cellfun(@isempty, study(c_ind).Data),1);
+                    study(c_ind).Data{next_ind} = output(c).Data;  
+                end
+                
+                % append ersp
+                if isfield(study,'ersp')
+                    next_ind = find(cellfun(@isempty, study(c_ind).ersp),1);
+                    study(c_ind).ersp{next_ind} = output(c).ersp;  
+                end
+                
+                % append itc
+                if isfield(study,'itc')
+                    next_ind = find(cellfun(@isempty, study(c_ind).itc),1);
+                    study(c_ind).itc{next_ind} = output(c).itc;  
+                end                
             end
         end
         clear output c_ind
     end
-else
-    % return an empty struct
-    study = struct;
+    
+    % Collaps Data/ersp/itc
+    % ---------------------
+    fprintf('\nCleaning up (this can take a while)..')
+    for c = 1:length(study)
+        % Collaps data
+        if isfield(study,'Data')
+            next_ind = cellfun(@(X) ~isempty(X), study(c).Data);
+            study(c).Data = cat(3,study(c).Data{next_ind});
+        end
+
+        % Collaps ersp
+        if isfield(study,'ersp')
+            next_ind = cellfun(@(X) ~isempty(X), study(c).ersp);
+            study(c).ersp = cat(4,study(c).ersp{next_ind});
+        end
+
+        % Collaps itc
+        if isfield(study,'itc')
+            next_ind = cellfun(@(X) ~isempty(X), study(c).itc);
+            study(c).itc = cat(4,study(c).itc{next_ind});
+        end
+    end
+    fprintf('. Done!\n',f,nFiles)
 end
 
 

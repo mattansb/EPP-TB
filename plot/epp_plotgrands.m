@@ -34,6 +34,7 @@
 %{
 Change log:
 -----------
+14-04-2018  Fixed error when plotting more than 6 conditions
 05-03-2018  Fix title printing
 17-05-2017  Fixed bug when exporting to R
 23-03-2017  Fixed error when plotting errors with single condition
@@ -159,7 +160,9 @@ maxAmp = [];
 minAmp = [];
 
 for c = 1:length(study)
-    color = co(mod(c,length(co)),:);
+    co_ind = mod(c,length(co));
+    if co_ind==0, co_ind = length(co); end
+    color = co(co_ind,:);
     
     % Plot Error(s)
     % =============

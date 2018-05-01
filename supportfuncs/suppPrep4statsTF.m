@@ -27,15 +27,6 @@ for fr = 1:size(freqs,1)
 end
 
 for c = 1:length(studyIn)
-    %% Get only relevant electrodes
-    if ave
-        studyIn(c).ersp = mean(studyIn(c).ersp(electrodes,:,:,:),1);
-        studyIn(c).itc  = mean(studyIn(c).itc(electrodes,:,:,:),1);
-    else
-        studyIn(c).ersp = studyIn(c).ersp(electrodes,:,:,:);
-        studyIn(c).itc  = studyIn(c).itc(electrodes,:,:,:);
-    end
-    
     %% Get freq-bands
     for fr = 1:length(freqs_ind)
         temp_ersp(:,fr,:,:) = mean(studyIn(c).ersp(:,freqs_ind{fr},:,:),2);
@@ -45,10 +36,19 @@ for c = 1:length(studyIn)
     studyIn(c).ersp = temp_ersp;
     studyIn(c).itc  = temp_itc;
     
+    %% Get only relevant electrodes
+    studyIn(c).ersp = studyIn(c).ersp(electrodes,:,:,:);
+    studyIn(c).itc  = studyIn(c).itc(electrodes,:,:,:);
+    
+    if ave
+        studyIn(c).ersp = mean(studyIn(c).ersp,1);
+        studyIn(c).itc  = mean(studyIn(c).itc,1);
+    end
+    
     %% Jackknife
     if jackknife
-        warning('Not supported yet')
-        % maybe add?
+        studyIn(c).ersp = suppJackknife('in',studyIn(c).ersp,4);
+        studyIn(c).itc  = suppJackknife('in',studyIn(c).itc,4);
     end
     
     %% Reduce dims   

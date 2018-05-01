@@ -8,6 +8,7 @@
 %{
 Change log:
 -----------
+14-04-2018  Support new jackknife function
 19-01-2017  Support for saving data
 19-12-2016  Support for Jackknife adjustment
 25-11-2016  New function (written in MATLAB R2015a)
@@ -22,7 +23,7 @@ fprintf('\n\nSaving results..')
 for c = 1:length(study) % for each condition
     % Correct for jackknifing:
     if pResults.jackknife
-        study(c).measure = suppJackknife('out',study(c).measure);
+        study(c).measure = suppJackknife('out',study(c).measure,1);
     end
     
     % Make variable name:

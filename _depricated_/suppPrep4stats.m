@@ -8,6 +8,7 @@
 %{
 Change log:
 -----------
+14-04-2018  Support new jackknife function
 07-04-2018  Added samplingRate calculation
 06-03-2018  Removed samplingRate & baseLine fields from study struct.
 29-01-2017  Support for sampling interpolation
@@ -32,7 +33,7 @@ for c = 1:length(studyIn)
     
     %% Jackknife
     if jackknife
-        studyIn(c).Data = suppJackknife('in',studyIn(c).Data);
+        studyIn(c).Data = suppJackknife('in',studyIn(c).Data,3);
     end
     
     %% Interpolate

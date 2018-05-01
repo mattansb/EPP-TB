@@ -5,6 +5,7 @@
 %{
 Change log:
 -----------
+18-04-2018  Fix to bad chars in condition names (remove them)
 19-01-2017  Support for saving data
 19-12-2016  Support for Jackknife adjustment
 25-11-2016  New function (written in MATLAB R2015a)
@@ -27,7 +28,7 @@ for c = 1:length(study) % for each condition
     
     % Correct for jackknifing:
     if pResults.jackknife
-        study(c).measure = suppJackknife('out',study(c).measure);
+        study(c).measure = suppJackknife('out',study(c).measure,1);
     end
     
     % Make variable name:
@@ -38,6 +39,9 @@ for c = 1:length(study) % for each condition
             VariableNames{e} = sprintf('%s_%d', conditions{c}, electrodes(e));
         end
     end
+    % remove any bad chars from names
+    VariableNames = regexp(VariableNames,'[0-9a-zA-Z_]+','match');
+    VariableNames = cellfun(@(x) [x{:}],VariableNames,'UniformOutput',false);
     
     study(c).exp = array2table(study(c).measure, 'VariableNames', VariableNames);   % convert results to table
     study(c).exp = [study(c).IDs.ID,study(c).exp];                                  % merge results with IDS
