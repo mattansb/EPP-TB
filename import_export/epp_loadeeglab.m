@@ -43,6 +43,7 @@
 %{
 Change log:
 -----------
+25-04-2018  Fix when combining
 16-04-2018  Improvments to speed when combining data
 15-04-2018  Reduced printing from eeglab pop_*
 13-04-2018  A million little bug fixes
@@ -274,23 +275,23 @@ if p.Results.combine
     for c = 1:length(study)
         % Collaps data
         if isfield(study,'Data')
-            next_ind = find(cellfun(@isempty, study(c).Data),1);
-            study(c).Data = cat(3,study(c).Data{1:next_ind-1});
+            next_ind = cellfun(@(X) ~isempty(X), study(c).Data);
+            study(c).Data = cat(3,study(c).Data{next_ind});
         end
 
         % Collaps ersp
         if isfield(study,'ersp')
-            next_ind = find(cellfun(@isempty, study(c).ersp),1);
-            study(c).ersp = cat(4,study(c).ersp{1:next_ind-1});
+            next_ind = cellfun(@(X) ~isempty(X), study(c).ersp);
+            study(c).ersp = cat(4,study(c).ersp{next_ind});
         end
 
         % Collaps itc
         if isfield(study,'itc')
-            next_ind = find(cellfun(@isempty, study(c).itc),1);
-            study(c).itc = cat(4,study(c).itc{1:next_ind-1});
+            next_ind = cellfun(@(X) ~isempty(X), study(c).itc);
+            study(c).itc = cat(4,study(c).itc{next_ind});
         end
     end
-    fprintf('Done!\n',f,nFiles)
+    fprintf('. Done!\n',f,nFiles)
 end
 
 
