@@ -56,9 +56,16 @@ study   = study(cInd);
 
 IDs = {};
 for c = 1:length(study)
-    IDs = {IDs{:}, study(c).IDs.ID{:}};
+    if ~any(isstr(study(c).IDs.ID))
+        study(c).IDs.ID = cellfun(@(X) num2str(X),study(c).IDs.ID,'UniformOutput',false);
+    end
+    IDs = [IDs, study(c).IDs.ID];
 end
-IDs = unique(IDs);
+try
+    IDs = unique(IDs);
+catch
+    IDs = arrayfun(@(X) {X},unique(cell2mat(IDs)));
+end
 
 %% Combine
 for id = 1:length(IDs)
@@ -130,6 +137,6 @@ end
 if has_erp,  out.Data = data; end
 if has_ersp, out.ersp = ersp; end
 if has_itc,  out.itc  = itc; end
-out.IDs         = table(IDs',nTrials','VariableNames',{'ID' 'nTrials'});
+out.IDs         = table(IDs,nTrials','VariableNames',{'ID' 'nTrials'});
 
 end

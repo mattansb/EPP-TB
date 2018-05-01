@@ -15,12 +15,13 @@
 %{
 Change log:
 -----------
+23-04-2018  Minor fix
 16-04-2018  New function (written in MATLAB R2017a)
 %}
 function study = epp_makegrands(study)
 for c = 1:length(study)
     %% IDs
-    study(c).IDs = table({study(c).Condition},size(study(c).IDs,1),'VariableNames',{'ID' 'nTrials'});
+    study(c).IDs = table(000,size(study(c).IDs,1),'VariableNames',{'ID' 'nTrials'});
     
     %% Data
     if isfield(study,'Data')
