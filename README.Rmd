@@ -412,6 +412,7 @@ The function `epp_getTF` measure the *mean* ersp / itc from selected channels, w
 
 - **Mattan S. Ben-Shachar** [aut, cre].
 - **Rachel Rac** [ctb].
+- **Micael Shmueli** [ctb].
 
 ## Acknowledgments
 

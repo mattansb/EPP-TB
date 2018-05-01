@@ -183,6 +183,7 @@ Authors
 
 -   **Mattan S. Ben-Shachar** \[aut, cre\].
 -   **Rachel Rac** \[ctb\].
+-   **Micael Shmueli** \[ctb\].
 
 Acknowledgments
 ---------------
