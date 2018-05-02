@@ -20,7 +20,6 @@
 %
 % The available parameters are as follows:
 %           'plotlabels'    - see topoplot for options (defult: 'on').
-%           'colormap'      - set the color-map (defult: 'hot')
 %           'maplimits'     - [min max] values for the color scale.
 %           'R'             - if true, plot data is saved into a csv file
 %                             in the current directory + an R file with
@@ -36,6 +35,7 @@
 %{
 Change log:
 -----------
+01-05-2018  Changed colormap (removed custom option)
 15-04-2018  1. Removed smoothing (that wasnet working). Instead added
                support for plotting over explicit time windows.
             2. Removed plotting t-values (was not being used + for
@@ -46,10 +46,6 @@ Change log:
 04-07-2017  Added time-smoothing
 16-06-2017  Minor fix for plotting channels in R code
 23-04-2017  New function (written in MATLAB R2015a)
-
-BUGS?
-----?
-bug when saving t data?
 %}
 
 
@@ -63,7 +59,6 @@ p = inputParser;
     addRequired(p,'conditions',@iscellstr);
     addRequired(p,'timePoints',@(x) isnumeric(x) & size(x,1) <= 2 & ndims(x)<=2);
     addParameter(p,'plotlabels','on',@isstr)
-    addParameter(p,'colormap','hot',@ischar)
     addParameter(p,'maplimits',nan,@isnumeric)
     addParameter(p,'R',false,@islogical)
 parse(p, study,chanlocs,conditions,timePoints,varargin{:}); % validate
@@ -164,7 +159,7 @@ for c = 1:size(meanData,3) % each condition
         title([num2str(timePoints(:,t)') ' ms'], 'Interpreter', 'none');
         
     end
-    colormap(p.Results.colormap)
+    colormap(suppMakeColormap('wcbkryw'))
 end
 
 %% Save to R
