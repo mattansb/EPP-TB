@@ -68,7 +68,7 @@ Plotting
 Grand averages can be plotted by specifying the conditions and channel indices (averaged across) to plot:
 
 ``` matlab
-conds         = {'Control_Crr_plus','Control_L5_plus'};
+conds         = {'Crr','L5'};
 channel_inds  = [5 6 11 12];
 epp_plotgrands(study,conds,channel_inds)
 ```
@@ -117,6 +117,8 @@ epp_plotbutterfly(study,conds,channel_inds,'all',true)
 
 ### TF Plots
 
+#### Time-Frequancy Plot
+
 Time Frequency plots plot both ersp and itc:
 
 ``` matlab
@@ -125,10 +127,13 @@ epp_plotTF(study,conds,channel_inds)
 
 ![](doc/TFplot-1.png)
 
-Topo Plots- is a wrapper around `epp_plottopo`. Need to specify bands:
+#### Power Topo-Plots
+
+`epp_plottopoTF` is a wrapper around `epp_plottopo` for plotting topo plots of selected frequency bands.
 
 ``` matlab
-bands = [4, 8; 8, 12];
+times = [160 410];
+bands = [4 8; 8 12];
 % a matrix of frequencies, with each row containing a range of frequencies
 % to plot (1st column is lower limit, 2nd column is upper limit of band).
 epp_plottopoTF(study,chanlocs,conds,channel_inds,times,bands)
@@ -138,7 +143,7 @@ epp_plottopoTF(study,chanlocs,conds,channel_inds,times,bands)
 
 ### Exporting to R
 
-All plots can be exported to R and plotted with [`ggplot2`](https://github.com/tidyverse/ggplot2) by setting `'R',true` in any of the plotting function. This produces two time-stamped files:
+All plots can be exported to R and plotted with [`ggplot2`](https://github.com/tidyverse/ggplot2) by setting `'R',true` in any of the plotting function (this is how the plots in thie README where made). This produces two time-stamped files:
 
 -   A data file (`*_data.csv`)
 -   A code file (`*_code.R`), to plot said data using `ggplot2`.
@@ -183,7 +188,7 @@ Authors
 
 -   **Mattan S. Ben-Shachar** \[aut, cre\].
 -   **Rachel Rac** \[ctb\].
--   **Micael Shmueli** \[ctb\].
+-   **Michael Shmueli** \[ctb\].
 
 Acknowledgments
 ---------------
