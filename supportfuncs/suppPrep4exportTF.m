@@ -5,6 +5,7 @@
 %{
 Change log:
 -----------
+02-05-2018  Improvemnt to saving measurement info that caused some bugs
 18-04-2018  Fix to bad chars in condition names (remove them)
 07-04-2018  New function (written in MATLAB R2017a)
 %}
@@ -79,8 +80,12 @@ if any(strcmpi(pResults.save, {'wide','long'}))
         % combine to table
         save_data = table(save_ID, save_cond, save_vals, 'VariableNames', {'ID','Condition',measure});
     end
-        
-    save_info = struct2table(results.info);
+    
+    save_info = results.info;
+    save_info.freqs = cellfun(@(x) [num2str(x(1)) '-' num2str(x(2)) 'Hz'],...
+        num2cell(save_info.freqs,2),...
+        'UniformOutput',false)';
+    save_info = cell2table(struct2cell(save_info)','VariableNames',fieldnames(save_info));
     
     fn  = ['wavelet_' measure '_' datestr(datetime, 'yyyymmdd_HHMMSS')]; % file name
     
