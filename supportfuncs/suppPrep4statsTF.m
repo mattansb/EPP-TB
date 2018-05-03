@@ -5,6 +5,7 @@
 %{
 Change log:
 -----------
+03-05-2018  Improvment to frequancy band selection
 07-04-2018  New function (written in MATLAB R2015a)
 %}
 function [studyOut, TW, freqs_name] = suppPrep4statsTF(studyIn, conditions, electrodes, timeWindow, freqs, ave, jackknife)
@@ -20,10 +21,11 @@ TW      = TW(1):TW(2);
 
 % Find Closest Frequencies
 for fr = 1:size(freqs,1)    
-    F(1) = dsearchn(studyIn(1).freqs',freqs(fr,1)); % closest point to start of defined frequency window
-    F(2) = dsearchn(studyIn(1).freqs',freqs(fr,2)); % closest point to end of defined frequency window
-    freqs_ind{fr}     = F(1):F(2);
-    freqs_name(fr)      = {[num2str(freqs(fr,1)) 'to' num2str(freqs(fr,2)) 'Hz']};
+    F = find(studyIn(1).freqs >= freqs(fr,1) & studyIn(1).freqs <= freqs(fr,2));
+    F = F([1 end]);
+    
+    freqs_ind{fr}   = F(1):F(2);
+    freqs_name(fr)  = {[num2str(freqs(fr,1)) 'to' num2str(freqs(fr,2)) 'Hz']};
 end
 
 for c = 1:length(studyIn)
