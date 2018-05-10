@@ -14,17 +14,22 @@
 %                 log-scaled).
 % cycles_range  - [min max] range of cycels to use for range of
 %                 frequencies.
-% baselinetime  - [start end] baseline (in ms) for dB correction
+% baselinetime  - [start end] baseline (in ms) for baseline correction
 % cut_times     - [start end] range of time to save. if empty, all time
 %                 point are returned.
 % 
 % Optional arguments
 % ------------------
+% 'baseline'    - one of the following baseline correction methods:
+%                 'dB' (defult) - 10*log10(power/mean_baseline_power)
+%                 'normalize'   - 100*(power - mean_baseline_power)/mean_baseline_power
+%                 'standardize' - (power - mean_baseline_power)/std_baseline_power
+%                 (see http://neuroimage.usc.edu/brainstorm/Tutorials/TimeFrequency#Morlet_wavelets)
 % 'log'         - if true [defult], frquenceis are taken from logspace. If
 %                 false, frequencies are taken from linspace.
 % 'downsample'  - factor by witch to down sample (defult: 1 - no
 %                 downsampling). See downsample().
-% 'sound'	- ['big' (defult) |'beep'|'off'] sound to play when done.
+% 'sound'       - ['big' (defult) |'beep'|'off'] sound to play when done.
 % 
 %
 %
@@ -33,6 +38,7 @@
 %{
 Change log:
 -----------
+10-05-2018  Added new baseline correction methods
 13-04-2018  Added suuport for no time cuts
 01-03-2018  Added support for downsampling.
 28-02-2018  absolute ITC values are not computed,to allow for the
@@ -40,12 +46,12 @@ Change log:
 13-03-2017  New function (written in MATLAB R2015a)
 
 TO DO
-add parameter 'savetrials' [true|false] - don't average across trials (also
-don't baseline correct or convert to dB.)
-This is needed for the function to work with eeglab's study struct.
-
-maybe re structure the function so that if 'savetrials' is false, it will
-convert to dB?
+add option of '1/f compensation' by multiplying each power by the frequancy.
+this step should happen before baseline correction (Baseline correction negates
+this step - as the baseline correction cancels out this correction)
+This is called  Spectral flattening
+*** Would only be relevant for standardize method. All other methods it
+mitkazez
 %}
 
 function [new_power,itpc,frex,cut_times] = suppWaveletConv3(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
@@ -60,7 +66,8 @@ p = inputParser;
     addRequired(p,'baselinetime',@(x) length(x)==2 && isnumeric(x));
     addOptional(p,'cut_times',[],@(x) isempty(x) | (length(x)==2 && isnumeric(x)));
     addParameter(p,'log',true, @islogical);
-    addParameter(p,'dB',true, @islogical);
+    addParameter(p,'baseline','dB', @(x) any(strcmpi(x,{'dB','normalize','standardize'})));
+    addParameter(p,'dB',nan, @islogical); % deprecated 
     addParameter(p,'downsample',1, @(x) floor(x) == x);
     addParameter(p,'sound','big', @(x) any(strcmpi(x,{'big','beep','off'})));
 parse(p ,EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin{:}); % validate
@@ -146,27 +153,52 @@ end
 fprintf([repmat('\b',[1 pp]) 'done! '])
 
 %% Baseline correction
-if p.Results.dB % dB convert
-    fprintf('\nConverting power to dB... ');
-else
-    fprintf('\nBaseline correction...');
+if ~isnan(p.Results.dB)
+    if double(p.Results.dB)==1
+        warning('{''dB'',true} is no longer in use. Use {''baseline'',''dB''} instead.')
+        p.Results.baseline = 'dB';
+    elseif double(p.Results.dB)==0
+        warning('{''dB'',false} is no longer in use. Using {''baseline'',''divide''}. The {''baseline'',''normalize''} should be used instead.')
+        p.Results.baseline = 'divide';
+    end    
 end
-% correction is preformed compared to baseline
-% convert baseline window time to indices
+
+
 [~,baselineidx(1)] = min(abs(EEG.times-baselinetime(1)));
 [~,baselineidx(2)] = min(abs(EEG.times-baselinetime(2)));
 
-for ch = 1:nbchan % each channel
-    temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
-    baseline_power      = mean(temp_pow(:,baselineidx(1):baselineidx(2)),2);    % mean power in baseline
-    if p.Results.dB % dB convert
-        new_power(ch,:,:)   = 10*log10(bsxfun(@rdivide,temp_pow,baseline_power));  % convert to dB
-    else
-        new_power(ch,:,:)   = bsxfun(@rdivide,temp_pow,baseline_power);  % ONLY devide baseline
-    end
+switch p.Results.baseline
+    case 'dB'
+        fprintf('\nConverting power to dB... ');
+        for ch = 1:nbchan % each channel
+            temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
+            baseline_power      = mean(temp_pow(:,baselineidx(1):baselineidx(2)),2);    % mean power in baseline
+            new_power(ch,:,:)   = 10*log10(bsxfun(@rdivide,temp_pow,baseline_power));   % convert to dB
+        end
+    case 'normalize'
+        fprintf('\nNormalizing power... ');
+        for ch = 1:nbchan % each channel
+            temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
+            baseline_power      = mean(temp_pow(:,baselineidx(1):baselineidx(2)),2);    % mean power in baseline
+            new_power(ch,:,:)   = 100*bsxfun(@minus,temp_pow,baseline_power);           % subtract mean
+            new_power(ch,:,:)   = bsxfun(@rdivide,new_power(ch,:,:),baseline_power);    % devide by mean
+        end
+    case 'standardize'
+        fprintf('\nStandardizing power... ');
+        temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
+            baseline_power      = mean(temp_pow(:,baselineidx(1):baselineidx(2)),2);    % mean power in baseline
+            baseline_std        = std(temp_pow(:,baselineidx(1):baselineidx(2)),2);     % std power in baseline
+            new_power(ch,:,:)   = 100*bsxfun(@minus,temp_pow,baseline_power);           % subtract mean
+            new_power(ch,:,:)   = bsxfun(@rdivide,new_power(ch,:,:),baseline_std);      % devide by std
+    case 'divide'
+        fprintf('\nSemi-Normalizing power... ');
+        for ch = 1:nbchan % each channel
+            temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
+            baseline_power      = mean(temp_pow(:,baselineidx(1):baselineidx(2)),2);    % mean power in baseline
+            new_power(ch,:,:)   = bsxfun(@rdivide,temp_pow,baseline_power);             % devide by mean
+        end
 end
-fprintf('done! ');
-
+fprintf('done!');
 
 %% Save selected time points
 % Downsample the data, or remove buffer-zone segments.
