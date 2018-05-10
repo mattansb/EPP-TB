@@ -12,8 +12,7 @@
 % freq_range    - [min max] frequency (Hz) range to compute
 % num_frex      - number of frequencies to compute (NOTE: will be]
 %                 log-scaled).
-% cycles_range  - [min max] range of cycels to use for range of
-%                 frequencies.
+% cycles_range  - [min max] range of the number of sycels for each wavelet.
 % baselinetime  - [start end] baseline (in ms) for baseline correction
 % cut_times     - [start end] range of time to save. if empty, all time
 %                 point are returned.
@@ -52,6 +51,9 @@ this step - as the baseline correction cancels out this correction)
 This is called  Spectral flattening
 *** Would only be relevant for standardize method. All other methods it
 mitkazez
+
+Add cycle option?
+range (current) / integer for n*f/sigma <- is this how it is done?
 %}
 
 function [new_power,itpc,frex,cut_times] = suppWaveletConv3(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
@@ -73,26 +75,24 @@ p = inputParser;
 parse(p ,EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin{:}); % validate
 
 
-%% Define Parameters
+%% Define Frequancies and cycles
 
 nbchan          = size(EEG.data,1); % number of channels
 min_freq        = freq_range(1);    % min freq to compute
 max_freq        = freq_range(2);    % max freq to compute
-num_frex        = num_frex;         % number of frex to compute
 wavelet_cycles1 = cycles_range(1);  % for min freq
-wavelet_cycles2 = cycles_range(2);  % for max freq
+wavelet_cycles2 = cycles_range(end);  % for max freq
 
 % Length of wavelet in seconds (p. 167-168)
 time    = -2:1/EEG.srate:2;
 
 % Frequencies (Hz) & number of cycles for each (p. 168, 196)
 if p.Results.log % LOG-SCALED (recomended)
-    frex    = logspace(log10(min_freq),log10(max_freq),num_frex);
-    cyc     = logspace(log10(wavelet_cycles1),log10(wavelet_cycles2), num_frex)./(2*pi*frex); 
+    frex = logspace(log10(min_freq),log10(max_freq),num_frex);
 else % linear-scale
-    frex    = linspace(min_freq,max_freq,num_frex);
-    cyc     = linspace(wavelet_cycles1,wavelet_cycles2, num_frex)./(2*pi*frex);
+    frex = linspace(min_freq,max_freq,num_frex);
 end
+cyc = linspace(wavelet_cycles1,wavelet_cycles2, num_frex)./(2*pi*frex);
 
 %% Power & ITPC
 
