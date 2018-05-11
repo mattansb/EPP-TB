@@ -19,7 +19,7 @@
 %                 of frequencies to group together (1st column is lower
 %                 limit, 2nd column is upper limit of each range). e.g.
 %                 freqs = [1 3; 4 15; 16 28];
-%                 A given band is selected as so: [low <= freq < high]
+%                 A given band is selected as so: [low <= freq <= high]
 %
 % The available parameters are as follows:
 %           'average'       - average across electrodes before measuring?

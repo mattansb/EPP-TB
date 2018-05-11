@@ -5,7 +5,6 @@
 %{
 Change log:
 -----------
-08-05-2018  Improvment to frequancy band selection
 03-05-2018  Improvment to frequancy band selection
 07-04-2018  New function (written in MATLAB R2015a)
 %}
@@ -22,7 +21,7 @@ TW      = TW(1):TW(2);
 
 % Find Closest Frequencies
 for fr = 1:size(freqs,1)    
-    F = find(studyIn(1).freqs >= freqs(fr,1) & studyIn(1).freqs < freqs(fr,2));
+    F = find(studyIn(1).freqs >= freqs(fr,1) & studyIn(1).freqs <= freqs(fr,2));
     F = F([1 end]);
     
     freqs_ind{fr}   = F(1):F(2);
