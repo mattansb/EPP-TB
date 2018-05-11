@@ -12,7 +12,9 @@
 % freq_range    - [min max] frequency (Hz) range to compute
 % num_frex      - number of frequencies to compute (NOTE: will be]
 %                 log-scaled).
-% cycles_range  - [min max] range of the number of sycels for each wavelet.
+% cycles_range  - [min max] | [num] A range or a constant of the number of
+%                 cycels for each wavelet (also marked as the ratio between
+%                 f0/sigma(f), or the n in n/(2*pi*f).)
 % baselinetime  - [start end] baseline (in ms) for baseline correction
 % cut_times     - [start end] range of time to save. if empty, all time
 %                 point are returned.
@@ -37,6 +39,8 @@
 %{
 Change log:
 -----------
+11-05-2018  Added support for constant f/sigma(f) / number of cycles in a
+            wavelet.
 10-05-2018  Added new baseline correction methods
 13-04-2018  Added suuport for no time cuts
 01-03-2018  Added support for downsampling.
@@ -51,12 +55,9 @@ this step - as the baseline correction cancels out this correction)
 This is called  Spectral flattening
 *** Would only be relevant for standardize method. All other methods it
 mitkazez
-
-Add cycle option?
-range (current) / integer for n*f/sigma <- is this how it is done?
 %}
 
-function [new_power,itpc,frex,cut_times] = suppWaveletConv3(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
+function [new_power,itpc,frex,cut_times] = suppWaveletConv(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
 
 tic
 %% Validate
@@ -64,14 +65,13 @@ p = inputParser;
     addRequired(p,'EEG',@isstruct);
     addRequired(p,'freq_range',@(x) length(x)==2 && isnumeric(x));
     addRequired(p,'num_frex',@(x) length(x)==1 && isnumeric(x));
-    addRequired(p,'cycles_range',@(x) length(x)==2 && isnumeric(x));
+    addRequired(p,'cycles_range',@(x) length(x)<=2 && isnumeric(x));
     addRequired(p,'baselinetime',@(x) length(x)==2 && isnumeric(x));
     addOptional(p,'cut_times',[],@(x) isempty(x) | (length(x)==2 && isnumeric(x)));
     addParameter(p,'log',true, @islogical);
     addParameter(p,'baseline','dB', @(x) any(strcmpi(x,{'dB','normalize','standardize'})));
     addParameter(p,'dB',nan, @islogical); % deprecated 
     addParameter(p,'downsample',1, @(x) floor(x) == x);
-    addParameter(p,'sound','big', @(x) any(strcmpi(x,{'big','beep','off'})));
 parse(p ,EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin{:}); % validate
 
 
@@ -88,11 +88,13 @@ time    = -2:1/EEG.srate:2;
 
 % Frequencies (Hz) & number of cycles for each (p. 168, 196)
 if p.Results.log % LOG-SCALED (recomended)
-    frex = logspace(log10(min_freq),log10(max_freq),num_frex);
+    frex    = logspace(log10(min_freq),log10(max_freq),num_frex);
+    cyc     = logspace(log10(wavelet_cycles1),log10(wavelet_cycles2), num_frex)./(2*pi*frex);
 else % linear-scale
-    frex = linspace(min_freq,max_freq,num_frex);
+    frex    = linspace(min_freq,max_freq,num_frex);
+    cyc     = linspace(wavelet_cycles1,wavelet_cycles2, num_frex)./(2*pi*frex);
 end
-cyc = linspace(wavelet_cycles1,wavelet_cycles2, num_frex)./(2*pi*frex);
+
 
 %% Power & ITPC
 
@@ -108,7 +110,7 @@ half_of_wavelet_size = (n_wavelet-1)/2;
 eegfft      = zeros(nbchan,n_conv_pow2);
 itpc        = zeros(nbchan,length(frex),EEG.pnts);
 eegpower    = zeros(nbchan,num_frex,EEG.pnts); % elec X frequencies X time
-new_power = zeros(nbchan,num_frex,EEG.pnts);
+new_power   = zeros(nbchan,num_frex,EEG.pnts);
 
 
 % get FFT of data
@@ -219,14 +221,8 @@ timesidx    = dsearchn(EEG.times',cut_times');
 new_power   = new_power(:,:,timesidx);
 itpc        = itpc(:,:,timesidx);
 
-%% SOUND
-switch p.Results.sound
-    case 'big'
-        load('handel.mat');
-        sound(y(1000:18000))
-    case 'beep'
-        beep
-end
+%% DONE
+
 fprintf('DONE. (elapsed time %d seconds)\n',round(toc))
 
 end
