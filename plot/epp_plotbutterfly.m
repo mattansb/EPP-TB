@@ -18,7 +18,7 @@
 %                             to false). 
 %           'minusUp'       - if true, plot is flipped so minus is up
 %                             (false my default).
-%           'all'           - if true, plots selected channels across
+%           'trace'         - if true, plots selected channels across
 %                             subjects (if electrodes is left blank, plots
 %                             all channels). 
 %
@@ -30,8 +30,10 @@
 %{
 Change log:
 -----------
+
 13-05-2018  Fix to trace plot + added ability to plot trace plots with
             selected channels.
+            Changed 'all' to 'trace'.
 14-04-2018  Fixed error when plotting more than 6 conditions
 05-03-2018  Fix title printing
 04-03-2018  Added ability to plot Trace plots
@@ -51,6 +53,7 @@ p = inputParser;
     addRequired(p,'electrodes',@isnumeric);
     addParameter(p,'minusUp', false, @islogical)
     addParameter(p,'jackknife', false, @islogical)
+    addParameter(p,'trace', false, @islogical)
     addParameter(p,'all', false, @islogical)
     addParameter(p,'R', false, @islogical)
 parse(p, study, conditions, electrodes, varargin{:}); % validate
@@ -68,7 +71,7 @@ if p.Results.jackknife % jackknife data
 end
 
 % Select electrodes
-if p.Results.all
+if p.Results.all | p.Results.trace
     if isempty(electrodes)
         electrodes = 1:size(study(1).Data,1);
     end
