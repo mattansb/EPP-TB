@@ -1,7 +1,6 @@
 library(tidyverse)
 library(scales)
 
-
 # ==== Load data ====
 
 df <- read_csv("@filename@")
@@ -14,12 +13,13 @@ raster2rect <- function(data) {
   
   upper <- freq.vals + c(d.frq, d.frq[length(d.frq)])
   lower <- freq.vals - c(d.frq[1], d.frq) 
-  ntime <- length(unique(data$Time))
+  ntime <- data$Time %>% unique() %>% length
   
   data$xmin <- data$Time - d.time
   data$xmax <- data$Time + d.time
-  data$ymin <- unlist(lapply(lower, function(i) rep(i, ntime)))
-  data$ymax <- unlist(lapply(upper, function(i) rep(i, ntime)))
+  data$ymin <- map_dbl(lower, ~rep(.x, ntime))
+  data$ymax <- map_dbl(upper, ~rep(.x, ntime))
+  
   
   return(data)
 }
@@ -27,18 +27,31 @@ raster2rect <- function(data) {
 
 # Plot --------------------------------------------------------------------
 
-# Use geom_raster to plot y-axis scale as is
-TF.plot <- ggplot(df,aes(Time, Frequencies, fill = ersp)) + # or fill = itc
-  geom_raster(interpolate = T) +
-  facet_grid(.~Condition) +
-  # scale_y_log10() + # if Frequencies are log-spaced
-  scale_fill_distiller(palette = "OrRd", limits = c(-1.5,1.5),oob=squish)
 
-# Use geom_rect to change scaling of y-axis
-TF.plot <- ggplot(raster2rect(df),aes(Time, Frequencies, fill = ersp)) +  # or fill = itc
-  geom_rect(aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), color = NA) +
+ERSP.plot <- ggplot(df,aes(Time, Frequencies, fill = ersp)) +
+  ## Plot data
+  geom_raster(interpolate = T) + # plot y-axis scale as is
+  # geom_rect(aes(xmin=xmin, xmax=xmax, # change scaling of y-axis
+  #               ymin=ymin, ymax=ymax),
+  #           data = raster2rect(df),
+  #           color = NA) +
   facet_grid(.~Condition) +
+  ## Theme, Scales and Labels
   # scale_y_log10() + # if Frequencies are log-spaced
-  scale_fill_distiller(palette = "OrRd", limits = c(-1.5,1.5),oob=squish)
+  scale_fill_distiller(palette = "OrRd", limits = range(df$ersp), oob=squish)
 
-TF.plot # show the plot!
+ITC.plot <- ggplot(df,aes(Time, Frequencies, fill = itc)) +
+  ## Plot data
+  geom_raster(interpolate = T) + # plot y-axis scale as is
+  # geom_rect(aes(xmin=xmin, xmax=xmax, # change scaling of y-axis
+  #               ymin=ymin, ymax=ymax),
+  #           data = raster2rect(df),
+  #           color = NA) +
+  facet_grid(.~Condition) +
+  ## Theme, Scales and Labels
+  # scale_y_log10() + # if Frequencies are log-spaced
+  scale_fill_distiller(palette = "OrRd", limits = range(df$itc), oob=squish)
+
+# show the plots!
+ERSP.plot
+ITC.plot

@@ -5,6 +5,7 @@
 %{
 Change log:
 -----------
+02-05-2018  Improvemnt to saving measurement info
 18-04-2018  Fix to bad chars in condition names (remove them)
 19-01-2017  Support for saving data
 19-12-2016  Support for Jackknife adjustment
@@ -83,7 +84,8 @@ if any(strcmpi(pResults.save, {'wide','long'}))
         save_data = table(save_ID, save_cond, save_vals, 'VariableNames', {'ID','Condition',measure});
     end
         
-    save_info = struct2table(results.info);
+    save_info = results.info;
+    save_info = cell2table(struct2cell(save_info)','VariableNames',fieldnames(save_info));
     
     fn  = ['erp_' measure '_' datestr(datetime, 'yyyymmdd_HHMMSS')]; % file name
     

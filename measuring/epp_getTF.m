@@ -19,6 +19,7 @@
 %                 of frequencies to group together (1st column is lower
 %                 limit, 2nd column is upper limit of each range). e.g.
 %                 freqs = [1 3; 4 15; 16 28];
+%                 A given band is selected as so: [low <= freq <= high]
 %
 % The available parameters are as follows:
 %           'average'       - average across electrodes before measuring?
@@ -36,6 +37,7 @@
 %{
 Change log:
 -----------
+08-05-2018  Improvment to frequancy band selection
 18-04-2018  Fix bug when sending to suppPrep4statsTF
 14-04-2018  Support for jackknife
 07-04-2018  Rewrite of function.

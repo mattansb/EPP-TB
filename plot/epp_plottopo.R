@@ -2,7 +2,6 @@ library(tidyverse)
 library(magrittr)
 library(scales)
 library(mgcv)
-library(purrr)
 
 # ==== Load data ====
 raw.data <- read.csv("@filename@") %>%
@@ -105,10 +104,12 @@ topo.data <- raw.data %>%
 
 # Plot Channels
 ggplot(mapping = aes(x,y)) +
+  ## Plot Data
   geom_path(data = head$shape) +
   geom_line(data = head$nose) +
   geom_point(data = chanlocs, aes(label = Channel)) +
   geom_text(data = chanlocs, aes(label = Channel)) +
+  ## Theme, Scales and Labels
   theme_topo() +
   coord_equal()
 
@@ -127,7 +128,7 @@ topo.plot <- ggplot(topo.data,aes(x, y)) +
   geom_text(data = chanlocs, aes(label = Channel)) +
   # stat_ellipse(data = channel.groups, aes(group = Chan.Group)) +
   # geom_point(data = channel.groups, aes(shape = Chan.Group)) +
-  ## Design
+  ## Theme, Scales and Labels
   scale_fill_distiller(palette = "RdYlBu", direction = -1,
                        limits = range(topo.data$Amp), oob = squish) +
   labs(fill = "Amplitude") +

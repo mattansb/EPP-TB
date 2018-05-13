@@ -5,6 +5,7 @@
 %{
 Change log:
 -----------
+13-05-2018  BUG FIX
 05-03-2018  Added support for TF data
 17-12-2017  Added output of number of subs
 09-02-2017  Added support for more than two conditions
@@ -46,7 +47,7 @@ end
 
 studyOut = studyIn;
 
-nsubs = size(studyOut(1).IDs,3);
+nsubs = size(studyOut(1).IDs,1);
 
 end
 

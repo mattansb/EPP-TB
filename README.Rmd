@@ -7,7 +7,7 @@ output: github_document
 # EPP-TB: The ERP Post-Processing Tool Box <img src="doc\logo.png" align="right"/>
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.path = "doc/")
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,fig.path = "doc/")
 
 library(tidyverse)
 library(magrittr)
@@ -81,7 +81,7 @@ These functions can be used to compute new conditions or manipulate existing dat
 Grand averages can be plotted by specifying the conditions and channel indices (averaged across) to plot:
 
 ```Matlab
-conds         = {'Control_Crr_plus','Control_L5_plus'};
+conds         = {'Crr','L5'};
 channel_inds  = [5 6 11 12];
 epp_plotgrands(study,conds,channel_inds)
 ```
@@ -93,16 +93,20 @@ grand_data <- read_csv("doc/grand_plot_data.csv") %>%    # load the data file
   mutate_at(.vars = c("Time","mean","sd"), .funs = as.numeric) %>% 
   mutate(Condition = as.factor(Condition),
          N  = as.integer(N),
-         se = sd/sqrt(N))
+         se = sd/sqrt(N)) %>% 
+  separate(Condition,c('Group','Level'))
 
 grand_data %>% 
   ggplot(aes(x = Time, y = mean,
-             color = Condition, fill = Condition,
-             group = Condition)) + geom_vline(xintercept = 0) +
+             color = Level, fill = Level,
+             group = Level)) +
+  geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
-  geom_line() + 
+  geom_line(size = 1) + 
   scale_x_continuous(expand = c(0, 0)) +
-  labs(x = "Time", y = expression(paste(mu,"V")))
+  scale_color_manual(values = c('blue','red')) +
+  labs(x = "Time", y = expression(paste(mu,"V"))) +
+  theme_minimal() + theme(legend.position="bottom")
 
 ```
 
@@ -118,14 +122,18 @@ epp_plotgrands(study,conds,channel_inds,'errorType','SE')
 ```{r grand_plot_se}
 grand_data %>% 
   ggplot(aes(x = Time, y = mean,
-             color = Condition, fill = Condition,
-             group = Condition)) + geom_vline(xintercept = 0) +
+             color = Level, fill = Level,
+             group = Level)) +
+  geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
   geom_ribbon(aes(ymin = mean-se, ymax = mean+se),
               alpha = 0.25, color = NA) + 
-  geom_line() + 
+  geom_line(size = 1) + 
   scale_x_continuous(expand = c(0, 0)) +
-  labs(x = "Time", y = expression(paste(mu,"V")))
+  scale_color_manual(values = c('blue','red')) +
+  scale_fill_manual(values = c('blue','red')) +
+  labs(x = "Time", y = expression(paste(mu,"V"))) +
+  theme_minimal()+ theme(legend.position="bottom")
 ```
 
 
@@ -211,12 +219,13 @@ topo.data <- raw.data %>%
   select(Condition,TimePnt,Channel,x,y,Amp) %>% 
   nest() %>%
   mutate(data = expand.topo(data)) %>% 
-  unnest()
+  unnest() %>% 
+  separate(Condition,c('Group','Level'))
 
 ggplot(topo.data,aes(x, y)) +
   ## The Topos
   geom_raster(aes(fill = Amp))+
-  facet_grid(TimePnt~Condition) +
+  facet_grid(~Level) +
   ## The Head
   geom_path(data = head$mask, color = "white",size = 4) +
   geom_path(data = head$nose, size = 1.5) +
@@ -225,7 +234,7 @@ ggplot(topo.data,aes(x, y)) +
   geom_point(data = chanlocs) +
   ## Design
   scale_fill_distiller(palette = "RdYlBu", direction = -1,
-                       limits = range(topo.data$Amp), oob = squish) +
+                       limits = c(-2,2), oob = squish) +
   labs(fill = "Amplitude") +
   theme_topo() +
   coord_equal()
@@ -245,19 +254,22 @@ epp_plotbutterfly(study,conds,channel_inds)
 butterfly_data <- read_csv("doc/butterfly_plot_data.csv") %>% # load the data file
   group_by(Condition,Time) %>% 
   mutate(meanAmp = mean(amp)) %>% 
-  ungroup()
+  ungroup() %>% 
+  separate(Condition,c('Group','Level'))
 
 butterfly_data %>% 
   ggplot(aes(x = Time, y = amp,
-             color = Condition,
+             color = Level,
              group = ID)) + 
-  facet_wrap(~Condition) +
+  facet_wrap(~Level) +
   geom_vline(xintercept = 0) + 
   geom_hline(yintercept = 0) + 
   geom_line(alpha = 0.8) + 
   geom_line(aes(y = meanAmp), color = "black", size = 1) +
-  scale_x_continuous(expand = c(0, 0)) +  
-  labs(x = "Time", y = expression(paste(mu,"V"))) 
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_color_manual(values = c('blue','red')) +
+  labs(x = "Time", y = expression(paste(mu,"V"))) +
+  theme_minimal()+ theme(legend.position="none")
 
 ```
 
@@ -270,22 +282,27 @@ epp_plotbutterfly(study,conds,channel_inds,'all',true)
 ```
 ```{r trace_plot}
 
-trace_data <- read_csv("doc/trace_plot_data.csv")
+trace_data <- read_csv("doc/trace_plot_data.csv") %>% 
+  separate(Condition,c('Group','Level'))
 
 trace_data %>% 
   ggplot(aes(x = Time, y = amp,
-             color = Condition,
+             color = Level,
              group = ID)) + 
-  facet_wrap(~Condition) +
+  facet_wrap(~Level) +
   geom_vline(xintercept = 0) + 
   geom_hline(yintercept = 0) + 
   geom_line(alpha = 0.8) + 
   scale_x_continuous(expand = c(0, 0)) + 
-  labs(x = "Time", y = expression(paste(mu,"V"))) 
+  scale_color_manual(values = c('blue','red')) +
+  labs(x = "Time", y = expression(paste(mu,"V"))) +
+  theme_minimal()+ theme(legend.position="none")
 
 ```
 
 ### TF Plots
+
+#### Time-Frequancy Plot
 
 Time Frequency plots plot both ersp and itc:
 
@@ -295,34 +312,43 @@ epp_plotTF(study,conds,channel_inds)
 
 ```{r TFplot}
 
-TF_data <- read_csv("doc/TFplot_data.csv")
-
+df <- read_csv("doc/TFplot_data.csv") %>% 
+  separate(Condition,'Level')
 
 # Plot --------------------------------------------------------------------
 
 # Use geom_raster to plot y-axis scale as is
-ersp <- ggplot(TF_data,aes(Time, Frequencies, fill = ersp)) + # or fill = itc
+ersp_plot <- ggplot(df,aes(Time, Frequencies, fill = ersp)) + # or fill = itc
   geom_raster(interpolate = T) +
-  facet_grid(.~Condition) +
-  scale_y_log10(breaks = sort(unique(TF_data$Frequencies))[seq(1,50, by = 4)] %>% round()) + # if Frequencies are log-spaced
-  scale_fill_distiller(palette = "OrRd", limits = c(-1,2), oob = squish)
+  facet_grid(.~Level) +
+  scale_y_log10(breaks = c(1,4,8,12,30), expand = c(0, 0)) + # if Frequencies are log-spaced
+  scale_x_continuous(breaks = seq(-200,700,by = 200), expand = c(0, 0)) +
+  scale_fill_gradientn(colors = c('black','red','yellow','white'),
+                       limits = c(0,2.5),oob=squish) +
+  theme_minimal() +
+  labs(fill = 'Power (dB)')
 
-itc <- ggplot(TF_data,aes(Time, Frequencies, fill = itc)) + # or fill = itc
+itc_plot <- ggplot(df,aes(Time, Frequencies, fill = itc)) + # or fill = itc
   geom_raster(interpolate = T) +
-  facet_grid(.~Condition) +
-  scale_y_log10(breaks = sort(unique(TF_data$Frequencies))[seq(1,50, by = 4)] %>% round()) + # if Frequencies are log-spaced
-  scale_fill_distiller(palette = "OrRd", oob = squish)
+  facet_grid(.~Level) +
+  scale_y_log10(breaks = c(1,4,8,12,30), expand = c(0, 0)) + # if Frequencies are log-spaced
+  scale_x_continuous(breaks = seq(-200,700,by = 200), expand = c(0, 0)) +
+  scale_fill_gradientn(colors = c('black','red','yellow','white'),
+                       limits = c(0,0.4),oob=squish) +
+  theme_minimal() +
+  labs(fill = 'ITC')
 
-
-ersp / itc
+ersp_plot/itc_plot
 
 ```
 
-Topo Plots-  is a wrapper around `epp_plottopo`.
-Need to specify bands:
+#### Power Topo-Plots
+
+`epp_plottopoTF` is a wrapper around `epp_plottopo` for plotting topo plots of selected frequency bands.
 
 ```Matlab
-bands = [4, 8; 8, 12];
+times = [160 410];
+bands = [4 8; 8 12];
 % a matrix of frequencies, with each row containing a range of frequencies
 % to plot (1st column is lower limit, 2nd column is upper limit of band).
 epp_plottopoTF(study,chanlocs,conds,channel_inds,times,bands)
@@ -336,31 +362,79 @@ raw.data <- read.csv("doc/TFtopo_data.csv") %>%
          x           = Radius*sin(radianTheta),
          y           = Radius*cos(radianTheta),
          r           = sqrt(x^2 + y^2))
+
+
+expand.topo <- function(data, gridRes = NULL) {
+  if (is.null(gridRes))
+    gridRes <- data %$% unique(Channel) %>% {length(.)/2}
   
+  range_x <- range(data$x)*1.15
+  range_y <- range(data$y)*1.15
+  
+  tmp.GAM <- expand.grid(x = seq(range_x[1],range_x[2],length = gridRes),
+                         y = seq(range_y[1],range_y[2],length = gridRes)) %>%
+    data.frame()
+  tmp.GAM$Amp <- gam(Amp ~ s(x, y, bs = 'ts'), data = data) %>% 
+    predict(tmp.GAM, type = "response")
+  tmp.GAM %>% 
+    filter(sqrt(x^2 + y^2) <= max(diff(range(x)),diff(range(y)))/2)
+}
 
+circleFun <- function(diameter = 1, center = c(0,0), npoints = 100) {
+  r  <- diameter / 2
+  tt <- seq(0,2*pi,length.out = npoints)
+  xx <- center[1] + r * cos(tt)
+  yy <- center[2] + r * sin(tt)
+  return(data.frame(x = xx, y = yy))
+}
+
+# Topo theme
+theme_topo <- function(base_size = 12) {
+  theme_bw(base_size = base_size) %+replace%
+    theme(rect       = element_blank(),
+          line       = element_blank(),
+          axis.text  = element_blank(),
+          axis.title = element_blank()
+    )
+}
+
+# Channel Data
+chanlocs <- raw.data %>% 
+  select(Channel, x, y) %>%
+  distinct()
+
+# Head Shapes
+diam <- chanlocs %>%
+  select(x,y) %>% 
+  map_dbl(~diff(range(.))) %>% max()
+head <- list(
+  shape = circleFun(diam*0.75),
+  mask  = circleFun(diam*1.15),
+  nose  = data.frame(x = c(-.075,0,.075),
+                     y = c(-.005,.075,-.005) + diam*0.375)
+  
+)
+
+# Topo Data
 topo.data <- raw.data %>% 
-  group_by(Condition,TimePnt) %>% 
   select(Condition,TimePnt,Channel,x,y,Amp) %>% 
+  separate(Condition,c('Level','Group','Band')) %>% 
+  mutate(Band = factor(Band, labels = c('Theta (4-8Hz)','Gamma (8-12Hz)'))) %>% 
+  group_by(Level,Band) %>% 
   nest() %>%
-  mutate(data = expand.topo(data)) %>% 
-  unnest()# %>% 
-  # separate(Condition, into = c("Group","Level","Oper","Freq")) %>% 
-  # unite("Condition",Group:Oper)
+  mutate(data = map(data,expand.topo)) %>% 
+  unnest()
 
+# Plot
 ggplot(topo.data,aes(x, y)) +
-  ## The Topos
   geom_raster(aes(fill = Amp))+
-  facet_grid(TimePnt~Condition) +
-  ## The Head
+  facet_grid(Band~Level) +
   geom_path(data = head$mask, color = "white",size = 4) +
   geom_path(data = head$nose, size = 1.5) +
   geom_path(data = head$shape, size = 1.5) +
-  ## The Channels
-  geom_point(data = chanlocs) +
-  ## Design
-  scale_fill_distiller(palette = "OrRd",
-                       limits = c(-1,2), oob = squish) +
-  labs(fill = "Amplitude") +
+  scale_fill_gradientn(colors = c('white','cyan','blue','black','red','yellow','white'),
+                       limits = c(-2,2), oob = squish) +
+  labs(fill = "Power (dB)") +
   theme_topo() +
   coord_equal()
 
@@ -368,7 +442,7 @@ ggplot(topo.data,aes(x, y)) +
 
 ### Exporting to R
 
-All plots can be exported to R and plotted with [`ggplot2`](https://github.com/tidyverse/ggplot2) by setting `'R',true` in any of the plotting function. This produces two time-stamped files: 
+All plots can be exported to R and plotted with [`ggplot2`](https://github.com/tidyverse/ggplot2) by setting `'R',true` in any of the plotting function (this is how the plots in thie README where made). This produces two time-stamped files: 
 
 - A data file (`*_data.csv`)
 - A code file (`*_code.R`), to plot said data using `ggplot2`.
@@ -412,7 +486,7 @@ The function `epp_getTF` measure the *mean* ersp / itc from selected channels, w
 
 - **Mattan S. Ben-Shachar** [aut, cre].
 - **Rachel Rac** [ctb].
-- **Micael Shmueli** [ctb].
+- **Michael Shmueli** [ctb].
 
 ## Acknowledgments
 

@@ -34,6 +34,7 @@
 Change log:
 -----------
 01-05-2018  Fixed bug that caused time-line to be flipped!
+            Changed ersp colormap
 15-03-2018  Fix and improvment to color limits
 05-03-2018  Fix title printing
 28-02-2018  ITC (abs) is now computed in function, to allow for the
@@ -83,7 +84,8 @@ end
 if ~isnan(p.Results.erspmaplimits)
     ersp_range = p.Results.erspmaplimits;
 else
-    ersp_range = [min(ersp_min) max(ersp_max)];
+    ersp_range = max([abs(min(ersp_min)) max(ersp_max)]);
+    ersp_range = [-ersp_range ersp_range];
 end
 
 % Set ITC color lims
@@ -103,7 +105,7 @@ for c = 1:length(conditions) % for each condition
     subplot(2,length(conditions),c);                                    % new subplot
     contourf(times,frex,ersp(c).data',40,'linecolor','none');
     set(gca,'ytick',ytick,'yscale',p.Results.scale)
-    colormap(gca,hot) % or jet?
+    colormap(gca,suppMakeColormap('wcbkryw'))
     caxis(ersp_range)
     
     if c == 1 % if this is the first plot
@@ -126,7 +128,7 @@ for c = 1:length(conditions) % for each condition
     subplot(2,length(conditions),length(conditions)+c)              % new subplot
     contourf(times,frex,itc(c).data',40,'linecolor','none')
     set(gca,'ytick',ytick,'yscale',p.Results.scale)
-    colormap(gca,hot) % or jet?
+    colormap(gca,suppMakeColormap('kryw'))
     caxis(itc_range)
     % set colot to 'hot'
     set(gca,'YDir','normal')

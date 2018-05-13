@@ -13,6 +13,7 @@
 %                 of frequencies to group together (1st column is lower
 %                 limit, 2nd column is upper limit of each range). e.g.
 %                 freqs = [1 3; 4 15; 16 28];
+%                 A given band is selected as so: [low <= freq <= high]
 %
 % See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopo
 %
@@ -22,6 +23,7 @@
 %{
 Change log:
 -----------
+03-05-2018  Improvment to frequancy band selection
 05-03-2018  New function (written in MATLAB R2017a)
 %}
 
@@ -47,9 +49,10 @@ clear cInd
 nBands = size(freqs,1);
 
 for fr = 1:nBands
-    freqsRange(fr,1)    = dsearchn(study(1).freqs',freqs(fr,1)); % closest point to start of defined frequency window
-    freqsRange(fr,2)    = dsearchn(study(1).freqs',freqs(fr,2)); % closest point to end of defined frequency window
-    freqsRange(fr,:)    = study(1).freqs(freqsRange(fr,:));
+    freqs_ind = find(study(1).freqs >= freqs(fr,1) & study(1).freqs <= freqs(fr,2));
+    freqs_ind = freqs_ind([1 end]);
+    
+    freqsRange(fr,:)    = study(1).freqs(freqs_ind);
     freqs_name(fr)      = {[num2str(freqs(fr,1)) 'to' num2str(freqs(fr,2)) 'Hz']};
 end
 

@@ -18,8 +18,9 @@
 %                             to false). 
 %           'minusUp'       - if true, plot is flipped so minus is up
 %                             (false my default).
-%           'all'           - if true, plots all channels across subjects.
-%                             (electrodes is ignored.)
+%           'all'           - if true, plots selected channels across
+%                             subjects (if electrodes is left blank, plots
+%                             all channels). 
 %
 % See also epp_plotgrands, epp_plotTF, epp_plottopo, epp_plottopoTF
 %
@@ -29,6 +30,8 @@
 %{
 Change log:
 -----------
+13-05-2018  Fix to trace plot + added ability to plot trace plots with
+            selected channels.
 14-04-2018  Fixed error when plotting more than 6 conditions
 05-03-2018  Fix title printing
 04-03-2018  Added ability to plot Trace plots
@@ -36,9 +39,6 @@ Change log:
 18-06-2017  Removed ability to plot time window.
 04-04-2017  Added ability to mark subjects on Z axis
 25-11-2016  New function (written in MATLAB R2015a)
-
-2DO
-- Make option to export to R.
 %}
 
 function epp_plotbutterfly(study,conditions, electrodes,varargin)
@@ -61,23 +61,34 @@ cInd = cellfun(@(x) find(ismember({study(:).Condition}, x)), conditions);
 
 study = study(cInd);
 
-if p.Results.all
-    [study, nsubs]  = suppMatchSubjects(study,conditions);
-    electrodes      = 1:nsubs;
-    for c = 1:length(study)
-        study(c).Data   = permute(study(c).Data,[3 2 1]);
-        study(c).IDs    = table([1:size(study(c).Data,3)]','VariableNames',{'ID'});
-    end
-elseif p.Results.jackknife
+if p.Results.jackknife % jackknife data
     for c = 1:length(study)
         study(c).Data = suppJackknife('in',study(c).Data);
+    end
+end
+
+% Select electrodes
+if p.Results.all
+    if isempty(electrodes)
+        electrodes = 1:size(study(1).Data,1);
+    end
+    
+    for c = 1:length(study)
+        study(c).Data   = permute(study(c).Data,[3 2 1]);
+        % Mean across subjects
+        study(c).Data   = squeeze(mean(study(c).Data(:,:,electrodes),1));
+        study(c).IDs    = table(electrodes','VariableNames',{'ID'});
+    end
+else
+    for c = 1:length(study)
+        % Mean across electrodes
+        study(c).Data   = squeeze(mean(study(c).Data(electrodes,:,:),1));
     end
 end
 
 %% Compute aves
 
 for c = 1:length(study)
-    study(c).Data   = squeeze(mean(study(c).Data(electrodes,:,:),1));   % Mean across electrodes
     study(c).mean   = mean(study(c).Data,2);                            % Mean across subjects
     maxA(c)         = max(study(c).Data(:));                            % find max amplidute
     minA(c)         = min(study(c).Data(:));                            % find min amplidute
