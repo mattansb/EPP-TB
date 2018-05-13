@@ -109,7 +109,7 @@ epp_plotbutterfly(study,conds,channel_inds)
 Trace plots are similar to butterfly plots, but the mean activation (across subjects) is plotted for each channel separately.
 
 ``` matlab
-epp_plotbutterfly(study,conds,channel_inds,'all',true)
+epp_plotbutterfly(study,conds,channel_inds,'trace',true)
 % if channels are indicated, they are ignored.
 ```
 
