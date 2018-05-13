@@ -5,6 +5,7 @@
 %{
 Change log:
 -----------
+13-05-2018  Improvment to saving long data
 02-05-2018  Improvemnt to saving measurement info
 18-04-2018  Fix to bad chars in condition names (remove them)
 19-01-2017  Support for saving data
@@ -64,24 +65,9 @@ if any(strcmpi(pResults.save, {'wide','long'}))
     save_data = results.(measure);
     
     if strcmpi(pResults.save, 'long')
-        % get number of IDs and columns
-        [nID, nCond] = size(save_data);
-        nCond = nCond-1;
-        
-        % shape values
-        save_vals = table2array(save_data(:,2:end));
-        save_vals = reshape(save_vals,1,[])';
-        
-        % shape IDs
-        save_ID = repmat(table2cell(save_data(:,1)),nCond,1);
-        
-        % shape condition column
-        save_cond = save_data.Properties.VariableNames(2:end);
-        save_cond = repmat(save_cond,nID,1);
-        save_cond = reshape(save_cond,1,[])';
-        
-        % combine to table
-        save_data = table(save_ID, save_cond, save_vals, 'VariableNames', {'ID','Condition',measure});
+        save_data = stack(save_data,save_data.Properties.VariableNames(2:end),...
+            'NewDataVariableName',measure,...
+            'IndexVariableName','Condition');
     end
         
     save_info = results.info;
