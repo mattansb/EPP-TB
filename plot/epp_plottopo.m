@@ -27,7 +27,7 @@
 %                             continue to format you plot - colors,
 %                             annotations, etc.)
 %
-% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopoTF
+% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopoTF, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -36,6 +36,7 @@
 Change log:
 -----------
 14-05-2018  Improvment to exporting plot data
+            Silenced topoplot();
 01-05-2018  Changed colormap (removed custom option)
 15-04-2018  1. Removed smoothing (that wasnet working). Instead added
                support for plotting over explicit time windows.
@@ -123,6 +124,11 @@ end
 % Each conditions has its own figure.
 % Multiple time points are plotted in same figure. 
 
+topo_args = {'style',     'map',... 'both'
+            'maplimits',  maplimits,... 'absmax',...
+            'electrodes', p.Results.plotlabels, ... 'labels' / 'numpoint'
+            'whitebk','on'};
+
 for c = 1:size(meanData,3) % each condition
     fig = figure();
     clf
@@ -134,12 +140,7 @@ for c = 1:size(meanData,3) % each condition
 
         % Plot the Data 
         % -------------
-        topoplot( meanData(:,t,c), chanlocs,...
-            'style',     'map',... 'both'
-            'maplimits',  maplimits,... 'absmax',...
-            'electrodes', p.Results.plotlabels, ... 'labels' / 'numpoint'
-            'whitebk','on'...
-            );
+        evalc('topoplot(meanData(:,t,c), chanlocs,topo_args{:});');
         
         % Add Color Bar
         % -------------
