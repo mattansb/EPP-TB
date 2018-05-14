@@ -34,6 +34,7 @@
 %{
 Change log:
 -----------
+14-05-2018  Improvment to exporting plot data
 14-04-2018  Fixed error when plotting more than 6 conditions
 05-03-2018  Fix title printing
 17-05-2017  Fixed bug when exporting to R
@@ -218,42 +219,40 @@ legend([meanPlot],{study.Condition}, 'Interpreter', 'none');
 
 %% Export to R
 if p.Results.R
-    
     % Save the data in long format
     % ----------------------------
-    nTmPnts = length(study(1).timeLine);    % length of time axis
-    nCond   = length(study);                % number of conditions
-    
-    % make empty matrices
-    ERPmean     = nan(nTmPnts,nCond);
-    ERPsd       = nan(nTmPnts,nCond);
-    ERPn        = nan(nTmPnts,nCond);
-    ERPcond     = cell(nTmPnts,nCond);
-    
-    for c = 1:nCond
-        ERPmean(:,c)    = study(c).mean';                           % get Mean
-        try ERPsd(:,c)  = study(c).sd'; end                         % get SD
-        ERPn(:,c)       = repmat(study(c).N, nTmPnts,1);            % get N
-        ERPcond(:,c)    = repmat({study(c).Condition},nTmPnts,1);   % get condition name
+    save_data.Condition = {};
+    save_data.Time      = [];
+    save_data.N         = [];
+    save_data.mean      = [];
+    save_data.sd        = [];
+
+    for c = 1:length(study) % for each condition
+        temp_cond   = repmat({study(c).Condition},  size(study(c).mean))';
+        temp_N      = repmat(study(c).N,            size(study(c).mean))';
+        try
+            temp_SD = study(c).sd;
+        catch
+            temp_SD = nan(size(study(c).mean));
+        end
+
+        save_data.Condition = [save_data.Condition; temp_cond(:)];
+        save_data.Time      = [save_data.Time;      study(c).timeLine'];
+        save_data.N         = [save_data.N;         temp_N(:)];
+        save_data.mean      = [save_data.mean;      study(c).mean(:)'];
+        save_data.sd        = [save_data.sd;        temp_SD(:)];
     end
+
+    T = struct2table(save_data);
     
-    ERPtime = repmat(study(1).timeLine',1,nCond); % get time line
-    
-    % Reshape all:
-    ERPmean = reshape(ERPmean,1,[]);
-    ERPsd   = reshape(ERPsd,1,[]);
-    ERPn    = reshape(ERPn,1,[]);
-    ERPcond = reshape(ERPcond,1,[]);
-    ERPtime = reshape(ERPtime,1,[]);
-    
-    % Convert to table and write to CSV:
-    T   = table(ERPcond', ERPtime', ERPn', ERPmean', ERPsd', 'VariableNames', {'Condition','Time','N','mean','sd'});
+    % Save to CSV
+    % -----------
     fn  = ['erpplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
     writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true) % save as csv
     
     
-    % Make R code file
-    % ----------------
+    % Make and save R code file
+    % -------------------------
     Rpath = strrep(which(mfilename),[mfilename '.m'],'');
     fid  = fopen([Rpath '\epp_plotgrands.R'],'rt');
     f = fread(fid,'*char')';

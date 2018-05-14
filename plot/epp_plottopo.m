@@ -35,6 +35,7 @@
 %{
 Change log:
 -----------
+14-05-2018  Improvment to exporting plot data
 01-05-2018  Changed colormap (removed custom option)
 15-04-2018  1. Removed smoothing (that wasnet working). Instead added
                support for plotting over explicit time windows.
@@ -166,38 +167,50 @@ end
 if p.Results.R
     % Save the data in long format
     % ----------------------------
-    nElec   = length(chanlocs);     % number of electrodes
-    nTimes  = size(timePoints,2);   % number of time points
-    nConds  = length(conditions);   % number of conditions
-    
-    % Get chanlocs Theta + Radius
-    chanlocs    = struct2table(chanlocs);
-    electrodes  = reshape(repmat(chanlocs{:,1},[1 nTimes nConds]),1,[])';
-    theta       = reshape(repmat(chanlocs{:,8},[1 nTimes nConds]),1,[])';
-    radius      = reshape(repmat(chanlocs{:,9},[1 nTimes nConds]),1,[])';
-    
-    % Repeat time points and labels
-    conds       = reshape(repmat(conditions,[nElec*nTimes 1]),1,[])';
-    if size(timePoints,1)==2
-        for t = 1:nTimes
-            temp{t} = num2str(timePoints(:,t)');
-        end
-        timePoints = temp;
-        clear temp
+    save_data.Condition = {};
+    save_data.TimePnt   = {};
+    save_data.Channel   = {};
+    save_data.Theta     = [];
+    save_data.Radius    = [];
+    save_data.Amp       = [];
+
+    % Orgenize time points:
+    for t = 1:size(timePoints,2)
+        temp{t} = num2str(timePoints(:,t)');
     end
-    times       = reshape(repmat(timePoints,[nElec nConds 1]),1,[])';
-    amplitudes	= reshape(meanData,1,[])';
+    times_str   = temp;
+    nTimes      = length(times_str);
+
+    % Orgenize channels
+    chanlocs    = struct2table(chanlocs);
+    nChans      = size(chanlocs,1);
+
+    for c = 1:length(study) % for each condition
+        temp_cond   = repmat({study(c).Condition},	[nChans nTimes])';
+        temp_time   = repmat(times_str,             [nChans 1])';
+        temp_chan   = repmat(chanlocs.labels,       [1 nTimes])';
+        temp_theta  = repmat(chanlocs.theta,        [1 nTimes])';
+        temp_radius = repmat(chanlocs.radius,       [1 nTimes])';
+        temp_amp    = meanData(:,:,c)';
+
+        save_data.Condition = [save_data.Condition; temp_cond(:)];
+        save_data.TimePnt   = [save_data.TimePnt;   temp_time(:)];
+        save_data.Channel   = [save_data.Channel;   temp_chan(:)];
+        save_data.Theta     = [save_data.Theta;     temp_theta(:)];
+        save_data.Radius    = [save_data.Radius;    temp_radius(:)];
+        save_data.Amp       = [save_data.Amp;       temp_amp(:)];
+    end
+
+    T = struct2table(save_data);
     
-    % save to table:
-    T   = table(conds,times,electrodes, theta, radius,amplitudes,....
-        'VariableNames', {'Condition','TimePnt','Channel','Theta','Radius','Amp'});
+    % Save to CSV
+    % -----------
     fn  = ['topoplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
     writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true) % save as csv
     
     
-    % Make R code file
-    % ----------------
-    % save data + save r script
+    % Make and save R code file
+    % -------------------------
     Rpath = strrep(which(mfilename),[mfilename '.m'],'');
     fid  = fopen([Rpath '\epp_plottopo.R'],'rt');
     f = fread(fid,'*char')';

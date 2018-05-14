@@ -6,7 +6,7 @@ library(scales)
 df <- read_csv("@filename@")
 
 raster2rect <- function(data) {
-  freq.vals <- unique(data$Frequencies)
+  freq.vals <- unique(data$Frequency)
   
   d.time <- diff(unique(data$Time))[1]/2
   d.frq <- diff(freq.vals)/2
@@ -28,7 +28,7 @@ raster2rect <- function(data) {
 # Plot --------------------------------------------------------------------
 
 
-ERSP.plot <- ggplot(df,aes(Time, Frequencies, fill = ersp)) +
+ERSP.plot <- ggplot(df,aes(Time, Frequency, fill = ersp)) +
   ## Plot data
   geom_raster(interpolate = T) + # plot y-axis scale as is
   # geom_rect(aes(xmin=xmin, xmax=xmax, # change scaling of y-axis
@@ -40,7 +40,7 @@ ERSP.plot <- ggplot(df,aes(Time, Frequencies, fill = ersp)) +
   # scale_y_log10() + # if Frequencies are log-spaced
   scale_fill_distiller(palette = "OrRd", limits = range(df$ersp), oob=squish)
 
-ITC.plot <- ggplot(df,aes(Time, Frequencies, fill = itc)) +
+ITC.plot <- ggplot(df,aes(Time, Frequency, fill = itc)) +
   ## Plot data
   geom_raster(interpolate = T) + # plot y-axis scale as is
   # geom_rect(aes(xmin=xmin, xmax=xmax, # change scaling of y-axis

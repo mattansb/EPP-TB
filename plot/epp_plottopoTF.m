@@ -65,9 +65,9 @@ for fr = 1:nBands
     for c = 1:length(study)
         bool_freq = study(c).freqs >= freqsRange(fr,1) & study(c).freqs <= freqsRange(fr,2);
         
-        studyOut(end+1).Condition = [study(c).Condition '_' freqs_name{fr}];
-        studyOut(end).Data = squeeze(mean(study(c).ersp(:,bool_freq,:,:),2));
-        studyOut(end).timeLine = study(c).timeLine;
+        studyOut(end+1).Condition   = [study(c).Condition '_' freqs_name{fr}];
+        studyOut(end).Data          = squeeze(mean(study(c).ersp(:,bool_freq,:,:),2));
+        studyOut(end).timeLine      = study(c).timeLine;
     end
 end
 

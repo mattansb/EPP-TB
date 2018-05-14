@@ -33,6 +33,7 @@
 %{
 Change log:
 -----------
+14-05-2018  Improvment to exporting plot data
 01-05-2018  Fixed bug that caused time-line to be flipped!
             Changed ersp colormap
 15-03-2018  Fix and improvment to color limits
@@ -130,8 +131,7 @@ for c = 1:length(conditions) % for each condition
     set(gca,'ytick',ytick,'yscale',p.Results.scale)
     colormap(gca,suppMakeColormap('kryw'))
     caxis(itc_range)
-    % set colot to 'hot'
-    set(gca,'YDir','normal')
+    
     if c == 1 % if this is the first plot
         cl              = colorbar('west','AxisLocation','out');
         cl.Position(1)  = cl.Position(1)*0.4;
@@ -148,38 +148,38 @@ end
 if p.Results.R
     % Save the data in long format
     % ----------------------------
+    save_data.Condition = {};
+    save_data.Time      = [];
+    save_data.Frequency = [];
+    save_data.ersp      = [];
+    save_data.itc       = [];
+
     nTmPnts = length(study(1).timeLine);    % length of time axis
-    nCond   = length(study);                % number of conditions
     nFrex   = length(study(1).freqs);       % number of frequencies
-    
-    % make empty matrices
-    WAVEpwr     = nan(nTmPnts,nFrex,nCond);
-    WAVEitc     = nan(nTmPnts,nFrex,nCond);
-    WAVEcond    = cell(nTmPnts,nFrex,nCond);
-    
-    
-    for c = 1:nCond
-        WAVEpwr(:,:,c)  = ersp(c).data;                           % get Mean
-        WAVEitc(:,:,c)  = itc(c).data;
-        WAVEcond(:,:,c) = repmat({study(c).Condition},nTmPnts,nFrex,1);   % get condition name
+
+    for c = 1:length(study) % for each condition
+        temp_cond   = repmat({study(c).Condition},  [nTmPnts nFrex]);
+        temp_time   = repmat(study(c).timeLine',    [1 nFrex]);
+        temp_freq   = repmat(study(c).freqs,        [nTmPnts 1]);
+        temp_ersp   = ersp(c).data;
+        temp_itc    = itc(c).data;
+
+        save_data.Condition = [save_data.Condition; temp_cond(:)];
+        save_data.Time      = [save_data.Time;      temp_time(:)];
+        save_data.Frequency = [save_data.Frequency; temp_freq(:)];
+        save_data.ersp      = [save_data.ersp;      temp_ersp(:)];
+        save_data.itc       = [save_data.itc;       temp_itc(:)];
     end
+
+    T = struct2table(save_data);
     
-    WAVEtime = repmat(study(1).timeLine',1,nFrex,nCond); % get time line
-    WAVEfrex = repmat(study(1).freqs,nTmPnts,1,nCond); % get time line
-    
-    % Reshape all:
-    WAVEcond    = reshape(WAVEcond,1,[]);
-    WAVEtime    = reshape(WAVEtime,1,[]);
-    WAVEfrex    = reshape(WAVEfrex,1,[]);
-    WAVEpwr     = reshape(WAVEpwr,1,[]);
-    WAVEitc     = reshape(WAVEitc,1,[]);
-    
-    T   = table(WAVEcond', WAVEtime', WAVEfrex', WAVEpwr', WAVEitc', 'VariableNames', {'Condition','Time','Frequencies','ersp','itc'});
+    % Save to CSV
+    % -----------
     fn  = ['waveletplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
     writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true) % save as csv
     
-    % Make R code file
-    % ----------------
+    % Make and save R code file
+    % -------------------------
     Rpath = strrep(which(mfilename),[mfilename '.m'],'');
     fid  = fopen([Rpath '\epp_plotTF.R'],'rt');
     f = fread(fid,'*char')';

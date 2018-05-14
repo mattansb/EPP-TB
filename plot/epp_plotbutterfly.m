@@ -30,7 +30,7 @@
 %{
 Change log:
 -----------
-
+14-05-2018  Improvment to exporting plot data
 13-05-2018  Fix to trace plot + added ability to plot trace plots with
             selected channels.
             Changed 'all' to 'trace'.
@@ -178,40 +178,31 @@ end
 if p.Results.R
     % Save the data in long format
     % ----------------------------
-    nTmPnts = length(study(1).timeLine);    % length of time axis
-    nCond   = length(study);                % number of conditions
-    nSumID  = sum(cellfun(@(x) size(x,1),{study.IDs}));
-    
-    % make empty matrices
-    ERPamp      = nan(nTmPnts,nSumID);
-    ERPcond     = cell(nTmPnts,nSumID);
-    ERPID       = cell(nTmPnts,nSumID);
+    save_data.Condition = {};
+    save_data.Time      = [];
+    save_data.ID        = {};
+    save_data.amp       = [];
 
-    for c = 1:nCond
-        x_start = find(all(isnan(ERPamp),1),1);
-        x_end   = x_start + size(study(c).Data,2) - 1;
-        
-        ERPamp(:,x_start:x_end)     = study(c).Data;
-        ERPcond(:,x_start:x_end)    = {study(c).Condition};
-        ERPID(:,x_start:x_end)      = table2cell(repmat(study(c).IDs(:,1), 1, nTmPnts))';
+    for c = 1:length(study) % for each condition
+        temp_cond   = repmat({study(c).Condition},  size(study(c).Data));
+        temp_time   = repmat(study(c).timeLine',    [1 size(study(c).Data,2)]);
+        temp_ID     = repmat(study(c).IDs{:,1}',    [size(study(c).Data,1) 1]);
+
+        save_data.Condition = [save_data.Condition; temp_cond(:)];
+        save_data.Time      = [save_data.Time;      temp_time(:)];
+        save_data.ID        = [save_data.ID;        temp_ID(:)];
+        save_data.amp       = [save_data.amp;       study(c).Data(:)];
     end
-    
-    ERPtime = repmat(study(1).timeLine',1,nSumID); % get time line
-    
-    % Reshape all:
-    ERPamp  = reshape(ERPamp,1,[]);
-    ERPID   = reshape(ERPID,1,[]);
-    ERPcond = reshape(ERPcond,1,[]);
-    ERPtime = reshape(ERPtime,1,[]);
-    
-    % Convert to table and write to CSV:
-    T   = table(ERPcond', ERPtime', ERPID', ERPamp', 'VariableNames', {'Condition','Time','ID','amp'});
+
+    T = struct2table(save_data);
+
+    % Save to CSV
+    % -----------
     fn  = ['butterflyplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
-    writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true) % save as csv
+    writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true);
     
-    
-    % Make R code file
-    % ----------------
+    % Make and save R code file
+    % -------------------------
     Rpath = strrep(which(mfilename),[mfilename '.m'],'');
     fid  = fopen([Rpath '\epp_plotbutterfly.R'],'rt');
     f = fread(fid,'*char')';
