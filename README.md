@@ -117,7 +117,7 @@ epp_plotbutterfly(study,conds,,'trace',true)
 
 #### Channel Plots
 
-Simmilar to trace plots, channel plots give a picture of what is happening at each channel. These come in two flavors:
+Similar to trace plots, channel plots give a picture of what is happening at each channel (like `eeglab`'s `plottopo`). These come in two flavors:
 
 -   Topo Plots - channel data is plotted in 2-d space, like a topo-plot.
 -   Grid Plots - channel data is plotted on a simple grid.
@@ -159,7 +159,7 @@ epp_plottopoTF(study,chanlocs,conds,channel_inds,times,bands)
 
 ### Exporting to R
 
-All plots can be exported to R and plotted with [`ggplot2`](https://github.com/tidyverse/ggplot2) by setting `'R',true` in any of the plotting function (this is how the plots in thie README where made). This produces two time-stamped files:
+All plots can be exported to R and plotted with [`ggplot2`](https://github.com/tidyverse/ggplot2) by setting `'R',true` in any of the plotting function (this is how the plots in this README were made). This produces two time-stamped files:
 
 -   A data file (`*_data.csv`)
 -   A code file (`*_code.R`), to plot said data using `ggplot2`.
