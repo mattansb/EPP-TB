@@ -109,11 +109,27 @@ epp_plotbutterfly(study,conds,channel_inds)
 Trace plots are similar to butterfly plots, but the mean activation (across subjects) is plotted for each channel separately.
 
 ``` matlab
-epp_plotbutterfly(study,conds,channel_inds,'trace',true)
-% if channels are indicated, they are ignored.
+channel_inds = []; % if left blank, all channels are plotted.
+epp_plotbutterfly(study,conds,,'trace',true)
 ```
 
 ![](doc/trace_plot-1.png)
+
+#### Channel Plots
+
+Simmilar to trace plots, channel plots give a picture of what is happening at each channel. These come in two flavors:
+
+-   Topo Plots - channel data is plotted in 2-d space, like a topo-plot.
+-   Grid Plots - channel data is plotted on a simple grid.
+
+Channel topo plots are created with the following Matlab call:
+
+``` matlab
+channel_inds = []; % if left blank, all channels are plotted.
+epp_plotchannels(study,conds,electrodes,'chanlocs',chanlocs)
+```
+
+Grid plots are called using the same call, without providing `chanlocs`.
 
 ### TF Plots
 
