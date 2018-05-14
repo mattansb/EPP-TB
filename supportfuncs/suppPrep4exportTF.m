@@ -5,6 +5,7 @@
 %{
 Change log:
 -----------
+14-05-2018  Add 'ID' name to results table
 13-05-2018  Improvment to saving long data
 02-05-2018  Improvemnt to saving measurement info that caused some bugs
 18-04-2018  Fix to bad chars in condition names (remove them)
@@ -43,7 +44,7 @@ for c = 1:length(study) % for each condition
     VariableNames = cellfun(@(x) [x{:}],VariableNames,'UniformOutput',false);
     
     study(c).exp = array2table(study(c).measure, 'VariableNames', VariableNames);   % convert results to table
-    study(c).exp = [study(c).IDs.ID,study(c).exp];                                  % merge results with IDS
+    study(c).exp = [study(c).IDs(:,1),study(c).exp];                                % merge results with IDS
 end
 
 %% Merge results tables to single table
