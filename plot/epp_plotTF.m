@@ -25,7 +25,7 @@
 %                             continue to format you plot - colors,
 %                             annotations, etc.)
 %
-% See also epp_plotbutterfly, epp_plotgrands, epp_plottopo, epp_plottopoTF
+% See also epp_plotbutterfly, epp_plotgrands, epp_plottopo, epp_plottopoTF, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, Rachel Rac & Michael Shmueli, BGU, Israel

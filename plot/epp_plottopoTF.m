@@ -15,7 +15,7 @@
 %                 freqs = [1 3; 4 15; 16 28];
 %                 A given band is selected as so: [low <= freq <= high]
 %
-% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopo
+% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopo, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel

@@ -22,7 +22,7 @@
 %                             subjects (if electrodes is left blank, plots
 %                             all channels). 
 %
-% See also epp_plotgrands, epp_plotTF, epp_plottopo, epp_plottopoTF
+% See also epp_plotgrands, epp_plotTF, epp_plottopo, epp_plottopoTF, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
