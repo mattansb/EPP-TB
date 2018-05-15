@@ -75,15 +75,6 @@ cInd  = cellfun(@(x) find(strcmp(x,{study(:).Condition})), conditions);
 study = study(cInd);
 clear cInd
 
-
-% Get 'chanlocs'
-% --------------
-if isempty(chanlocs) % if missing, load from SET file
-    EEG         = pop_loadset;
-    chanlocs    = EEG.chanlocs;
-end
-
-
 % Get Time Points
 % ---------------
 nTimes = size(timePoints,2);

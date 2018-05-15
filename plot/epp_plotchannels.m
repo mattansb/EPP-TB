@@ -43,20 +43,17 @@ p = inputParser;
     addRequired(p,'conditions',@iscellstr);
     addRequired(p,'electrodes',@isnumeric);
     addParameter(p,'chanlocs', false, @isstruct)    
+    addParameter(p,'minusUp', false, @islogical)
     addParameter(p,'R', false, @islogical)    
 parse(p, study, conditions, electrodes, varargin{:}); % validate
 
 
-%% Tidy
+%% Get only relevant conditions (in order!)
 
-cInd = cellfun(@(x) find(ismember({study(:).Condition}, x)), conditions);
+cInd    = cellfun(@(x) find(ismember({study(:).Condition}, x)), conditions);
+study   = study(cInd);
 
-study = study(cInd);
-
-% select channels
-if isempty(electrodes)
-    electrodes = 1:size(study(1).Data,1);
-end
+if isempty(electrodes), electrodes = 1:size(study(1).Data,1); end % select channels
 
 %% prep data
 for c = 1:length(study)
@@ -72,8 +69,7 @@ if isempty(chanlocs)
     a       = floor(sqrt(nChans));
     b       = ceil(nChans/a);
     
-    legend_arg = {'Orientation','horizontal',...
-        'Position',[0 0 1 0.1]};
+    legend_arg = {'Orientation','horizontal','Position',[0 0 1 0.1]};
 else
     chanlocs = chanlocs(electrodes);
     chan_w = 0.05;
@@ -133,6 +129,7 @@ for ch = electrodes
 
         ylim([minA maxA]);
         set(gca,'Visible','off')
+        if p.Results.minusUp, set(gca,'YDir','reverse'); end
     end
 end
 

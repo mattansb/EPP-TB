@@ -71,7 +71,7 @@ if p.Results.jackknife % jackknife data
 end
 
 % Select electrodes
-if p.Results.all | p.Results.trace
+if p.Results.all || p.Results.trace
     if isempty(electrodes)
         electrodes = 1:size(study(1).Data,1);
     end
@@ -96,15 +96,15 @@ for c = 1:length(study)
     maxA(c)         = max(study(c).Data(:));                            % find max amplidute
     minA(c)         = min(study(c).Data(:));                            % find min amplidute
 end
+maxA = max(maxA);
+minA = min(minA);
 
 %% Plot
 % Find number of minimal subplot dimentions (aprox)
-a = ceil(sqrt(length(study)/1.6));
+a = floor(sqrt(length(study)));
 b = ceil(length(study)/a);
-if a>b
-    b = ceil(sqrt(length(study)/1.6));
-    a = ceil(length(study)/b);
-end
+
+nTime = length(study(1).timeLine);
 
 % Open Figure
 fig         = figure();
@@ -114,65 +114,41 @@ hold on;
 clf
 
 for c = 1:length(study) % for each condition
-    cond(c) = subplot(a,b,c);                   % open new subplot
+    subplot(a,b,c); % open new subplot
     
-    if p.Results.minusUp
-        set(gca,'YDir','reverse');
-        hold on
-    end
-    
-    % Plot the lines
-    % --------------
+    % Select colors:
     co_ind = mod(c,length(co));
     if co_ind==0, co_ind = length(co); end
     color = co(co_ind,:);
     
-    [nTime, nID]=size(study(c).Data);
+    % Plot the lines
+    % --------------
+    nID = size(study(c).Data,2);
+    % plot "butterflys"
     plot3(study(c).timeLine,study(c).Data,repmat(1:nID,[nTime 1]),...
-        'Color',color,...
-        'LineWidth',0.5);                       % plot "butterflys"
+        'Color',color,'LineWidth',0.5);
     hold on
+    % plot the mean ERP
     plot(study(c).timeLine,study(c).mean,...
-        'Color',[0 0 0],...
-        'LineWidth',1.25);                      % plot the mean ERP
-    
-    set(gca,'ZTickLabel',[study(c).IDs.ID]);
-
-    
-
-    % Limits
-    % ------
-    xlim([study(c).timeLine([1 end])]); % set x-Axis limit
-    
-    
+        'Color',[0 0 0],'LineWidth',1.25);
     
     % Plot axes
     % ---------
-    plot(study(1).timeLine([1,end]), [0 0],...
-        'Color', 'k',...
-        'LineStyle', '-');                      % plot time line
-    plot([0 0],[-2000 2000],...
-        'Color', 'k',...
-        'LineStyle', '-');                      % plot y-axis (at t=0)
+    plot(study(1).timeLine([1,end]), [0 0],'Color', 'k');   % plot time line
+    plot([0 0],[minA maxA],'Color', 'k');                   % plot y-axis (at t=0)
     
-    % Titles (and label)
-    % ------------------
-    title(conditions(c), 'Interpreter', 'none')
+    % Titles, labels, and limits
+    % --------------------------
+    title(conditions(c), 'Interpreter', 'none');
+    xlim([study(c).timeLine([1 end])]); % set x-Axis limit
+    ylim([minA maxA]); 
+    view(0,90) % change view angle
+    if p.Results.minusUp, set(gca,'YDir','reverse'); end
     if c == 1 % for first plot only
         xlabel('Time');
-        ylabel('\muV')
+        ylabel('\muV');
     end
-    
-    % change view angle
-    view(0,90)
-    
 end
-
-
-for c = 1:length(study) % set all plots to same scale
-    ylim(cond(c),[min(minA) max(maxA)]); 
-end
-
 
 %% Export to R
 if p.Results.R
