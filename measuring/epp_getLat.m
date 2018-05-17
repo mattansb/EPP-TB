@@ -40,9 +40,9 @@
 %                               2. larger (/smaller) then the average of
 %                                  the N sample points on either side.
 %       for 'relative_criterion'
-%           'local'         - same a for peak.
-%           'percentage'    - Latency is the first point before the peak
-%                             that is % of peak amplitude.
+%           'local'         - same as for peak.
+%           'percentage'    - [0-1] Latency is the first point before the
+%                             peak that is % of peak amplitude.
 %       for 'baseline_deviation'
 %           'criterion'     - Latency is the first point to be larger
 %                             (smaller) than X standard deviations
@@ -52,10 +52,9 @@
 %           'criterion'     - Latency is the first point to be larger
 %                             (smaller) than X mV (positive or negative).
 %       for 'fractional_area'
-%           'percentage'    - Latency is the point deviding the area into
-%                             %X. Area can be positive, negative or
-%                             rectified, based on direction (1, -1, 0,
-%                             respectively).
+%           'percentage'    - [0-1] Latency is the point deviding the area
+%                             into %X. Area can be the positive, negative or
+%                             rectified area (based on direction [1, -1, 0]).
 %           'boundary'      - boundary by which to offset the measurement
 %                             of area (in mV).
 %
