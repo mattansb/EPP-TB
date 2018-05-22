@@ -16,7 +16,7 @@
 %                   1. only ONE condition - LRP is produced from only one
 %                      condition. 
 %                   2. TWO conditions - LRP is produced by avereging both
-%                      conditions (opposite) LRPs.
+%                      conditions' (opposite) LRPs.
 % electrodes    - 2*E matrix of electrodes, with each pair to be subtracted
 %                 from one another (e.g. [87 85, 92; 65, 55 ,54]).
 %

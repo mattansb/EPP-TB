@@ -16,7 +16,7 @@
 % INPUTS
 % ------
 % study         - structure built by epp_load OR epp_erplab_import.
-% conditions    - cell list of conditions to be plotted. Must correspond to
+% conditions    - cell list of conditions to be convert. Must correspond to
 %                 conditions in study(:).Condition.(e.g. {'freq', 'rare'}).
 %
 % The available parameters are as follows:
