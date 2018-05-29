@@ -11,7 +11,8 @@
 % ------
 % study         - structure built by epp_load OR epp_erplab_import.
 % conditions    - cell list of conditions to be combined. Must correspond to
-%                 conditions in study(:).Condition.(e.g. {'freq', 'rare'}).
+%                 conditions in study(:).Condition.(e.g. {'freq', 'rare'}),
+%                 OR a regexp to match any of study(:).Condition.
 %
 % The available parameters are as follows:
 %           'weighted'  - [defult: true] the combined waves are weighted
@@ -26,6 +27,7 @@
 %{
 Change log:
 -----------
+29-05-2018  Add support for regexp + bug fix
 20-03-2018  Bug fix.
 05-03-2018  Added support for TF data
             Added ability to name output condition.
@@ -37,7 +39,7 @@ function out = epp_combineconds(study,conditions,varargin)
 
 p = inputParser;
     addRequired(p,'study',@isstruct);
-    addRequired(p,'conditions',@iscellstr);
+    addRequired(p,'conditions',@(x) (iscellstr(x) & length(x)>=2) | ischar(x));
     addParameter(p,'weighted', true, @islogical)
     addParameter(p,'name', '', @ischar)
 parse(p,study, conditions,varargin{:}); % validate
@@ -49,6 +51,12 @@ has_itc     = any(strcmpi('itc',fn));
 
 
 %% Get only relevant conditions
+if ischar(conditions)
+    cInd        = cellfun(@(X) any(regexp(X,conditions)), {study.Condition});
+    conditions  = {study(cInd).Condition};
+    clear cInd
+end
+
 cInd    = cellfun(@(x) find(strcmp(x,{study(:).Condition})), conditions);
 study   = study(cInd);
 
@@ -59,7 +67,7 @@ for c = 1:length(study)
     if ~any(isstr(study(c).IDs.ID))
         study(c).IDs.ID = cellfun(@(X) num2str(X),study(c).IDs.ID,'UniformOutput',false);
     end
-    IDs = [IDs, study(c).IDs.ID];
+    IDs = [IDs; study(c).IDs.ID];
 end
 try
     IDs = unique(IDs);
@@ -91,7 +99,7 @@ for id = 1:length(IDs)
         id_ind = find(strcmpi(IDs{id},study(c).IDs.ID));
         
         if isempty(id_ind)
-            msg = fprintf('ID %s missing data in condition %s',IDs{id},study(c).Condition);
+            msg = sprintf('ID %s missing data in condition %s',IDs{id},study(c).Condition);
             warning(msg)
             continue
         end
@@ -103,9 +111,9 @@ for id = 1:length(IDs)
         end
         
         % append
-        if has_erp,  id_data(:,:,end+1)    = study(1).Data(:,:,id_ind)*w;   end
-        if has_ersp, id_ersp(:,:,:,end+1)  = study(1).ersp(:,:,:,id_ind)*w; end
-        if has_itc,  id_itc(:,:,:,end+1)   = study(1).itc(:,:,:,id_ind)*w;  end
+        if has_erp,  id_data(:,:,end+1)    = study(c).Data(:,:,id_ind)*w;   end
+        if has_ersp, id_ersp(:,:,:,end+1)  = study(c).ersp(:,:,:,id_ind)*w; end
+        if has_itc,  id_itc(:,:,:,end+1)   = study(c).itc(:,:,:,id_ind)*w;  end
         
         id_nTrials(end+1)   = w;
         
