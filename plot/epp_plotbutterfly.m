@@ -30,6 +30,7 @@
 %{
 Change log:
 -----------
+29-05-2018  Bug fix when jackknifing
 14-05-2018  Improvment to exporting plot data
 13-05-2018  Fix to trace plot + added ability to plot trace plots with
             selected channels.
@@ -66,7 +67,7 @@ study = study(cInd);
 
 if p.Results.jackknife % jackknife data
     for c = 1:length(study)
-        study(c).Data = suppJackknife('in',study(c).Data);
+        study(c).Data = suppJackknife('in',study(c).Data,3);
     end
 end
 
