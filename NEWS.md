@@ -7,3 +7,4 @@
 * `epp_plot*` functions are faster and more efficiant when exporting plot data to `.csv`.
 * When creating wavelets via `suppWaveletConv`, baseline correcting no-longer stops on error.
 * Fixed bug in `epp_getTF` that caused error when conditions were not of equal size N.
+* `epp_matchsubjects` - New function. Use to remove subjects that are missing data in some conditions.
