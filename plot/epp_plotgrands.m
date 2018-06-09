@@ -71,7 +71,7 @@ study   = study(cInd);
 if ~strcmpi(errorType,'NaN')
     warning('When plotting errors, assuming all conditions to be within-subject.')
     nsubs_old = cellfun(@(x) size(x,3), {study.Data});              % how many subjects are in each conditions
-    [study_new , nsubs_new] = suppMatchSubjects(study,conditions);  % get data only for subjects that have data in all conditions
+    [study_new , nsubs_new] = epp_matchsubjects(study,conditions);  % get data only for subjects that have data in all conditions
     
     if ~all(nsubs_old == nsubs_new) || length(conditions)==1
         warning('Unable to compute within-subject error. Assuming between-subject conditions.')

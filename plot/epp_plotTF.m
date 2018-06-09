@@ -106,7 +106,7 @@ for c = 1:length(conditions) % for each condition
     subplot(2,length(conditions),c);                                    % new subplot
     contourf(times,frex,ersp(c).data',40,'linecolor','none');
     set(gca,'ytick',ytick,'yscale',p.Results.scale)
-    colormap(gca,suppMakeColormap('wcbkryw'))
+    colormap(gca,f_makeColormap('wcbkryw'))
     caxis(ersp_range)
     
     if c == 1 % if this is the first plot
@@ -129,7 +129,7 @@ for c = 1:length(conditions) % for each condition
     subplot(2,length(conditions),length(conditions)+c)              % new subplot
     contourf(times,frex,itc(c).data',40,'linecolor','none')
     set(gca,'ytick',ytick,'yscale',p.Results.scale)
-    colormap(gca,suppMakeColormap('kryw'))
+    colormap(gca,f_makeColormap('kryw'))
     caxis(itc_range)
     
     if c == 1 % if this is the first plot

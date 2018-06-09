@@ -152,7 +152,7 @@ for c = 1:size(meanData,3) % each condition
         title([num2str(timePoints(:,t)') ' ms'], 'Interpreter', 'none');
         
     end
-    colormap(suppMakeColormap('wcbkryw'))
+    colormap(f_makeColormap('wcbkryw'))
 end
 
 %% Save to R

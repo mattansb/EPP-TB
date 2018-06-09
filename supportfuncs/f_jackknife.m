@@ -1,7 +1,20 @@
-% This function preforms a jackknife opperation on ERP data and is called
-% internaly by measument supplumetary functions.
+% PURPOSE:  Jackknife transform and back-trasnform a matrix.
 %
-% Author: Mattan S. Ben Shachar, BGU, Israel
+%
+% FORMAT
+% ------
+% jmean = f_jackknife(mode,data,dim)
+%
+%
+% INPUTS
+% ------
+% mode          - ['in'|'out'] Whether data should be transformed or
+%                 back-transformed.
+% data          - A matrix of any size and any number of dimentions.
+% dim           - The dimentins along which to preform the jackknife.
+%
+%
+% Author: Mattan S. Ben Shachar & Rachel Rac, BGU, Israel
 %{
 Change log:
 -----------
@@ -10,7 +23,7 @@ Change log:
 25-11-2016  New function (written in MATLAB R2015a)
 %}
 
-function jmean = suppJackknife(mode,data,dim)
+function jmean = f_jackknife(mode,data,dim)
 switch lower(mode)
     case 'in'
         % Get size

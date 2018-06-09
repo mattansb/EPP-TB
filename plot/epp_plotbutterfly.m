@@ -67,7 +67,7 @@ study = study(cInd);
 
 if p.Results.jackknife % jackknife data
     for c = 1:length(study)
-        study(c).Data = suppJackknife('in',study(c).Data,3);
+        study(c).Data = f_jackknife('in',study(c).Data,3);
     end
 end
 

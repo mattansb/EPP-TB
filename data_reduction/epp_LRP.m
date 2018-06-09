@@ -54,7 +54,7 @@ if length(conditions)==1
     LRP.Condition       = [LRP.Condition '_LRP'];
     LRP.Data            = LRP.Data([electrodes(1,:)],:,:)-LRP.Data([electrodes(2,:)],:,:);
 else
-    LRP                 = suppMatchSubjects(study,conditions);
+    LRP                 = epp_matchsubjects(study,conditions);
     LRP(1).Data         = LRP(1).Data([electrodes(1,:)],:,:)-LRP(1).Data([electrodes(2,:)],:,:);
     LRP(2).Data         = LRP(2).Data([electrodes(2,:)],:,:)-LRP(2).Data([electrodes(1,:)],:,:);
     

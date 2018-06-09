@@ -3,7 +3,7 @@
 %
 % FORMAT
 % ------
-% [new_power,itpc,frex,cut_times] = suppWaveletConv3(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
+% [new_power,itpc,frex,cut_times] = f_WaveletConv(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
 %
 %
 % INPUTS
@@ -58,7 +58,7 @@ This is called  Spectral flattening
 mitkazez
 %}
 
-function [new_power,itpc,frex,cut_times] = suppWaveletConv(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
+function [new_power,itpc,frex,cut_times] = f_WaveletConv(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
 
 tic
 %% Validate

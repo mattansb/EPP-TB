@@ -28,7 +28,7 @@
 %                 If not specified, a folder with a random name will be
 %                 created, and the name will be retuned.
 % 'waveletVars' - a structure with parameters to be passed to
-%                 suppWaveletConv3. If 'wavelet' is true, and 'waveletVars'
+%                 f_WaveletConv. If 'wavelet' is true, and 'waveletVars'
 %                 is empty or not specified, a pop-up will asks for the
 %                 parameters (which will also then be returned).
 % 'combine'     - if true (defult) will combine all files in 'savePath'
@@ -43,7 +43,7 @@
 %{
 Change log:
 -----------
-10-05-2018  Support for new baseline correction methods in suppWaveletConv3
+10-05-2018  Support for new baseline correction methods in f_WaveletConv
 25-04-2018  Fix when combining
 16-04-2018  Improvments to speed when combining data
 15-04-2018  Reduced printing from eeglab pop_*
@@ -80,7 +80,7 @@ if p.Results.wavelet
         'title', 'Specify Wavelet Paramters',...
         'uilist', { ...
             {'Style', 'text', 'string', 'Frequencies and Cycles', 'fontweight', 'bold'  } {}...
-            {'Style', 'pushbutton', 'string', 'help', 'callback', 'pophelp(''suppWaveletConv3'')'} ...
+            {'Style', 'pushbutton', 'string', 'help', 'callback', 'pophelp(''f_WaveletConv'')'} ...
             {'Style', 'text', 'string', 'Frequency Range' }...
             {'Style', 'edit', 'string', '', 'tag' 'freqRange' }...
             {'Style', 'checkbox', 'string' 'log-space' 'value' 1 'tag' 'log' }...
@@ -172,7 +172,7 @@ if p.Results.wavelet || p.Results.erp
         % Wavelet
         % =======
         if p.Results.wavelet
-            [power,itpc,frex,times] = suppWaveletConv(temp_EEG,res_wave{:});
+            [power,itpc,frex,times] = f_WaveletConv(temp_EEG,res_wave{:});
 
             output.ersp     = power;
             output.itc      = itpc;

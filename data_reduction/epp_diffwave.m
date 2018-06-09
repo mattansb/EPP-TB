@@ -46,7 +46,7 @@ parse(p,study, conditions,varargin{:}); % validate
 
 %% Prepare Data
 
-DIFF = suppMatchSubjects(study,conditions);
+DIFF = epp_matchsubjects(study,conditions);
 
 fn = fieldnames(study);
 has_erp     = any(strcmpi('Data',fn));
