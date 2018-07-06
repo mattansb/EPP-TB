@@ -43,6 +43,7 @@
 %{
 Change log:
 -----------
+06-07-2018  Minor printing adjustment
 10-05-2018  Support for new baseline correction methods in f_WaveletConv
 25-04-2018  Fix when combining
 16-04-2018  Improvments to speed when combining data
@@ -209,10 +210,12 @@ if p.Results.combine
     study.Condition = '';
     % Load and append data
     % --------------------
-    fprintf('\n\n')
+    fprintf('\n\nLoading file ');
+    nb = 0;
     for f = 1:nFiles
+        fprintf(repmat('\b',1,nb));
+        nb = fprintf('%d of %d\n',f,nFiles);
         % Load
-        fprintf('Loading file %d of %d\n',f,nFiles)
         load(fullfile(savePath, all_files(f).name), '-mat')
 
         % Orgenize
@@ -269,6 +272,7 @@ if p.Results.combine
         end
         clear output c_ind
     end
+    fprintf('\b... done.');
     
     % Collaps Data/ersp/itc
     % ---------------------
