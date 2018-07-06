@@ -20,6 +20,7 @@
 %{
 Change log:
 -----------
+06-07-2018  Rewrite to use epp_filter_by
 09-06-2018  Added option to match across all conditions
 13-05-2018  BUG FIX
 05-03-2018  Added support for TF data
@@ -34,40 +35,20 @@ if isempty(conditions)
     conditions = {studyIn.Condition};
 end
 
-fn = fieldnames(studyIn);
-has_erp     = any(strcmpi('Data',fn));
-has_ersp    = any(strcmpi('ersp',fn));
-has_itc     = any(strcmpi('itc',fn));
-
 %% Get only relevant conditions
-% cInd	= cellfun(@(x) find(ismember({studyIn(:).Condition}, x)), conditions);
 cInd    = cellfun(@(x) find(strcmp(x,{studyIn(:).Condition})), conditions);
 studyIn = studyIn(cInd);
 
-
 %% Get only relevant subjects
+innerjoined = studyIn(1).IDs(:,'ID');
 for i = 2:length(conditions)
-%     [~,ia,ib] = innerjoin(studyIn(1).IDs,studyIn(i).IDs);
-    [~,ia,ib] = innerjoin(studyIn(1).IDs(:,1),studyIn(i).IDs(:,1));
-    
-    for j = 1:(i-1)
-        studyIn(j).IDs  = studyIn(j).IDs(ia,:);
-        
-        if has_erp,  studyIn(j).Data = studyIn(j).Data(:,:,ia);   end
-        if has_ersp, studyIn(j).ersp = studyIn(j).ersp(:,:,:,ia); end
-        if has_itc,  studyIn(j).itc  = studyIn(j).itc(:,:,:,ia);  end
-    end
-    
-    studyIn(i).IDs  = studyIn(i).IDs(ib,:);
-    
-    if has_erp,  studyIn(i).Data = studyIn(i).Data(:,:,ib);   end
-    if has_ersp, studyIn(i).ersp = studyIn(i).ersp(:,:,:,ib); end
-    if has_itc,  studyIn(i).itc  = studyIn(i).itc(:,:,:,ib);  end
+    innerjoined = innerjoin(innerjoined,studyIn(i).IDs(:,'ID'));
 end
 
-studyOut = studyIn;
+%% Filter
 
-nsubs = size(studyOut(1).IDs,1);
+match_subs  = @(x) any(strcmp(x,innerjoined{:,'ID'}));
+studyOut    = epp_filter_by(studyIn,'ID',match_subs,true); % use epp_filter_by
+nsubs       = size(innerjoined,1);
 
 end
-
