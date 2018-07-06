@@ -19,6 +19,8 @@
 %                         according to nTrials variable in ID table.
 %           'name'      - name of new combined condition. Defults is to
 %                         concatenate the condition names.
+%           'warning'   - {'on'|'off'} show warning when ID is missing from
+%                         condition.
 %
 % See also epp_LRP, epp_GFP, epp_diffwave, epp_makegrands
 %
@@ -27,6 +29,7 @@
 %{
 Change log:
 -----------
+06-07-2018  Add warning option.
 29-05-2018  Add support for regexp + bug fix
 20-03-2018  Bug fix.
 05-03-2018  Added support for TF data
@@ -42,6 +45,7 @@ p = inputParser;
     addRequired(p,'conditions',@(x) (iscellstr(x) & length(x)>=2) | ischar(x));
     addParameter(p,'weighted', true, @islogical)
     addParameter(p,'name', '', @ischar)
+    addParameter(p,'warning', 'on', @ischar)
 parse(p,study, conditions,varargin{:}); % validate
 
 fn = fieldnames(study);
@@ -76,6 +80,7 @@ catch
 end
 
 %% Combine
+fprintf('Combining...\n')
 for id = 1:length(IDs)
     % Make empty arrays
     if has_erp
@@ -99,8 +104,9 @@ for id = 1:length(IDs)
         id_ind = find(strcmpi(IDs{id},study(c).IDs.ID));
         
         if isempty(id_ind)
-            msg = sprintf('ID %s missing data in condition %s',IDs{id},study(c).Condition);
-            warning(msg)
+            if strcmpi(p.Results.warning,'on')
+                warning('ID %s missing data in condition %s',IDs{id},study(c).Condition);
+            end
             continue
         end
         
@@ -128,6 +134,7 @@ for id = 1:length(IDs)
     
     clear id_data id_nTrials
 end
+fprintf('\b Done.\n')
 
 %% Save
 
