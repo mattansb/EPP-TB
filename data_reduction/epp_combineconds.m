@@ -22,7 +22,7 @@
 %           'warning'   - {'on'|'off'} show warning when ID is missing from
 %                         condition.
 %
-% See also epp_LRP, epp_GFP, epp_diffwave, epp_makegrands
+% See also epp_filter_by, epp_matchsubjects, epp_combineconds
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
 

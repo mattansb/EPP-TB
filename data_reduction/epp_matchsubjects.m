@@ -14,6 +14,7 @@
 %                 If left blank {}, subjects are matched across ALL
 %                 conditions.
 %
+% See also epp_filter_by, epp_matchsubjects, epp_combineconds
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
 %{
