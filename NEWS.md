@@ -1,5 +1,7 @@
 # EPP-TB NEWS
 
+This doc details user-facing changes only.
+
 ## Version 3.1.2 +
 
 | Function | Update | Notes |
