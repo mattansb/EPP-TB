@@ -7,7 +7,7 @@
 % study = epp_makegrands(study)
 %
 %
-% See also epp_combineconds, epp_GFP, epp_diffwave, epp_LRP
+% See also epp_LRP, epp_GFP, epp_makegrands, epp_diffwave
 %
 %
 % Author: Mattan S. Ben Shachar & Rachel Rac, BGU, Israel

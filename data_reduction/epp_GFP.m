@@ -24,7 +24,7 @@
 %                       (SES) is calculated, as per  Milivojevic, Johnson,
 %                       Hamm, & Corballis (2003).
 %
-% See also epp_combineconds, epp_LRP, epp_diffwave, epp_makegrands
+% See also epp_LRP, epp_GFP, epp_makegrands, epp_diffwave
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
