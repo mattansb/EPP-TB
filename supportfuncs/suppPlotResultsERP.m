@@ -5,11 +5,12 @@
 %{
 Change log:
 -----------
+06-07-2018  Name change
 30-01-2017  Changed error bars to denote SE (not 95% CI)
 25-11-2016  New function (written in MATLAB R2015a)
 %}
 
-function suppPlotResults(study, timeWindow)
+function suppPlotResultsERP(study, timeWindow)
 
 %% find minimal number of subplots needed.
 % Find number of minimal subplot dimentions (aprox)
