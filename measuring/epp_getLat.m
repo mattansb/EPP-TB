@@ -157,7 +157,7 @@ end
 %% Plot Results
 
 if p.Results.plot
-    suppPlotResults(study, timeWindow)
+    suppPlotResultsERP(study, timeWindow)
 end
 
 
