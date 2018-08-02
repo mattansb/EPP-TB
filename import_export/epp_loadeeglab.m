@@ -296,16 +296,12 @@ if p.Results.combine
             study(c).itc = cat(4,study(c).itc{next_ind});
         end
     end
-    fprintf('. Done!\n',f,nFiles)
+    fprintf('. Done!\n')
 end
 
 
 end
 
 function x = eval_res(x)
-if ischar(x)
-    eval(['x = [' x '];'])
-else
-    x;
-end
+if ischar(x), eval(['x = [' x '];']); end
 end
