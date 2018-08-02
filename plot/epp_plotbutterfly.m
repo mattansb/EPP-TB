@@ -21,6 +21,11 @@
 %           'trace'         - if true, plots selected channels across
 %                             subjects (if electrodes is left blank, plots
 %                             all channels). 
+%           'R'             - if true, plot data is saved into a csv file
+%                             in the current directory + an R file with
+%                             code to plot your ERPs. (in R you can
+%                             continue to format you plot - colors,
+%                             annotations, etc.)
 %
 % See also epp_plotgrands, epp_plotTF, epp_plottopo, epp_plottopoTF, epp_plotchannels
 %
