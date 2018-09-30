@@ -1,4 +1,4 @@
-% PURPOSE:  Filter data in study by some variable in study.IDs.
+% PURPOSE:  Filter data in a study by some variable in study.IDs.
 %
 % 
 % FORMAT
@@ -15,6 +15,11 @@
 %                 return a logical value. 
 % should_keep   - (logical). Does the anonymous function indicate rows to
 %                 keep [true]? Or to remove [false]? 
+%
+% EXAMPLE
+% -------
+% % Remove data from subjects who have less than 5 trials per ERP condition:
+% study = epp_filter_by(study,'nTrials',@(x) x>=5,true);
 %
 %
 % See also epp_filter_by, epp_matchsubjects, epp_combineconds
