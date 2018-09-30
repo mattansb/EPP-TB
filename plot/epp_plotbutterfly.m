@@ -86,7 +86,9 @@ if p.Results.all || p.Results.trace
         study(c).Data   = permute(study(c).Data,[3 2 1]);
         % Mean across subjects
         study(c).Data   = squeeze(mean(study(c).Data(:,:,electrodes),1));
-        study(c).IDs    = table(electrodes','VariableNames',{'ID'});
+%         study(c).IDs    = table(electrodes','VariableNames',{'ID'});
+        study(c).IDs    = table(arrayfun(@num2str,electrodes,'UniformOutput',false)','VariableNames',{'ID'});
+        
     end
 else
     for c = 1:length(study)
