@@ -65,7 +65,6 @@
 Change log:
 -----------
 07-04-2018  New function (written in MATLAB R2017a)
-
 %}
 
 function results = epp_getAmp(measure,study,conditions, electrodes,timeWindow,varargin)
@@ -145,7 +144,7 @@ end
 %% Plot Results
 
 if p.Results.plot
-    suppPlotResults(study, timeWindow)
+    suppPlotResultsERP(study, timeWindow)
 end
 
 

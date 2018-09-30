@@ -3,7 +3,7 @@
 %
 % FORMAT
 % ------
-% cmap = suppMakeColormap(colors)
+% cmap = f_makeColormap(colors)
 %
 %
 % INPUTS
@@ -20,7 +20,7 @@ Change log:
 01-05-2018  New function (written in MATLAB R2017a)
 %}
 
-function cmap = suppMakeColormap(colors)
+function cmap = f_makeColormap(colors)
 
 %% Validate and initiate
 p = inputParser;

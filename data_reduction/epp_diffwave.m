@@ -11,14 +11,15 @@
 % INPUTS
 % ------
 % study         - structure built by epp_load OR epp_erplab_import.
-% conditions    - cell list of conditions to be plotted. Must correspond to
+% conditions    - cell list of conditions to be subtracted (second will be
+%                 subtracted from the first). Must correspond to
 %                 conditions in study(:).Condition.(e.g. {'freq', 'rare'}).
 %
 % The available parameters are as follows:
 %           'name'      - name of new combined condition. Defults is to
 %                         concatenate the condition names.
 %
-% See also epp_combineconds, epp_LRP, epp_GFP, epp_makegrands
+% See also epp_LRP, epp_GFP, epp_makegrands, epp_diffwave
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -45,7 +46,7 @@ parse(p,study, conditions,varargin{:}); % validate
 
 %% Prepare Data
 
-DIFF = suppMatchSubjects(study,conditions);
+DIFF = epp_matchsubjects(study,conditions);
 
 fn = fieldnames(study);
 has_erp     = any(strcmpi('Data',fn));

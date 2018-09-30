@@ -3,7 +3,7 @@
 %
 % FORMAT
 % ------
-% [new_power,itpc,frex,cut_times] = suppWaveletConv3(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
+% [new_power,itpc,frex,cut_times] = f_WaveletConv(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
 %
 %
 % INPUTS
@@ -39,6 +39,7 @@
 %{
 Change log:
 -----------
+21-05-2018  Fix bug when baseline correcting.
 11-05-2018  Added support for constant f/sigma(f) / number of cycles in a
             wavelet.
 10-05-2018  Added new baseline correction methods
@@ -57,7 +58,7 @@ This is called  Spectral flattening
 mitkazez
 %}
 
-function [new_power,itpc,frex,cut_times] = suppWaveletConv(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
+function [new_power,itpc,frex,cut_times] = f_WaveletConv(EEG,freq_range,num_frex,cycles_range,baselinetime,cut_times,varargin)
 
 tic
 %% Validate
@@ -175,29 +176,39 @@ switch p.Results.baseline
         for ch = 1:nbchan % each channel
             temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
             baseline_power      = mean(temp_pow(:,baselineidx(1):baselineidx(2)),2);    % mean power in baseline
-            new_power(ch,:,:)   = 10*log10(bsxfun(@rdivide,temp_pow,baseline_power));   % convert to dB
+            
+            temp_pow            = 10*log10(bsxfun(@rdivide,temp_pow,baseline_power));   % convert to dB
+            new_power(ch,:,:)   = temp_pow;
         end
     case 'normalize'
         fprintf('\nNormalizing power... ');
         for ch = 1:nbchan % each channel
             temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
             baseline_power      = mean(temp_pow(:,baselineidx(1):baselineidx(2)),2);    % mean power in baseline
-            new_power(ch,:,:)   = 100*bsxfun(@minus,temp_pow,baseline_power);           % subtract mean
-            new_power(ch,:,:)   = bsxfun(@rdivide,new_power(ch,:,:),baseline_power);    % devide by mean
+            
+            temp_pow            = 100*bsxfun(@minus,temp_pow,baseline_power);           % subtract mean
+            temp_pow            = bsxfun(@rdivide,temp_pow,baseline_power);             % devide by mean
+            new_power(ch,:,:)   = temp_pow;
         end
     case 'standardize'
         fprintf('\nStandardizing power... ');
-        temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
+        for ch = 1:nbchan % each channel
+            temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
             baseline_power      = mean(temp_pow(:,baselineidx(1):baselineidx(2)),2);    % mean power in baseline
-            baseline_std        = std(temp_pow(:,baselineidx(1):baselineidx(2)),2);     % std power in baseline
-            new_power(ch,:,:)   = 100*bsxfun(@minus,temp_pow,baseline_power);           % subtract mean
-            new_power(ch,:,:)   = bsxfun(@rdivide,new_power(ch,:,:),baseline_std);      % devide by std
+            baseline_std        = std(temp_pow(:,baselineidx(1):baselineidx(2)),[],2);     % std power in baseline
+            
+            temp_pow            = 100*bsxfun(@minus,temp_pow,baseline_power);           % subtract mean
+            temp_pow            = bsxfun(@rdivide,temp_pow,baseline_std);               % devide by std
+            new_power(ch,:,:)   = temp_pow;
+        end
     case 'divide'
         fprintf('\nSemi-Normalizing power... ');
         for ch = 1:nbchan % each channel
             temp_pow            = reshape(eegpower(ch,:,:),num_frex,EEG.pnts);
             baseline_power      = mean(temp_pow(:,baselineidx(1):baselineidx(2)),2);    % mean power in baseline
-            new_power(ch,:,:)   = bsxfun(@rdivide,temp_pow,baseline_power);             % devide by mean
+            
+            temp_pow            = bsxfun(@rdivide,temp_pow,baseline_power);             % devide by mean
+            new_power(ch,:,:)   = temp_pow;
         end
 end
 fprintf('done!');

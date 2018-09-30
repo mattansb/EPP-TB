@@ -5,7 +5,7 @@ library(mgcv)
 
 # ==== Load data ====
 raw.data <- read.csv("@filename@") %>%
-  as.tbl() %>% 
+  as.tbl() %>%
   mutate(Condition   = as.factor(Condition),
          # convert Theta and Radius to (x,y)
          radianTheta = pi/180*Theta,
@@ -19,16 +19,16 @@ raw.data <- read.csv("@filename@") %>%
 expand.topo <- function(data, gridRes = NULL) {
   if (is.null(gridRes))
     gridRes <- data %$% unique(Channel) %>% {length(.)/2}
-  
+
   range_x <- range(data$x)*1.15
   range_y <- range(data$y)*1.15
-  
+
   tmp.GAM <- expand.grid(x = seq(range_x[1],range_x[2],length = gridRes),
                          y = seq(range_y[1],range_y[2],length = gridRes)) %>%
     data.frame()
-  tmp.GAM$Amp <- gam(Amp ~ s(x, y, bs = 'ts'), data = data) %>% 
+  tmp.GAM$Amp <- gam(Amp ~ s(x, y, bs = 'ts'), data = data) %>%
     predict(tmp.GAM, type = "response")
-  tmp.GAM %>% 
+  tmp.GAM %>%
     filter(sqrt(x^2 + y^2) <= max(diff(range(x)),diff(range(y)))/2)
 }
 
@@ -52,50 +52,49 @@ theme_topo <- function(base_size = 12) {
 
 # Select Channel Groups
 group_channels <- function(chanlocs,...){
-  # '...' is a series of names vectors listing the channels in each group 
+  # '...' is a series of names vectors listing the channels in each group
   channel.groups <- list(...)
-  
+
   match_chans <- function(x) {
     y <- chanlocs[chanlocs$Channel %in% channel.groups[[x]],]
     y$Chan.Group <- names(channel.groups)[x]
     return(y)
   }
-  
-  map_df(seq_along(channel.groups), match_chans) %>% 
+
+  map_df(seq_along(channel.groups), match_chans) %>%
     mutate(Chan.Group = factor(Chan.Group))
 }
 
 # Prepare Data for Plotting -----------------------------------------------
 
 # Channel Data
-chanlocs <- raw.data %>% 
-  select(Channel, x, y) %>%
-  distinct()
+chanlocs <- raw.data %>%
+  distinct(Channel, x, y)
 
 ## Channel Groups for plotting later
-# channel.groups <- chanlocs %>% 
+# channel.groups <- chanlocs %>%
 #   group_channels()
 ## e.g.: group_channels(Frontal = c("E15","E23","E18","E16"))
 
 # Head Shapes
 diam <- chanlocs %>%
-  select(x,y) %>% 
+  select(x,y) %>%
   map_dbl(~diff(range(.))) %>% max()
 head <- list(
   shape = circleFun(diam*0.75),
   mask  = circleFun(diam*1.15),
   nose  = data.frame(x = c(-.075,0,.075),
                      y = c(-.005,.075,-.005) + diam*0.375)
-  
+
 )
 
 # Topo Data
-topo.data <- raw.data %>% 
-  group_by(Condition,TimePnt) %>% 
-  select(Condition,TimePnt,Channel,x,y,Amp) %>% 
+topo.data <- raw.data %>%
+  group_by(Condition,TimePnt) %>%
+  select(Condition,TimePnt,Channel,x,y,Amp) %>%
   nest() %>%
-  mutate(data = map(data,expand.topo)) %>% 
-  unnest() # %>% 
+  mutate(data = map(data,expand.topo)) %>%
+  unnest() # %>%
   # If you only want whats inside the head
   # filter(!sqrt(x^2 + y^2) > diff(range(head$shape$x))/2)
 

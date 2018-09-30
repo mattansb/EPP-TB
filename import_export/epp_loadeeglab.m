@@ -28,7 +28,7 @@
 %                 If not specified, a folder with a random name will be
 %                 created, and the name will be retuned.
 % 'waveletVars' - a structure with parameters to be passed to
-%                 suppWaveletConv3. If 'wavelet' is true, and 'waveletVars'
+%                 f_WaveletConv. If 'wavelet' is true, and 'waveletVars'
 %                 is empty or not specified, a pop-up will asks for the
 %                 parameters (which will also then be returned).
 % 'combine'     - if true (defult) will combine all files in 'savePath'
@@ -43,7 +43,8 @@
 %{
 Change log:
 -----------
-10-05-2018  Support for new baseline correction methods in suppWaveletConv3
+06-07-2018  Minor printing adjustment
+10-05-2018  Support for new baseline correction methods in f_WaveletConv
 25-04-2018  Fix when combining
 16-04-2018  Improvments to speed when combining data
 15-04-2018  Reduced printing from eeglab pop_*
@@ -80,7 +81,7 @@ if p.Results.wavelet
         'title', 'Specify Wavelet Paramters',...
         'uilist', { ...
             {'Style', 'text', 'string', 'Frequencies and Cycles', 'fontweight', 'bold'  } {}...
-            {'Style', 'pushbutton', 'string', 'help', 'callback', 'pophelp(''suppWaveletConv3'')'} ...
+            {'Style', 'pushbutton', 'string', 'help', 'callback', 'pophelp(''f_WaveletConv'')'} ...
             {'Style', 'text', 'string', 'Frequency Range' }...
             {'Style', 'edit', 'string', '', 'tag' 'freqRange' }...
             {'Style', 'checkbox', 'string' 'log-space' 'value' 1 'tag' 'log' }...
@@ -172,7 +173,7 @@ if p.Results.wavelet || p.Results.erp
         % Wavelet
         % =======
         if p.Results.wavelet
-            [power,itpc,frex,times] = suppWaveletConv(temp_EEG,res_wave{:});
+            [power,itpc,frex,times] = f_WaveletConv(temp_EEG,res_wave{:});
 
             output.ersp     = power;
             output.itc      = itpc;
@@ -209,10 +210,12 @@ if p.Results.combine
     study.Condition = '';
     % Load and append data
     % --------------------
-    fprintf('\n\n')
+    fprintf('\n\nLoading file ');
+    nb = 0;
     for f = 1:nFiles
+        fprintf(repmat('\b',1,nb));
+        nb = fprintf('%d of %d\n',f,nFiles);
         % Load
-        fprintf('Loading file %d of %d\n',f,nFiles)
         load(fullfile(savePath, all_files(f).name), '-mat')
 
         % Orgenize
@@ -269,6 +272,7 @@ if p.Results.combine
         end
         clear output c_ind
     end
+    fprintf('\b... done.');
     
     % Collaps Data/ersp/itc
     % ---------------------
@@ -292,16 +296,12 @@ if p.Results.combine
             study(c).itc = cat(4,study(c).itc{next_ind});
         end
     end
-    fprintf('. Done!\n',f,nFiles)
+    fprintf('. Done!\n')
 end
 
 
 end
 
 function x = eval_res(x)
-if ischar(x)
-    eval(['x = [' x '];'])
-else
-    x;
-end
+if ischar(x), eval(['x = [' x '];']); end
 end

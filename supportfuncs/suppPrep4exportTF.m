@@ -5,6 +5,9 @@
 %{
 Change log:
 -----------
+07-07-2018  Minor change to output data type.
+14-05-2018  Add 'ID' name to results table
+13-05-2018  Improvment to saving long data
 02-05-2018  Improvemnt to saving measurement info that caused some bugs
 18-04-2018  Fix to bad chars in condition names (remove them)
 07-04-2018  New function (written in MATLAB R2017a)
@@ -42,7 +45,7 @@ for c = 1:length(study) % for each condition
     VariableNames = cellfun(@(x) [x{:}],VariableNames,'UniformOutput',false);
     
     study(c).exp = array2table(study(c).measure, 'VariableNames', VariableNames);   % convert results to table
-    study(c).exp = [study(c).IDs.ID,study(c).exp];                                  % merge results with IDS
+    study(c).exp = [study(c).IDs(:,1),study(c).exp];                                % merge results with IDS
 end
 
 %% Merge results tables to single table
@@ -61,24 +64,10 @@ if any(strcmpi(pResults.save, {'wide','long'}))
     save_data = results.(measure);
     
     if strcmpi(pResults.save, 'long')
-        % get number of IDs and columns
-        [nID, nCond] = size(save_data);
-        nCond = nCond-1;
-        
-        % shape values
-        save_vals = table2array(save_data(:,2:end));
-        save_vals = reshape(save_vals,1,[])';
-        
-        % shape IDs
-        save_ID = repmat(table2cell(save_data(:,1)),nCond,1);
-        
-        % shape condition column
-        save_cond = save_data.Properties.VariableNames(2:end);
-        save_cond = repmat(save_cond,nID,1);
-        save_cond = reshape(save_cond,1,[])';
-        
-        % combine to table
-        save_data = table(save_ID, save_cond, save_vals, 'VariableNames', {'ID','Condition',measure});
+        save_data = stack(save_data,save_data.Properties.VariableNames(2:end),...
+            'NewDataVariableName',measure,...
+            'IndexVariableName','Condition');
+        save_data.Condition = cellstr(save_data.Condition); % categorical to cellstr.
     end
     
     save_info = results.info;

@@ -18,11 +18,16 @@
 %                             to false). 
 %           'minusUp'       - if true, plot is flipped so minus is up
 %                             (false my default).
-%           'all'           - if true, plots selected channels across
+%           'trace'         - if true, plots selected channels across
 %                             subjects (if electrodes is left blank, plots
 %                             all channels). 
+%           'R'             - if true, plot data is saved into a csv file
+%                             in the current directory + an R file with
+%                             code to plot your ERPs. (in R you can
+%                             continue to format you plot - colors,
+%                             annotations, etc.)
 %
-% See also epp_plotgrands, epp_plotTF, epp_plottopo, epp_plottopoTF
+% See also epp_plotgrands, epp_plotTF, epp_plottopo, epp_plottopoTF, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -30,8 +35,11 @@
 %{
 Change log:
 -----------
+29-05-2018  Bug fix when jackknifing
+14-05-2018  Improvment to exporting plot data
 13-05-2018  Fix to trace plot + added ability to plot trace plots with
             selected channels.
+            Changed 'all' to 'trace'.
 14-04-2018  Fixed error when plotting more than 6 conditions
 05-03-2018  Fix title printing
 04-03-2018  Added ability to plot Trace plots
@@ -51,6 +59,7 @@ p = inputParser;
     addRequired(p,'electrodes',@isnumeric);
     addParameter(p,'minusUp', false, @islogical)
     addParameter(p,'jackknife', false, @islogical)
+    addParameter(p,'trace', false, @islogical)
     addParameter(p,'all', false, @islogical)
     addParameter(p,'R', false, @islogical)
 parse(p, study, conditions, electrodes, varargin{:}); % validate
@@ -63,12 +72,12 @@ study = study(cInd);
 
 if p.Results.jackknife % jackknife data
     for c = 1:length(study)
-        study(c).Data = suppJackknife('in',study(c).Data);
+        study(c).Data = f_jackknife('in',study(c).Data,3);
     end
 end
 
 % Select electrodes
-if p.Results.all
+if p.Results.all || p.Results.trace
     if isempty(electrodes)
         electrodes = 1:size(study(1).Data,1);
     end
@@ -77,7 +86,9 @@ if p.Results.all
         study(c).Data   = permute(study(c).Data,[3 2 1]);
         % Mean across subjects
         study(c).Data   = squeeze(mean(study(c).Data(:,:,electrodes),1));
-        study(c).IDs    = table(electrodes','VariableNames',{'ID'});
+%         study(c).IDs    = table(electrodes','VariableNames',{'ID'});
+        study(c).IDs    = table(arrayfun(@num2str,electrodes,'UniformOutput',false)','VariableNames',{'ID'});
+        
     end
 else
     for c = 1:length(study)
@@ -93,15 +104,15 @@ for c = 1:length(study)
     maxA(c)         = max(study(c).Data(:));                            % find max amplidute
     minA(c)         = min(study(c).Data(:));                            % find min amplidute
 end
+maxA = max(maxA);
+minA = min(minA);
 
 %% Plot
 % Find number of minimal subplot dimentions (aprox)
-a = ceil(sqrt(length(study)/1.6));
+a = floor(sqrt(length(study)));
 b = ceil(length(study)/a);
-if a>b
-    b = ceil(sqrt(length(study)/1.6));
-    a = ceil(length(study)/b);
-end
+
+nTime = length(study(1).timeLine);
 
 % Open Figure
 fig         = figure();
@@ -111,104 +122,71 @@ hold on;
 clf
 
 for c = 1:length(study) % for each condition
-    cond(c) = subplot(a,b,c);                   % open new subplot
+    subplot(a,b,c); % open new subplot
     
-    if p.Results.minusUp
-        set(gca,'YDir','reverse');
-        hold on
-    end
-    
-    % Plot the lines
-    % --------------
+    % Select colors:
     co_ind = mod(c,length(co));
     if co_ind==0, co_ind = length(co); end
     color = co(co_ind,:);
     
-    [nTime, nID]=size(study(c).Data);
+    % Plot the lines
+    % --------------
+    nID = size(study(c).Data,2);
+    % plot "butterflys"
     plot3(study(c).timeLine,study(c).Data,repmat(1:nID,[nTime 1]),...
-        'Color',color,...
-        'LineWidth',0.5);                       % plot "butterflys"
+        'Color',color,'LineWidth',0.5);
     hold on
+    % plot the mean ERP
     plot(study(c).timeLine,study(c).mean,...
-        'Color',[0 0 0],...
-        'LineWidth',1.25);                      % plot the mean ERP
-    
-    set(gca,'ZTickLabel',[study(c).IDs.ID]);
-
-    
-
-    % Limits
-    % ------
-    xlim([study(c).timeLine([1 end])]); % set x-Axis limit
-    
-    
+        'Color',[0 0 0],'LineWidth',1.25);
     
     % Plot axes
     % ---------
-    plot(study(1).timeLine([1,end]), [0 0],...
-        'Color', 'k',...
-        'LineStyle', '-');                      % plot time line
-    plot([0 0],[-2000 2000],...
-        'Color', 'k',...
-        'LineStyle', '-');                      % plot y-axis (at t=0)
+    plot(study(1).timeLine([1,end]), [0 0],'Color', 'k');   % plot time line
+    plot([0 0],[minA maxA],'Color', 'k');                   % plot y-axis (at t=0)
     
-    % Titles (and label)
-    % ------------------
-    title(conditions(c), 'Interpreter', 'none')
+    % Titles, labels, and limits
+    % --------------------------
+    title(conditions(c), 'Interpreter', 'none');
+    xlim([study(c).timeLine([1 end])]); % set x-Axis limit
+    ylim([minA maxA]); 
+    view(0,90) % change view angle
+    if p.Results.minusUp, set(gca,'YDir','reverse'); end
     if c == 1 % for first plot only
         xlabel('Time');
-        ylabel('\muV')
+        ylabel('\muV');
     end
-    
-    % change view angle
-    view(0,90)
-    
 end
-
-
-for c = 1:length(study) % set all plots to same scale
-    ylim(cond(c),[min(minA) max(maxA)]); 
-end
-
 
 %% Export to R
 if p.Results.R
     % Save the data in long format
     % ----------------------------
-    nTmPnts = length(study(1).timeLine);    % length of time axis
-    nCond   = length(study);                % number of conditions
-    nSumID  = sum(cellfun(@(x) size(x,1),{study.IDs}));
-    
-    % make empty matrices
-    ERPamp      = nan(nTmPnts,nSumID);
-    ERPcond     = cell(nTmPnts,nSumID);
-    ERPID       = cell(nTmPnts,nSumID);
+    save_data.Condition = {};
+    save_data.Time      = [];
+    save_data.ID        = {};
+    save_data.amp       = [];
 
-    for c = 1:nCond
-        x_start = find(all(isnan(ERPamp),1),1);
-        x_end   = x_start + size(study(c).Data,2) - 1;
-        
-        ERPamp(:,x_start:x_end)     = study(c).Data;
-        ERPcond(:,x_start:x_end)    = {study(c).Condition};
-        ERPID(:,x_start:x_end)      = table2cell(repmat(study(c).IDs(:,1), 1, nTmPnts))';
+    for c = 1:length(study) % for each condition
+        temp_cond   = repmat({study(c).Condition},  size(study(c).Data));
+        temp_time   = repmat(study(c).timeLine',    [1 size(study(c).Data,2)]);
+        temp_ID     = repmat(study(c).IDs{:,1}',    [size(study(c).Data,1) 1]);
+
+        save_data.Condition = [save_data.Condition; temp_cond(:)];
+        save_data.Time      = [save_data.Time;      temp_time(:)];
+        save_data.ID        = [save_data.ID;        temp_ID(:)];
+        save_data.amp       = [save_data.amp;       study(c).Data(:)];
     end
-    
-    ERPtime = repmat(study(1).timeLine',1,nSumID); % get time line
-    
-    % Reshape all:
-    ERPamp  = reshape(ERPamp,1,[]);
-    ERPID   = reshape(ERPID,1,[]);
-    ERPcond = reshape(ERPcond,1,[]);
-    ERPtime = reshape(ERPtime,1,[]);
-    
-    % Convert to table and write to CSV:
-    T   = table(ERPcond', ERPtime', ERPID', ERPamp', 'VariableNames', {'Condition','Time','ID','amp'});
+
+    T = struct2table(save_data);
+
+    % Save to CSV
+    % -----------
     fn  = ['butterflyplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
-    writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true) % save as csv
+    writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true);
     
-    
-    % Make R code file
-    % ----------------
+    % Make and save R code file
+    % -------------------------
     Rpath = strrep(which(mfilename),[mfilename '.m'],'');
     fid  = fopen([Rpath '\epp_plotbutterfly.R'],'rt');
     f = fread(fid,'*char')';

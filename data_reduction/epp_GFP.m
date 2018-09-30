@@ -16,7 +16,7 @@
 % INPUTS
 % ------
 % study         - structure built by epp_load OR epp_erplab_import.
-% conditions    - cell list of conditions to be plotted. Must correspond to
+% conditions    - cell list of conditions to be convert. Must correspond to
 %                 conditions in study(:).Condition.(e.g. {'freq', 'rare'}).
 %
 % The available parameters are as follows:
@@ -24,7 +24,7 @@
 %                       (SES) is calculated, as per  Milivojevic, Johnson,
 %                       Hamm, & Corballis (2003).
 %
-% See also epp_combineconds, epp_LRP, epp_diffwave, epp_makegrands
+% See also epp_LRP, epp_GFP, epp_makegrands, epp_diffwave
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel

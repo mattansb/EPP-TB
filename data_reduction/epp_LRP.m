@@ -16,7 +16,7 @@
 %                   1. only ONE condition - LRP is produced from only one
 %                      condition. 
 %                   2. TWO conditions - LRP is produced by avereging both
-%                      conditions (opposite) LRPs.
+%                      conditions' (opposite) LRPs.
 % electrodes    - 2*E matrix of electrodes, with each pair to be subtracted
 %                 from one another (e.g. [87 85, 92; 65, 55 ,54]).
 %
@@ -26,7 +26,7 @@
 % NOTE that output has only the number of selected electrodes (ordered as
 % they were input).
 %
-% See also epp_combineconds, epp_GFP, epp_diffwave, epp_makegrands
+% See also epp_LRP, epp_GFP, epp_makegrands, epp_diffwave
 % 
 % 
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -54,7 +54,7 @@ if length(conditions)==1
     LRP.Condition       = [LRP.Condition '_LRP'];
     LRP.Data            = LRP.Data([electrodes(1,:)],:,:)-LRP.Data([electrodes(2,:)],:,:);
 else
-    LRP                 = suppMatchSubjects(study,conditions);
+    LRP                 = epp_matchsubjects(study,conditions);
     LRP(1).Data         = LRP(1).Data([electrodes(1,:)],:,:)-LRP(1).Data([electrodes(2,:)],:,:);
     LRP(2).Data         = LRP(2).Data([electrodes(2,:)],:,:)-LRP(2).Data([electrodes(1,:)],:,:);
     

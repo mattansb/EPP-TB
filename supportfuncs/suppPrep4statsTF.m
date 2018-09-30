@@ -20,6 +20,8 @@ TW(2)   = dsearchn(studyIn(1).timeLine',timeWindow(2)); % closest point to end o
 TW      = TW(1):TW(2);
 
 % Find Closest Frequencies
+freqs_ind   = cell(1,size(freqs,1));
+freqs_name  = cell(1,size(freqs,1));
 for fr = 1:size(freqs,1)    
     F = find(studyIn(1).freqs >= freqs(fr,1) & studyIn(1).freqs <= freqs(fr,2));
     F = F([1 end]);
@@ -30,6 +32,8 @@ end
 
 for c = 1:length(studyIn)
     %% Get freq-bands
+    temp_ersp   = zeros(size(studyIn(c).ersp,1),size(freqs,1),size(studyIn(c).ersp,3),size(studyIn(c).ersp,4));
+    temp_itc    = zeros(size(studyIn(c).itc,1),size(freqs,1),size(studyIn(c).itc,3),size(studyIn(c).itc,4));
     for fr = 1:length(freqs_ind)
         temp_ersp(:,fr,:,:) = mean(studyIn(c).ersp(:,freqs_ind{fr},:,:),2);
         temp_itc(:,fr,:,:)  = mean(studyIn(c).itc(:,freqs_ind{fr},:,:),2);
@@ -49,8 +53,8 @@ for c = 1:length(studyIn)
     
     %% Jackknife
     if jackknife
-        studyIn(c).ersp = suppJackknife('in',studyIn(c).ersp,4);
-        studyIn(c).itc  = suppJackknife('in',studyIn(c).itc,4);
+        studyIn(c).ersp = f_jackknife('in',studyIn(c).ersp,4);
+        studyIn(c).itc  = f_jackknife('in',studyIn(c).itc,4);
     end
     
     %% Reduce dims   

@@ -57,6 +57,8 @@ These functions can be used to compute new conditions or manipulate existing dat
 -   Compute differences between 2 conditions with `epp_diffwave`.
 -   Compute LRP with `epp_LRP`
 -   Compute global field potentials with `epp_GFP`.
+-   Retain subjects that have data in all spefified conditions with `epp_matchsubjects`.
+-   Filter data in a study by some variable in study.IDs with `epp_filter_by`.
 
 Plotting
 --------
@@ -109,11 +111,27 @@ epp_plotbutterfly(study,conds,channel_inds)
 Trace plots are similar to butterfly plots, but the mean activation (across subjects) is plotted for each channel separately.
 
 ``` matlab
-epp_plotbutterfly(study,conds,channel_inds,'all',true)
-% if channels are indicated, they are ignored.
+channel_inds = []; % if left blank, all channels are plotted.
+epp_plotbutterfly(study,conds,,'trace',true)
 ```
 
 ![](doc/trace_plot-1.png)
+
+#### Channel Plots
+
+Similar to trace plots, channel plots give a picture of what is happening at each channel (like `eeglab`'s `plottopo`). These come in two flavors:
+
+-   Topo Plots - channel data is plotted in 2-d space, like a topo-plot.
+-   Grid Plots - channel data is plotted on a simple grid.
+
+Channel topo plots are created with the following Matlab call:
+
+``` matlab
+channel_inds = []; % if left blank, all channels are plotted.
+epp_plotchannels(study,conds,electrodes,'chanlocs',chanlocs)
+```
+
+Grid plots are called using the same call, without providing `chanlocs`.
 
 ### TF Plots
 
@@ -143,7 +161,7 @@ epp_plottopoTF(study,chanlocs,conds,channel_inds,times,bands)
 
 ### Exporting to R
 
-All plots can be exported to R and plotted with [`ggplot2`](https://github.com/tidyverse/ggplot2) by setting `'R',true` in any of the plotting function (this is how the plots in thie README where made). This produces two time-stamped files:
+All plots can be exported to R and plotted with [`ggplot2`](https://github.com/tidyverse/ggplot2) by setting `'R',true` in any of the plotting function (this is how the plots in this README were made). This produces two time-stamped files:
 
 -   A data file (`*_data.csv`)
 -   A code file (`*_code.R`), to plot said data using `ggplot2`.

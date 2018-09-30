@@ -15,7 +15,7 @@
 %                 freqs = [1 3; 4 15; 16 28];
 %                 A given band is selected as so: [low <= freq <= high]
 %
-% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopo
+% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopo, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -65,9 +65,9 @@ for fr = 1:nBands
     for c = 1:length(study)
         bool_freq = study(c).freqs >= freqsRange(fr,1) & study(c).freqs <= freqsRange(fr,2);
         
-        studyOut(end+1).Condition = [study(c).Condition '_' freqs_name{fr}];
-        studyOut(end).Data = squeeze(mean(study(c).ersp(:,bool_freq,:,:),2));
-        studyOut(end).timeLine = study(c).timeLine;
+        studyOut(end+1).Condition   = [study(c).Condition '_' freqs_name{fr}];
+        studyOut(end).Data          = squeeze(mean(study(c).ersp(:,bool_freq,:,:),2));
+        studyOut(end).timeLine      = study(c).timeLine;
     end
 end
 
