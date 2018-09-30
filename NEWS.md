@@ -2,7 +2,7 @@
 
 This doc details user-facing changes only.
 
-## Version 3.1.2 +
+## Version 3.1.3
 
 | Function | Update | Notes |
 |---------:|:-------|:------|
@@ -15,4 +15,4 @@ This doc details user-facing changes only.
 |`epp_get*` | IMPROVEMENT | All `epp_get*` functions now export the identification column with the correct name (*ID*).|
 |`epp_plot*` | IMPROVEMENT | All plot functions are faster and more efficiant when exporting plot data to `.csv`.|
 |`f_WaveletConv`|FIX| When creating wavelets via `f_WaveletConv` (formerly `suppWaveletConv`), baseline correcting no-longer stops on error.|
-`epp_getTF` | FIX| Fixed bug in `epp_getTF` that caused error when conditions were not of equal size N.|
+|`epp_getTF` | FIX | Fixed bug in `epp_getTF` that caused error when conditions were not of equal size N.|

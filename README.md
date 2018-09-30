@@ -57,6 +57,8 @@ These functions can be used to compute new conditions or manipulate existing dat
 -   Compute differences between 2 conditions with `epp_diffwave`.
 -   Compute LRP with `epp_LRP`
 -   Compute global field potentials with `epp_GFP`.
+-   Retain subjects that have data in all spefified conditions with `epp_matchsubjects`.
+-   Filter data in a study by some variable in study.IDs with `epp_filter_by`.
 
 Plotting
 --------
