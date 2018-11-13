@@ -8,91 +8,50 @@
 %
 % INPUTS
 % ------
-% colors    - string (char) of color codes - any sequence of rgbcmywk
+% colors    - string (char) of color codes - any sequence of 'rgbcmywk'
 %             representing different colors (such as 'b' for blue) is
 %             acceptable.
+%
+% EXAMPLE
+% -------
+%   figure; contourf(peaks);
+%   colorbar; colormap(f_makeColormap('wkrygcbmmmmmmm'))
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
 %{
 Change log:
 -----------
+13-11-2018  Complete re-write
 01-05-2018  New function (written in MATLAB R2017a)
 %}
 
 function cmap = f_makeColormap(colors)
 
-%% Validate and initiate
-p = inputParser;
-    addOptional(p,'colors','wrgbcmyk',@ischar);
-parse(p, colors); % validate
+%% Setup colors
 
-%% Init
+d = [1 1 1;...
+    1 0 0;...
+    0 1 0;...
+    0 0 1;...
+    0 1 1;...
+    1 0 1;...
+    1 1 0;...
+    0 0 0];
+
+color_table = array2table(d,...
+    'VariableNames',{'r','g','b'},...
+    'RowNames',{'w','r','g','b','c','m','y','k'});
+
+%% Get colors
+colors  = arrayfun(@(x) {x},colors);
 ncolors = length(colors);
-nbins   = ncolors-1;
-bin_len = round((255/nbins)+2);
 
-%% Colors
+x       = linspace(1,255,ncolors);
+xq      = 1:255;
+RBGs    = color_table{colors,{'r' 'g' 'b'}};
+RBGsq   = interp1(x,RBGs,xq);
 
-vec = cell([nbins 1]);
+cmap = sqrt(RBGsq); % for smoothing: https://youtu.be/LKnqECcg6Gw
 
-for i = 1:nbins
-    R = linspace(...
-        translateColor(colors(i),  'r'),...
-        translateColor(colors(i+1),'r'),...
-        bin_len...
-        );
-    
-    G = linspace(...
-        translateColor(colors(i),  'g'),...
-        translateColor(colors(i+1),'g'),...
-        bin_len...
-        );
-    
-    B = linspace(...
-        translateColor(colors(i),  'b'),...
-        translateColor(colors(i+1),'b'),...
-        bin_len...
-        );
-    
-    vec{i} = [R; G; B]';
-    
-    if ~(i==1 || i==nbins)
-        vec{i} = vec{i}(2:end-1,:);
-    end
-end
-
-
-cmap = cat(1,vec{:});
-
-end %end of buildcmap
-
-function d = translateColor(char,place)
-switch char
-    case 'w'
-        d = [1 1 1];
-    case 'r'
-        d = [1 0 0];
-    case 'g'
-        d = [0 1 0];
-    case 'b'
-        d = [0 0 1];
-    case 'c'
-        d = [0 1 1];
-    case 'm'
-        d = [1 0 1];
-    case 'y'
-        d = [1 1 0];
-    case 'k'
-        d = [0 0 0];
-end
-
-switch place
-    case 'r'
-        d = d(1);
-    case 'g'
-        d = d(2);
-    case 'b'
-        d = d(3);
-end
 end
