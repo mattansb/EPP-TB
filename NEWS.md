@@ -2,6 +2,12 @@
 
 This doc details user-facing changes only.
 
+## Version 3.1.x
+
+| Function | Update | Notes |
+|---------:|:-------|:------|
+|`f_makeColormap`| IMPROVEMENT | Produces better colors  |
+
 ## Version 3.1.3
 
 | Function | Update | Notes |
