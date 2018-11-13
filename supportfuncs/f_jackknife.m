@@ -14,12 +14,12 @@
 % dim           - The dimentins along which to preform the jackknife.
 %
 %
-% Author: Mattan S. Ben Shachar & Rachel Rac, BGU, Israel
+% Author: Mattan S. Ben Shachar, BGU, Israel
 %{
 Change log:
 -----------
 14-04-2018  Function re-write for better preformance
-19-12-2016  Add Jackknife adjustment as per: Smulders, F. T. (2010) 
+19-12-2016  Add Jackknife adjustment as per: Smulders, F. T. Y. (2010) (DOI: 10.1111/j.1469-8986.2009.00934.x)
 25-11-2016  New function (written in MATLAB R2015a)
 %}
 
