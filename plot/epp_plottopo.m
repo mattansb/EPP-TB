@@ -147,9 +147,11 @@ for c = 1:size(meanData,3) % each condition
         % Add Title(s)
         % ------------
         if t==1
-            suptitle([study(c).Condition]);
+            title([study(c).Condition ' ' num2str(timePoints(:,t)') ' ms'], 'Interpreter', 'none');
+        else
+            title([num2str(timePoints(:,t)') ' ms'], 'Interpreter', 'none');
         end
-        title([num2str(timePoints(:,t)') ' ms'], 'Interpreter', 'none');
+        
         
     end
     colormap(f_makeColormap('wcbkryw'))
