@@ -35,6 +35,7 @@
 %{
 Change log:
 -----------
+18-11-2018  Better error when eeglab not loaded
 14-05-2018  Improvment to exporting plot data
             Silenced topoplot();
 01-05-2018  Changed colormap (removed custom option)
@@ -131,7 +132,11 @@ for c = 1:size(meanData,3) % each condition
 
         % Plot the Data 
         % -------------
-        evalc('topoplot(meanData(:,t,c), chanlocs,topo_args{:});');
+        try
+            evalc('topoplot(meanData(:,t,c), chanlocs,topo_args{:});');
+        catch
+            error('Undefined function or variable ''topoplot''. Did you forget to load eeglab?')
+        end
         
         % Add Color Bar
         % -------------

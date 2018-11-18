@@ -43,6 +43,7 @@
 %{
 Change log:
 -----------
+18-11-2018  Better error when eeglab not loaded
 06-07-2018  Minor printing adjustment
 10-05-2018  Support for new baseline correction methods in f_WaveletConv
 25-04-2018  Fix when combining
@@ -146,8 +147,7 @@ if p.Results.wavelet || p.Results.erp
         try
             evalc('temp_EEG = pop_loadset(''filename'',EEG_list{f});');
         catch
-            eeglab; close
-            evalc('temp_EEG = pop_loadset(''filename'',EEG_list{f});');
+            error('Undefined function or variable ''pop_loadset''. Did you forget to load eeglab?')
         end
         
         if isempty(temp_EEG.condition) && isempty(temp_EEG.group)
