@@ -146,8 +146,8 @@ if p.Results.wavelet || p.Results.erp
         % =====================================
         try
             evalc('temp_EEG = pop_loadset(''filename'',EEG_list{f});');
-        catch
-            error('Undefined function or variable ''pop_loadset''. Did you forget to load eeglab?')
+        catch err
+            error(err.message)
         end
         
         if isempty(temp_EEG.condition) && isempty(temp_EEG.group)

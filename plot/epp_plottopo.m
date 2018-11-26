@@ -134,8 +134,8 @@ for c = 1:size(meanData,3) % each condition
         % -------------
         try
             evalc('topoplot(meanData(:,t,c), chanlocs,topo_args{:});');
-        catch
-            error('Undefined function or variable ''topoplot''. Did you forget to load eeglab?')
+        catch err
+            error(err.message)
         end
         
         % Add Color Bar
