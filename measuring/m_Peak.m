@@ -10,6 +10,8 @@
 %{
 Change log:
 -----------
+27-11-2018  Replace tsmovavg with movmean for computing moving average
+            Minor adjusment for latencies (were off by 1 sample)
 11-04-2018  Added help
 07-04-2018  New function (written in MATLAB R2017a)
 %}
@@ -27,15 +29,17 @@ try
         cLocal = data > ShiftRight & data > ShiftLeft; % find points which are GREATER than both adjecent points
 
         if local > 1 % so the same for the mean
-            meanRight = tsmovavg(data, 's', local, 1);
-            meanLeft = flip(tsmovavg(flip(data,1), 's', local, 1), 1);
+%             meanRight = tsmovavg(data, 's', local, 1);
+%             meanLeft = flip(tsmovavg(flip(data,1), 's', local, 1), 1);
+            meanRight = movmean(data,[0 local]);
+            meanLeft  = movmean(data,[local 0]);
 
             cLocal = data > meanRight & data > meanLeft & cLocal;
         end
 
         data(~cLocal) = nan; % remove point that do not mean crit
 
-        timeWindow_ind = timeWindow_ind([local:(end-local)]); % cut down the time window
+        timeWindow_ind = timeWindow_ind([(local+1):(end-local)]); % cut down the time window
     end
 
     [amp, lat] = nanmax(data(timeWindow_ind)); % find amp and latency
