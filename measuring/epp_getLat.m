@@ -52,6 +52,7 @@
 %           'criterion'     - Latency is the first point to be larger
 %                             (smaller) than X mV (positive or negative).
 %       for 'fractional_area'
+%           'direction'     - If 0 will use rectified area.
 %           'percentage'    - [0-1] Latency is the point deviding the area
 %                             into %X. Area can be the positive, negative or
 %                             rectified area (based on direction [1, -1, 0]).
