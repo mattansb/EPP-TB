@@ -6,6 +6,7 @@ This doc details user-facing changes only.
 
 | Function | Update | Notes |
 |---------:|:-------|:------|
+| `epp_exportResults` | NEW | New function to export results produced by any `epp_get*` |
 |`f_makeColormap`| IMPROVEMENT | Produces better colors  |
 |`epp_getLat` | IMPROVEMENT | in criterion based latency measures, it is now possible to measure not only the first crossing of the the criterion (the onset) but also the last crossing (of the )the offset) |
 

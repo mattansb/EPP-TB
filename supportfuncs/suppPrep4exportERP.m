@@ -59,29 +59,12 @@ end
 
 %% Add measuemnt info
 results.info = rmfield(pResults,'study');
+fprintf('. Done!\n\n')
 
 %% Save to file?
 if any(strcmpi(pResults.save, {'wide','long'}))
-    fprintf('. Done!\n\n\n\nWriting to file..')
-    
-    save_data = results.(measure);
-    
-    if strcmpi(pResults.save, 'long')
-        save_data = stack(save_data,save_data.Properties.VariableNames(2:end),...
-            'NewDataVariableName',measure,...
-            'IndexVariableName','Condition');
-        save_data.Condition = cellstr(save_data.Condition); % categorical to cellstr.
-    end
-        
-    save_info = results.info;
-    save_info = cell2table(struct2cell(save_info)','VariableNames',fieldnames(save_info));
-    
-    fn  = ['erp_' measure '_' datestr(datetime, 'yyyymmdd_HHMMSS')]; % file name
-    
-    writetable(save_data,fn,'FileType','spreadsheet','Sheet',1) % write values
-    writetable(save_info,fn,'FileType','spreadsheet','Sheet',2) % write info
+    epp_exportResults(results,pResults.save)
 end
 
-fprintf('. Done!\n\n')
 
 end
