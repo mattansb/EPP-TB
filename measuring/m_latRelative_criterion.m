@@ -10,10 +10,11 @@
 %{
 Change log:
 -----------
+28-11-2018  Support for finding offset
 11-04-2018  Added help
 07-04-2018  New function (written in MATLAB R2017a)
 %}
-function res = m_latRelative_criterion(data,timeWindow_ind,direction,local,times,percentage)
+function res = m_latRelative_criterion(data,timeWindow_ind,direction,local,times,percentage,first_last)
 
 try
     [amp,lat] = m_Peak(data,timeWindow_ind,direction,local,times);
@@ -29,18 +30,24 @@ try
     end
     
     Cr              = amp*percentage;       % compute criterion = %*peak_amp
-    lat             = find(times==lat,1);   % convert laency back to index
-    data(lat:end)   = nan;                  % remove later latencies
+    lat             = find(times==lat,1);   % convert latency back to index
     
-    ind = find(data < Cr,1,'last');   % find where amp is smaller than Criterion
-    res = times(ind);
+    switch first_last
+        case 'first'
+            data(lat:end) = nan; % remove later latencies
+        case 'last'
+            data(1:lat) = nan; % remove earlier latencies
+    end
     
-%     % Compute linear approximation:
-%     cutTime = times(timeWindow_ind);
-%     A   = data(ind+1)-data(ind);
-%     a   = Cr - data(ind);
-%     B   = cutTime(ind+1)-cutTime(ind);
-%     res = cutTime(ind) + B*(a/A); % SAVE LATENCY!        
+    ind = find(data > Cr,1,first_last); % find where amp is smaller \ larger than Criterion
+    
+    
+    if ~isempty(ind)
+        res = cut_times(ind);
+    else
+        res = nan;
+    end
+    
 catch ME
     warning(ME.message)
     res = nan;

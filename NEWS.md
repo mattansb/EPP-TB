@@ -7,6 +7,7 @@ This doc details user-facing changes only.
 | Function | Update | Notes |
 |---------:|:-------|:------|
 |`f_makeColormap`| IMPROVEMENT | Produces better colors  |
+|`epp_getLat` | IMPROVEMENT | in criterion based latency measures, it is now possible to measure not only the first crossing of the the criterion (the onset) but also the last crossing (of the )the offset) |
 
 ## Version 3.1.3
 
@@ -19,6 +20,6 @@ This doc details user-facing changes only.
 |`epp_combineconds` | IMPROVEMENT | Supports combining conds based on REGEXP.|
 |`epp_plotbutterfly` | IMPROVEMENT | The `trace` parameter replaces `all` parameter.|
 |`epp_get*` | IMPROVEMENT | All `epp_get*` functions now export the identification column with the correct name (*ID*).|
-|`epp_plot*` | IMPROVEMENT | All plot functions are faster and more efficiant when exporting plot data to `.csv`.|
+|`epp_plot*` | IMPROVEMENT | All plot functions are faster and more efficient when exporting plot data to `.csv`.|
 |`f_WaveletConv`|FIX| When creating wavelets via `f_WaveletConv` (formerly `suppWaveletConv`), baseline correcting no-longer stops on error.|
 |`epp_getTF` | FIX | Fixed bug in `epp_getTF` that caused error when conditions were not of equal size N.|

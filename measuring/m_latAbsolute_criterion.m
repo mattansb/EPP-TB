@@ -10,10 +10,11 @@
 %{
 Change log:
 -----------
+28-11-2018  Support for finding offset
 11-04-2018  Added help
 07-04-2018  New function (written in MATLAB R2017a)
 %}
-function res = m_latAbsolute_criterion(data,timeWindow_ind,direction,times,criterion)
+function res = m_latAbsolute_criterion(data,timeWindow_ind,direction,times,criterion,first_last)
 
 try
     if direction < 0 % if max amp
@@ -24,7 +25,7 @@ try
     cut_data    = data(timeWindow_ind);
     cut_times   = times(timeWindow_ind);
     
-    ind = find(cut_data > criterion,1);   % find first time amp crosses criterion
+    ind = find(cut_data > criterion,1,first_last);   % find first time amp crosses criterion
     
     if ~isempty(ind)
         res = cut_times(ind);

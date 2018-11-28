@@ -43,10 +43,12 @@
 %           'local'         - same as for peak.
 %           'percentage'    - [0-1] Latency is the first point before the
 %                             peak that is % of peak amplitude.
+%           'first_last'    - {'first' [default] | 'last'} look for the
+%                             onset or offset of the component.
 %       for 'baseline_deviation'
-%           'criterion'     - Latency is the first point to be larger
-%                             (smaller) than X standard deviations
-%                             calculated on the baseline.
+%           'criterion'     - Latency is the first point to be deviate by
+%                             more than X standard deviations calculated on
+%                             the baseline. 
 %           'baseline'      - length of base line (negative or positive)
 %       for 'absolute_criterion'
 %           'criterion'     - Latency is the first point to be larger
@@ -101,11 +103,14 @@ p = inputParser;
         case 'relative_criterion' % aka fractional peak
             addParameter(p,'local', 1, @isnumeric);
             addParameter(p,'percentage',0.5,@isnumeric);
+            addParameter(p,'first_last','first',@(x) any(strcmp(x,{'first','last'})));
         case 'baseline_deviation' % first pass of X sd (measured in the baseline)
             addParameter(p,'criterion',1,@isnumeric); % required!!
             addParameter(p,'baseline',1,@isnumeric); % required!!
+            addParameter(p,'first_last','first',@(x) any(strcmp(x,{'first','last'})));
         case 'absolute_criterion'
             addParameter(p,'criterion',1,@isnumeric); % required!!
+            addParameter(p,'first_last','first',@(x) any(strcmp(x,{'first','last'})));
         case 'fractional_area'
             addParameter(p,'percentage',0.5,@isnumeric);
             addParameter(p,'boundary',0,@isnumeric);
@@ -131,20 +136,20 @@ for c = 1:length(study)
     for ie = 1:size(study(c).Data,2)
         switch lower(measure)
             case 'peak'
-                [~,res(ie)] = m_Peak(study(c).Data(:,ie),timeWindow_ind,...
-                    direction,p.Results.local,study(c).timeLine);
+                [~,res(ie)] = m_Peak(study(c).Data(:,ie),timeWindow_ind,direction,...
+                    p.Results.local,study(c).timeLine);
             case 'relative_criterion'
-                res(ie) = m_latRelative_criterion(study(c).Data(:,ie),timeWindow_ind,...
-                    direction,p.Results.local,study(c).timeLine,p.Results.percentage);
+                res(ie) = m_latRelative_criterion(study(c).Data(:,ie),timeWindow_ind,direction,...
+                    p.Results.local,study(c).timeLine,p.Results.percentage,p.Results.first_last);
             case 'baseline_deviation'
-                res(ie) = m_latBaseline_deviation(study(c).Data(:,ie),timeWindow_ind,...
-                    direction,p.Results.baseline,study(c).timeLine,p.Results.criterion);
+                res(ie) = m_latBaseline_deviation(study(c).Data(:,ie),timeWindow_ind,direction,...
+                    p.Results.baseline,study(c).timeLine,p.Results.criterion p.Results.first_last);
             case 'absolute_criterion'
-                res(ie) = m_latAbsolute_criterion(study(c).Data(:,ie),timeWindow_ind,...
-                    direction,study(c).timeLine,p.Results.criterion);
+                res(ie) = m_latAbsolute_criterion(study(c).Data(:,ie),timeWindow_ind,direction,...
+                    study(c).timeLine,p.Results.criterion,p.Results.first_last,p.Results.first_last);
             case 'fractional_area'
-                res(ie) = m_latFractional_area(study(c).Data(:,ie),timeWindow_ind,...
-                    direction,p.Results.boundary,study(c).timeLine,p.Results.percentage);
+                res(ie) = m_latFractional_area(study(c).Data(:,ie),timeWindow_ind,direction,...
+                    p.Results.boundary,study(c).timeLine,p.Results.percentage);
         end
     end
     study(c).measure = res;
