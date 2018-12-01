@@ -25,8 +25,8 @@ for c = 1:length(study) % for each condition
     
     % Correct for jackknifing:
     if pResults.jackknife
-        warning('Not supported yet')
         % maybe add?
+        % warning('Jackknifing on TF data not supported yet')
     end
     
     % Make variable name:
