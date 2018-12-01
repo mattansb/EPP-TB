@@ -143,7 +143,7 @@ for c = 1:length(study)
                     p.Results.local,study(c).timeLine,p.Results.percentage,p.Results.first_last);
             case 'baseline_deviation'
                 res(ie) = m_latBaseline_deviation(study(c).Data(:,ie),timeWindow_ind,direction,...
-                    p.Results.baseline,study(c).timeLine,p.Results.criterion p.Results.first_last);
+                    p.Results.baseline,study(c).timeLine,p.Results.criterion, p.Results.first_last);
             case 'absolute_criterion'
                 res(ie) = m_latAbsolute_criterion(study(c).Data(:,ie),timeWindow_ind,direction,...
                     study(c).timeLine,p.Results.criterion,p.Results.first_last,p.Results.first_last);
