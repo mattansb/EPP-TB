@@ -30,9 +30,17 @@ for c = 1:length(study) % for each condition
     
     %% Create results table for each condition
     
-    % Correct for jackknifing:
-    if pResults.jackknife
-        study(c).measure = f_jackknife('out',study(c).measure,1);
+    % Correct for jackknifing:    
+    if ~strcmp(pResults.jackknife,'off')
+        if contains(pResults.jackknife,'weighted')
+            W = study(c).IDs.nTrials;
+        else
+            W = 1;
+        end
+        
+        WM = study(c).measure(end);
+        study(c).measure = study(c).measure(1:(end-1));
+        study(c).measure = f_jackknife('out',study(c).measure,1,W,WM);
     end
     
     % Make variable name:

@@ -76,7 +76,7 @@ p = inputParser;
     addRequired(p,'conditions',@iscellstr);
     addRequired(p,'electrodes',@(x) isvector(x) && isnumeric(x));
     
-    addParameter(p,'jackknife', false, @islogical); % (+fix?) < leave fix for later...
+    addParameter(p,'jackknife', 'off', @ischar);
     addParameter(p,'average',false,@islogical);
     addParameter(p,'plot',false,@islogical);
     addParameter(p,'save','no', @ischar);

@@ -91,7 +91,7 @@ p = inputParser;
     addRequired(p,'timeWindow',@(x) isvector(x) && isnumeric(x) && length(x)==2);
     addRequired(p,'direction',@isnumeric);
     
-    addParameter(p,'jackknife', false, @islogical);
+    addParameter(p,'jackknife', 'off', @ischar);
     addParameter(p,'average',false,@islogical);
     addParameter(p,'plot',false,@islogical);
     addParameter(p,'save','no', @ischar);

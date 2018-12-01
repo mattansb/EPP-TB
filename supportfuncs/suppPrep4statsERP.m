@@ -32,9 +32,16 @@ for c = 1:length(studyIn)
         studyIn(c).Data = mean(studyIn(c).Data,1);        
     end
     
-    %% Jackknife
-    if jackknife
-        studyIn(c).Data = f_jackknife('in',studyIn(c).Data,3);
+    %% Jackknife    
+    if ~strcmp(jackknife,'off')
+        if contains(jackknife,'weighted')
+            W = studyIn(c).IDs.nTrials;
+        else
+            W = 1;
+        end
+        
+        [studyIn(c).Data, mean_dat] = f_jackknife('in',studyIn(c).Data,3,W);
+        studyIn(c).Data(:,:,end+1) = mean_dat;
     end
     
     %% Interpolate
