@@ -7,6 +7,7 @@ This doc details user-facing changes only.
 | Function | Update | Notes |
 |---------:|:-------|:------|
 | `epp_exportResults` | NEW | New function to export results produced by any `epp_get*` |
+| `f_jackknife` | IMPROVEMENT | Jackknifing procedure re-writen to allow for weighting and better centering. See `help epp_getAmp` or `help epp_getLat` for more details |
 |`f_makeColormap`| IMPROVEMENT | Produces better colors  |
 |`epp_getLat` | IMPROVEMENT | in criterion based latency measures, it is now possible to measure not only the first crossing of the the criterion (the onset) but also the last crossing (of the )the offset) |
 
