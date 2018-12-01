@@ -19,8 +19,14 @@
 % direction     - max / min peak to find (see fractional_area below).
 %
 % The available parameters are as follows:
-%           'jackknife'     - measure using the jackknife technique?
-%                             (default: false)
+%           'jackknife'     - {'off'(default)|'on'|'uncentered'|'unweighted'|'uncentered_unweighted'}
+%                             measure using the jackknife technique.
+%                             if not 'unweighted', jackknifed means and
+%                             values will be weighted by study.IDs.nTrials.
+%                             If not 'uncentered', un-jackknifed values
+%                             will be recentered around a measurment made
+%                             around the grand mean ERP, else will be
+%                             recentered around the mean jackknifed values.
 %           'average'       - average across electrodes before measuring?
 %                             (false my default). 
 %           'plot'          - plot results when done? (default: false)
