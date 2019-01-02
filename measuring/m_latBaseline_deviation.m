@@ -2,7 +2,7 @@
 %
 % FORMAT
 % ------
-% res = m_latBaseline_deviation(data,timeWindow_ind,direction,baselineOS,times,SDcriterion)
+% res = m_latBaseline_deviation(data,timeWindow_ind,direction,baselineOS,times,SDcriterion,first_last)
 %
 % See also epp_getLat
 %
@@ -10,6 +10,7 @@
 %{
 Change log:
 -----------
+02-01-2019  (re)Added linear interpolation
 28-11-2018  Support for finding offset
 11-04-2018  Added help
 07-04-2018  New function (written in MATLAB R2017a)
@@ -34,7 +35,14 @@ try
     ind = find(cut_data > Cr,1,first_last);   % find first / last time amp crosses criterion
     
     if ~isempty(ind)
-        res = cut_times(ind);
+        switch first_last
+            case 'first'
+                ind = [ind-1,ind];
+            case 'last'
+                ind = [ind,ind+1];
+        end
+        res = interp1(cut_data(ind),cut_times(ind),Cr); % linear interpolation
+%         res = cut_times(ind);
     else
         res = nan;
     end

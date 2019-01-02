@@ -10,6 +10,7 @@
 %{
 Change log:
 -----------
+02-01-2019  (re)Added linear interpolation
 11-04-2018  Added help
 07-04-2018  New function (written in MATLAB R2017a)
 %}
@@ -38,7 +39,8 @@ try
     ind = find(cut_data > percentage,1);   % find first time amp crosses criterion
     
     if ~isempty(ind)
-        res = cut_times(ind);
+        res = interp1(cut_data(ind-1,ind),cut_times(ind-1,ind),percentage); % linear interpolation
+%         res = cut_times(ind);
     else
         res = nan;
     end
