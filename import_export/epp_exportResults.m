@@ -27,7 +27,7 @@ function epp_exportResults(results,save_format)
 fprintf('\nWriting to file..')
 
 measure = fieldnames(results);
-measure = measure {1};
+measure = measure{1};
 
 save_data = results.(measure);
 
@@ -53,6 +53,7 @@ save_info = cell2table(struct2cell(save_info)','VariableNames',fieldnames(save_i
 writetable(save_data,fn,'FileType','spreadsheet','Sheet',1) % write values
 writetable(save_info,fn,'FileType','spreadsheet','Sheet',2) % write info
 
-fprintf('. Done!\n\n')
+fprintf('. Done!\n')
+fprintf('File saved in %s\\%s\n',pwd,fn)
 
 end

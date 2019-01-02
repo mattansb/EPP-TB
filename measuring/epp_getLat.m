@@ -14,9 +14,10 @@
 %                 conditions in study(:).Condition.(e.g. {'freq', 'rare'}).
 % electrodes    - vector of electrodes to be plotted after averaging (e.g.
 %                 [87 85, 92]).
-% timeWindow    - two time points ([start end], in ms) within which the
+% timeWindow    - [start end] two time points (in ms) within which the
 %                 measument will be taken.
-% direction     - max / min peak to find (see fractional_area below).
+% direction     - [-1 | 1 | 0 (see fractional_area below)] find min / max
+%                 peak
 %
 % The available parameters are as follows:
 %           'jackknife'     - {'off'(default)|'on'|'uncentered'|'unweighted'|'uncentered_unweighted'}
@@ -27,45 +28,49 @@
 %                             will be recentered around a measurment made
 %                             around the grand mean ERP, else will be
 %                             recentered around the mean jackknifed values.
-%           'average'       - average across electrodes before measuring?
-%                             (false my default). 
-%           'plot'          - plot results when done? (default: false)
-%           'save'          - 'long' / 'wide'; will save the results in the
-%                             current directory in the specified format.
-%           'interpolate'   - rate by with sampling rate should be
-%                             scaled. e.g. is original is 250hz, and
-%                             'interpolate' is 2, resulting sampling rate
-%                             will be 500hz. Interpolation is done using
-%                             the 'spline' method.
+%           'average'       - [false (default)| true] average across
+%                             electrodes before measuring? 
+%           'plot'          - [false (default)| true] plot results?
+%           'save'          - {'no' (default) | 'long' | 'wide'} save the
+%                             results in the current directory in the
+%                             specified format (see epp_exportResults). 
+%           'interpolate'   - [num (default: 1)] rate by with sampling rate
+%                             should be scaled, using the 'spline' method.
+%                             e.g. is original is 250hz, and 'interpolate'
+%                             is 2, resulting sampling rate will be 500hz. 
 %
 %       for 'peak'
-%           'local'         - if larger than zero, peak is defined as the
-%                             largest (/smallest) point which is also:
+%           'local'         - [positive num (default: 1)] if larger than
+%                             zero, peak is defined as the largest
+%                             (/smallest) point which is also:
 %                               1. larger (/smaller) than one sample on
 %                                  either side.
 %                               2. larger (/smaller) then the average of
 %                                  the N sample points on either side.
 %       for 'relative_criterion'
 %           'local'         - same as for peak.
-%           'percentage'    - [0-1] Latency is the first point before the
-%                             peak that is % of peak amplitude.
+%           'percentage'    - [0-1 (default 0.5)] Latency is the first
+%                             point before the peak that is % of peak
+%                             amplitude.
 %           'first_last'    - {'first' [default] | 'last'} look for the
 %                             onset or offset of the component.
 %       for 'baseline_deviation'
-%           'criterion'     - Latency is the first point to be deviate by
-%                             more than X standard deviations calculated on
-%                             the baseline. 
-%           'baseline'      - length of base line (negative or positive)
+%           'criterion'     - [positive num] Latency is the first point to
+%                             be deviate by more than X standard deviations
+%                             calculated on the baseline. 
+%           'baseline'      - [num] length of base line (negative or
+%                             positive).
 %       for 'absolute_criterion'
 %           'criterion'     - Latency is the first point to be larger
 %                             (smaller) than X mV (positive or negative).
 %       for 'fractional_area'
 %           'direction'     - If 0 will use rectified area.
-%           'percentage'    - [0-1] Latency is the point deviding the area
-%                             into %X. Area can be the positive, negative or
-%                             rectified area (based on direction [1, -1, 0]).
-%           'boundary'      - boundary by which to offset the measurement
-%                             of area (in mV).
+%           'percentage'    - [0-1 (default 0.5)] Latency is the point
+%                             deviding the area into %X. Area can be the
+%                             positive, negative or rectified area (based
+%                             on direction [1, -1, 0]).
+%           'boundary'      - [num] boundary by which to offset the
+%                             measurement of area (in mV).
 %
 %  ==============================================================
 % || When comparing to measurements taken using ERPLAB tool:    ||
@@ -137,7 +142,7 @@ end
 %% Find latencies
 
 for c = 1:length(study)
-    fprintf('\nCalculating latencies for %s (condition %d of %d)..',study(c).Condition, c ,length(study))
+    fprintf('Measuring latencies for ''%s'' (%d of %d)..',study(c).Condition, c ,length(study))
     res = nan(size(study(c).Data,2),1);
     for ie = 1:size(study(c).Data,2)
         switch lower(measure)
@@ -159,7 +164,7 @@ for c = 1:length(study)
         end
     end
     study(c).measure = res;
-    fprintf('. Done!')
+    fprintf('. Done!\n')
 end
 
 %% Prep for export & save(?)

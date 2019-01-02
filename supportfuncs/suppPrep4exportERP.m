@@ -17,7 +17,7 @@ Change log:
 
 function [results, study] = suppPrep4exportERP(measure,study,conditions,electrodes,pResults)
 
-fprintf('\n\nSaving results..')
+fprintf('Saving results..')
 
 
 
@@ -76,7 +76,7 @@ end
 
 %% Add measuemnt info
 results.info = rmfield(pResults,'study');
-fprintf('. Done!\n\n')
+fprintf('. Done!\n')
 
 %% Save to file?
 if any(strcmpi(pResults.save, {'wide','long'}))
