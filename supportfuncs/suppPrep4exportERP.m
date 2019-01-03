@@ -31,17 +31,22 @@ for c = 1:length(study) % for each condition
     %% Create results table for each condition
     
     % Correct for jackknifing:    
-    if ~strcmp(pResults.jackknife,'off')
-        
-        
-        
-        if ~contains(pResults.jackknife,'unweighted')
+    if islogical(pResults.jackknife) % for backwards comp
+        if pResults.jackknife
+            pResults.jackknife = [0 0];
+        else
+            pResults.jackknife = -1;
+        end
+    end
+    
+    if pResults.jackknife(1)~=-1
+        if pResults.jackknife(1) % weighted?
             W = study(c).IDs.nTrials;    
         else
             W = 1;
         end
         
-        if ~contains(pResults.jackknife,'uncentered')
+        if pResults.jackknife(end) % centered?
             WM = study(c).measure(end);
             study(c).measure(end)   = [];
             study(c).Data(:,:,end)  = [];

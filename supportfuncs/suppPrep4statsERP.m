@@ -33,8 +33,18 @@ for c = 1:length(studyIn)
     end
     
     %% Jackknife    
-    if ~strcmp(jackknife,'off')
-        if ~contains(jackknife,'unweighted')
+    if islogical(jackknife) % for backwards comp
+        if jackknife
+            jackknife = [0 0];
+            warning('jackknife: Using old ''jackknife'' argument.')
+            warning('jackknife: Defaulting to unweighted, re-centered around mean values [0 0].')
+        else
+            jackknife = -1;
+        end
+    end
+    
+    if jackknife(1)~=-1
+        if jackknife(1) % weighted?
             W = studyIn(c).IDs.nTrials;
         else
             W = 1;
@@ -42,7 +52,7 @@ for c = 1:length(studyIn)
         
         [studyIn(c).Data, mean_dat] = f_jackknife('in',studyIn(c).Data,3,W);
         
-        if ~contains(jackknife,'uncentered')
+        if jackknife(end) % centered?
             studyIn(c).Data(:,:,end+1) = mean_dat;
         end
     end
