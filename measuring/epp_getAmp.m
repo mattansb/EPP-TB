@@ -18,16 +18,20 @@
 %                 time point.
 %
 % The available parameters are as follows:
-%           'jackknife'     - {'off'(default)|'on'|'uncentered'|'unweighted'|'uncentered_unweighted'}
-%                             measure using the jackknife technique.
-%                             if not 'unweighted', jackknifed means and
-%                             values will be weighted by study.IDs.nTrials.
-%                             If not 'uncentered', un-jackknifed values
+%           'jackknife'     - [-1] (default) | [[0|1] [0|1]].
+%                             [-1] - No jackknifing. Else will compute
+%                             measure on jackknifed ERPs (Across subjects
+%                             for each condition).
+%                             If first value is 1, Jackknifed ERPs are
+%                             weighted by study.IDs.nTrials; if 0, they are
+%                             unweighted.
+%                             If second value is 1, un-jackknifed values
 %                             will be recentered around a measurment made
-%                             around the grand mean ERP, else will be
-%                             recentered around the mean jackknifed values.
+%                             from the grand ERP; if 0, recentered around
+%                             the mean jackknifed value.
+%                             (If only one value, it is repeated)
 %           'average'       - average across electrodes before measuring?
-%                             (false my default). 
+%                             (false by default). 
 %           'plot'          - plot results when done? (default: false)
 %           'save'          - 'long' / 'wide'; will save the results in the
 %                             current directory in the specified format.
@@ -82,7 +86,8 @@ p = inputParser;
     addRequired(p,'conditions',@iscellstr);
     addRequired(p,'electrodes',@(x) isvector(x) && isnumeric(x));
     
-    addParameter(p,'jackknife', 'off', @ischar);
+    addParameter(p,'jackknife', -1,...
+        @(x) length(x) <=2 & (islogical(x) | (isnumeric(x) & all(x==1 | x==0))));
     addParameter(p,'average',false,@islogical);
     addParameter(p,'plot',false,@islogical);
     addParameter(p,'save','no', @ischar);
