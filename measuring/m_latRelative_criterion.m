@@ -2,7 +2,7 @@
 %
 % FORMAT
 % ------
-% res = m_latRelative_criterion(data,timeWindow_ind,direction,local,times,percentage)
+% res = m_latRelative_criterion(data,timeWindow_ind,direction,local,times,percentage,first_last)
 %
 % See also epp_getLat
 %
@@ -10,6 +10,7 @@
 %{
 Change log:
 -----------
+02-01-2019  (re)Added linear interpolation
 28-11-2018  Support for finding offset
 11-04-2018  Added help
 07-04-2018  New function (written in MATLAB R2017a)
@@ -43,7 +44,14 @@ try
     
     
     if ~isempty(ind)
-        res = cut_times(ind);
+        switch first_last
+            case 'first'
+                ind = [ind-1,ind];
+            case 'last'
+                ind = [ind,ind+1];
+        end
+        res = interp1(data(ind),times(ind),Cr); % linear interpolation
+%         res = times(ind);
     else
         res = nan;
     end

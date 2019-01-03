@@ -127,7 +127,7 @@ end
 %% Get Amplitudes
 
 for c = 1:length(study)
-    fprintf('\nCalculating amplitudes for %s (condition %d of %d)..',study(c).Condition, c ,length(study))
+    fprintf('Measuring amplitudes for ''%s'' (%d of %d)..',study(c).Condition, c ,length(study))
     res = nan(size(study(c).Data,2),1);
     for ie = 1:size(study(c).Data,2)
         switch lower(measure)
@@ -145,7 +145,7 @@ for c = 1:length(study)
     end
     study(c).measure = res;
     clear res
-    fprintf('. Done!')
+    fprintf('. Done!\n')
 end
 
 %% Prep for export & save(?)
