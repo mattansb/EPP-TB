@@ -37,9 +37,10 @@ try
 
     % compute criterion = %*area
     ind = find(cut_data > percentage,1);   % find first time amp crosses criterion
+    ind = [ind-1,ind];
     
     if ~isempty(ind)
-        res = interp1(cut_data(ind-1,ind),cut_times(ind-1,ind),percentage); % linear interpolation
+        res = interp1(cut_data(ind),cut_times(ind),percentage); % linear interpolation
 %         res = cut_times(ind);
     else
         res = nan;
