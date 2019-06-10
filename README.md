@@ -23,9 +23,7 @@ To use EPP-TB you will need:
 
 ### Installing
 
-Download [`download_and_install_EPPTB.m`](./download_and_install_EPPTB.m)and run it in Matlab. This will download the latest stable version of EPP-TB and add it to your Matlab paths.
-
-Alternatively, you can install the package by [downloading](https://github.com/mattansb/EPP-TB/releases) and adding the EPP-TB folder (and sub-folders) to your Matlab paths manually (but why would you wanna do that?).
+You can install the package by [downloading](https://github.com/mattansb/EPP-TB/releases) and adding the EPP-TB folder (and sub-folders) to your Matlab paths manually (but why would you wanna do that?).
 
 Importing Data into an EPP structure
 ------------------------------------
