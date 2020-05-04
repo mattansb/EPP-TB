@@ -2,7 +2,7 @@
 
 This doc details user-facing changes only.
 
-## Version 3.1.x
+## Version 3.2.0
 
 | Function | Update | Notes |
 |---------:|:-------|:------|
