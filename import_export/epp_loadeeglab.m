@@ -32,7 +32,7 @@
 %                 is empty or not specified, a pop-up will asks for the
 %                 parameters (which will also then be returned).
 % 'combine'     - if true (defult) will combine all files in 'savePath'
-%                 into study structure. Else, won't - will only conver
+%                 into study structure. Else, won't - will only convert
 %                 eeglab files to '.eppf' files.
 %
 % See also epp_loaderplab, epp_loadegimat
