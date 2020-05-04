@@ -53,8 +53,8 @@ for c = 1:length(studyIn)
     
     %% Jackknife
     if jackknife
-        studyIn(c).ersp = f_jackknife('in',studyIn(c).ersp,4);
-        studyIn(c).itc  = f_jackknife('in',studyIn(c).itc,4);
+        % maybe add?
+        warning('Jackknifing on TF data not supported yet')
     end
     
     %% Reduce dims   

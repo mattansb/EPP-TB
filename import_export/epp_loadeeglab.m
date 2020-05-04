@@ -32,7 +32,7 @@
 %                 is empty or not specified, a pop-up will asks for the
 %                 parameters (which will also then be returned).
 % 'combine'     - if true (defult) will combine all files in 'savePath'
-%                 into study structure. Else, won't - will only conver
+%                 into study structure. Else, won't - will only convert
 %                 eeglab files to '.eppf' files.
 %
 % See also epp_loaderplab, epp_loadegimat
@@ -43,6 +43,7 @@
 %{
 Change log:
 -----------
+18-11-2018  Better error when eeglab not loaded
 06-07-2018  Minor printing adjustment
 10-05-2018  Support for new baseline correction methods in f_WaveletConv
 25-04-2018  Fix when combining
@@ -145,9 +146,8 @@ if p.Results.wavelet || p.Results.erp
         % =====================================
         try
             evalc('temp_EEG = pop_loadset(''filename'',EEG_list{f});');
-        catch
-            eeglab; close
-            evalc('temp_EEG = pop_loadset(''filename'',EEG_list{f});');
+        catch err
+            error(err.message)
         end
         
         if isempty(temp_EEG.condition) && isempty(temp_EEG.group)

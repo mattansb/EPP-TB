@@ -17,7 +17,7 @@ Change log:
 
 function [results, study] = suppPrep4exportERP(measure,study,conditions,electrodes,pResults)
 
-fprintf('\n\nSaving results..')
+fprintf('Saving results..')
 
 
 
@@ -30,9 +30,31 @@ for c = 1:length(study) % for each condition
     
     %% Create results table for each condition
     
-    % Correct for jackknifing:
-    if pResults.jackknife
-        study(c).measure = f_jackknife('out',study(c).measure,1);
+    % Correct for jackknifing:    
+    if islogical(pResults.jackknife) % for backwards comp
+        if pResults.jackknife
+            pResults.jackknife = [0 0];
+        else
+            pResults.jackknife = -1;
+        end
+    end
+    
+    if pResults.jackknife(1)~=-1
+        if pResults.jackknife(1) % weighted?
+            W = study(c).IDs.nTrials;    
+        else
+            W = 1;
+        end
+        
+        if pResults.jackknife(end) % centered?
+            WM = study(c).measure(end);
+            study(c).measure(end)   = [];
+            study(c).Data(:,:,end)  = [];
+        else
+            WM = [];
+        end
+        
+        study(c).measure = f_jackknife('out',study(c).measure,1,W,WM);
     end
     
     % Make variable name:
@@ -59,29 +81,12 @@ end
 
 %% Add measuemnt info
 results.info = rmfield(pResults,'study');
+fprintf('. Done!\n')
 
 %% Save to file?
 if any(strcmpi(pResults.save, {'wide','long'}))
-    fprintf('. Done!\n\n\n\nWriting to file..')
-    
-    save_data = results.(measure);
-    
-    if strcmpi(pResults.save, 'long')
-        save_data = stack(save_data,save_data.Properties.VariableNames(2:end),...
-            'NewDataVariableName',measure,...
-            'IndexVariableName','Condition');
-        save_data.Condition = cellstr(save_data.Condition); % categorical to cellstr.
-    end
-        
-    save_info = results.info;
-    save_info = cell2table(struct2cell(save_info)','VariableNames',fieldnames(save_info));
-    
-    fn  = ['erp_' measure '_' datestr(datetime, 'yyyymmdd_HHMMSS')]; % file name
-    
-    writetable(save_data,fn,'FileType','spreadsheet','Sheet',1) % write values
-    writetable(save_info,fn,'FileType','spreadsheet','Sheet',2) % write info
+    epp_exportResults(results,pResults.save)
 end
 
-fprintf('. Done!\n\n')
 
 end

@@ -35,6 +35,7 @@
 %{
 Change log:
 -----------
+18-11-2018  Better error when eeglab not loaded
 14-05-2018  Improvment to exporting plot data
             Silenced topoplot();
 01-05-2018  Changed colormap (removed custom option)
@@ -131,7 +132,11 @@ for c = 1:size(meanData,3) % each condition
 
         % Plot the Data 
         % -------------
-        evalc('topoplot(meanData(:,t,c), chanlocs,topo_args{:});');
+        try
+            evalc('topoplot(meanData(:,t,c), chanlocs,topo_args{:});');
+        catch err
+            error(err.message)
+        end
         
         % Add Color Bar
         % -------------
@@ -147,9 +152,11 @@ for c = 1:size(meanData,3) % each condition
         % Add Title(s)
         % ------------
         if t==1
-            suptitle([study(c).Condition]);
+            title([study(c).Condition ' ' num2str(timePoints(:,t)') ' ms'], 'Interpreter', 'none');
+        else
+            title([num2str(timePoints(:,t)') ' ms'], 'Interpreter', 'none');
         end
-        title([num2str(timePoints(:,t)') ' ms'], 'Interpreter', 'none');
+        
         
     end
     colormap(f_makeColormap('wcbkryw'))

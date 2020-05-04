@@ -54,7 +54,7 @@ IDs_table = IDs_table(:,{'ID','Condition',vNames{:}});
 
 %% Save?
 if any(strcmpi(p.Results.save, {'wide','long'}))
-    fprintf('. Done!\n\n\n\nWriting to file..')
+    fprintf('Writing to file..')
     % for each variable
     if strcmpi(p.Results.save,'wide')
         save_table = [];

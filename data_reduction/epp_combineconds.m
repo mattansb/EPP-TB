@@ -69,7 +69,11 @@ study   = study(cInd);
 IDs = {};
 for c = 1:length(study)
     if ~any(isstr(study(c).IDs.ID))
-        study(c).IDs.ID = cellfun(@(X) num2str(X),study(c).IDs.ID,'UniformOutput',false);
+        if length(study(c).IDs.ID)==1
+            study(c).IDs.ID = num2str(study(c).IDs.ID);
+        else
+            study(c).IDs.ID = cellfun(@(X) num2str(X),study(c).IDs.ID,'UniformOutput',false);
+        end
     end
     IDs = [IDs; study(c).IDs.ID];
 end
