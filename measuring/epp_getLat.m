@@ -41,7 +41,7 @@
 %                             scaled. e.g. is original is 250hz, and
 %                             'interpolate' is 2, resulting sampling rate
 %                             will be 500hz. Interpolation is done using
-%                             the 'spline' method.>>>>>>> next
+%                             the 'spline' method.
 %
 %       for 'peak'
 %           'local'         - [positive num (default: 1)] if larger than
