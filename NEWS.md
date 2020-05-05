@@ -2,6 +2,13 @@
 
 This doc details user-facing changes only.
 
+## Version 3.2.x
+
+| Function | Update | Notes |
+|---------:|:-------|:------|
+| `epp_loadeeglab` | IMPROVEMENT | more options for file imports |
+
+
 ## Version 3.2.0
 
 | Function | Update | Notes |

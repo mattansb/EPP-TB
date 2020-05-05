@@ -8,8 +8,13 @@
 %
 % INPUTS
 % ------
-% EEG_list      - a cell-array of '.set' (full) file locations. If empty
-%                 will skip, and will combine the files in 'savePath.
+% EEG_list      One of the following:
+%               1. A cell-array - (full) '.set' file locations. 
+%               2. A string - name of a folder in which to select the
+%                  '.set' files.
+%               3. A logial [true] - will prompt a file selection window.
+%               4. An empty cell - will skip to combine the files in 
+%                 'savePath'.
 %
 % Condition names are taken from EEG.condition and EEG.group. Thus it is
 % assumed that each file contains only a single condition.
@@ -43,6 +48,9 @@
 %{
 Change log:
 -----------
+05-05-2020  Added more options for file imports.
+            Show warning when the same condition is being loaded more than
+            once.
 18-11-2018  Better error when eeglab not loaded
 06-07-2018  Minor printing adjustment
 10-05-2018  Support for new baseline correction methods in f_WaveletConv
@@ -58,16 +66,35 @@ function [study, savePath, waveletVars] = epp_loadeeglab(EEG_list,varargin)
 
 %% Validate and initiate
 p = inputParser;
-    addRequired(p,'EEG_list',@iscell);
     addParameter(p,'erp', false, @islogical)
     addParameter(p,'wavelet', false, @islogical)
     addParameter(p,'savePath', '', @ischar)
     addParameter(p,'waveletVars', [], @isstruct)
     addParameter(p,'combine', true, @islogical)
-parse(p, EEG_list, varargin{:}); % validate
+parse(p, varargin{:}); % validate
 
 if ~(p.Results.wavelet || p.Results.erp || p.Results.combine)
     error('You seem to have called the function without asking it to make ERPs or Wavelets. Oops?')
+end
+
+if ~iscell(EEG_list)
+    if islogical(EEG_list) && EEG_list
+        [file,path,indx] = uigetfile('*.set', 'Select EEGLAB set files','MultiSelect','on');
+        
+        if ~indx, error('No files selected.'); end
+        
+        EEG_list = fullfile(path,file);
+    elseif ischar(EEG_list)
+        listing = dir(EEG_list);
+        listing = fullfile({listing.folder},{listing.name});
+        
+        ix = regexp(listing, '\.set$','start','forceCellOutput');
+        ix = ~cellfun(@isempty, ix);
+        
+        EEG_list = listing(ix);
+    else
+        error('Wrong input for EEG_list. See help.')
+    end
 end
 
 
@@ -117,8 +144,6 @@ if p.Results.wavelet
         'baseline',waveletVars.baseline_method,...
         'downsample',waveletVars.Downsample,...
         };
-else
-    waveletVars = p.Results.waveletVars;
 end
 
 %% Set up temp dir
@@ -189,7 +214,14 @@ if p.Results.wavelet || p.Results.erp
         if exist(fullfile(savePath, fname))==2
             output1 = output;
             load(fullfile(savePath, fname), '-mat')
-            output(end+1) = output1;
+            match_cond = strcmp(output1.Condition,{output.Condition});
+            if any(match_cond)
+                warning(sprintf(['Condition ' output1.Condition 'appears more than once for ID ' num2str(temp_EEG.subject)...
+                    '.\nOverriding the old with the new.']))
+                output(match_cond) = output1;
+            else
+                output(end+1) = output1;
+            end
         end
 
         save(fullfile(savePath, fname), 'output','-mat');
