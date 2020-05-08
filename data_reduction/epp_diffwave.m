@@ -5,7 +5,7 @@
 % 
 % FORMAT
 % ------
-% DIFF = epp_diffwave(study, conditions)
+% DIFF = epp_diffwave(study, conditions,varargin)
 %
 %
 % INPUTS
