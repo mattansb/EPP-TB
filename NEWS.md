@@ -6,6 +6,7 @@ This doc details user-facing changes only.
 
 | Function | Update | Notes |
 |---------:|:-------|:------|
+| `epp_exportData` | NEW | Function for saving data structure to a `.csv` file. |
 | `epp_appendID` | NEW | Function for adding more info to the `IDs` table. Can be used for filtering, etc. |
 | `epp_loadeeglab` | IMPROVEMENT | more options for file imports |
 
