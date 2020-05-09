@@ -14,7 +14,7 @@
 %                  '.set' files.
 %               3. A logial [true] - will prompt a file selection window.
 %               4. An empty cell - will skip to combine the files in 
-%                 'savePath'.
+%                  'savePath'.
 %
 % Condition names are taken from EEG.condition and EEG.group. Thus it is
 % assumed that each file contains only a single condition.
