@@ -97,108 +97,17 @@ else
     end
 end
 
-%% Compute aves
-
-for c = 1:length(study)
-    study(c).mean   = mean(study(c).Data,2);                            % Mean across subjects
-    maxA(c)         = max(study(c).Data(:));                            % find max amplidute
-    minA(c)         = min(study(c).Data(:));                            % find min amplidute
-end
-maxA = max(maxA);
-minA = min(minA);
-
 %% Plot
-% Find number of minimal subplot dimentions (aprox)
-a = floor(sqrt(length(study)));
-b = ceil(length(study)/a);
+waves       = {study.Data};
+timeLine    = study.timeLine;
+condLabels  = {study.Condition};
 
-nTime = length(study(1).timeLine);
+IDs = {study.IDs};
+IDs = cellfun(@(X) X.ID, IDs, 'UniformOutput', false);
 
-% Open Figure
-fig         = figure();
-fig.Color   = [1 1 1];
-co          = get(gca,'ColorOrder');
-hold on;
-clf
+p_butterfly(waves, timeLine, condLabels, ...
+    'minusUp', p.Results.minusUp,...
+    'save',p.Results.R,...
+    'IDs', IDs);
 
-for c = 1:length(study) % for each condition
-    subplot(a,b,c); % open new subplot
-    
-    % Select colors:
-    co_ind = mod(c,length(co));
-    if co_ind==0, co_ind = length(co); end
-    color = co(co_ind,:);
-    
-    % Plot the lines
-    % --------------
-    nID = size(study(c).Data,2);
-    % plot "butterflys"
-    plot3(study(c).timeLine,study(c).Data,repmat(1:nID,[nTime 1]),...
-        'Color',color,'LineWidth',0.5);
-    hold on
-    % plot the mean ERP
-    plot(study(c).timeLine,study(c).mean,...
-        'Color',[0 0 0],'LineWidth',1.25);
-    
-    % Plot axes
-    % ---------
-    plot(study(1).timeLine([1,end]), [0 0],'Color', 'k');   % plot time line
-    plot([0 0],[minA maxA],'Color', 'k');                   % plot y-axis (at t=0)
-    
-    % Titles, labels, and limits
-    % --------------------------
-    title(conditions(c), 'Interpreter', 'none');
-    xlim([study(c).timeLine([1 end])]); % set x-Axis limit
-    ylim([minA maxA]); 
-    view(0,90) % change view angle
-    if p.Results.minusUp, set(gca,'YDir','reverse'); end
-    if c == 1 % for first plot only
-        xlabel('Time');
-        ylabel('\muV');
-    end
-end
-
-%% Export to R
-if p.Results.R
-    % Save the data in long format
-    % ----------------------------
-    save_data.Condition = {};
-    save_data.Time      = [];
-    save_data.ID        = {};
-    save_data.amp       = [];
-
-    for c = 1:length(study) % for each condition
-        temp_cond   = repmat({study(c).Condition},  size(study(c).Data));
-        temp_time   = repmat(study(c).timeLine',    [1 size(study(c).Data,2)]);
-        temp_ID     = repmat(study(c).IDs{:,1}',    [size(study(c).Data,1) 1]);
-
-        save_data.Condition = [save_data.Condition; temp_cond(:)];
-        save_data.Time      = [save_data.Time;      temp_time(:)];
-        save_data.ID        = [save_data.ID;        temp_ID(:)];
-        save_data.amp       = [save_data.amp;       study(c).Data(:)];
-    end
-
-    T = struct2table(save_data);
-
-    % Save to CSV
-    % -----------
-    fn  = ['butterflyplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
-    writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true);
-    
-    % Make and save R code file
-    % -------------------------
-    Rpath = strrep(which(mfilename),[mfilename '.m'],'');
-    fid  = fopen([Rpath '\epp_plotbutterfly.R'],'rt');
-    f = fread(fid,'*char')';
-    fclose(fid);
-    
-    f = strrep(f,'@filename@',[fn '_data.csv']);
-    
-    fid  = fopen([fn '_code.R'],'wt');
-    fprintf(fid,'%s',f);
-    fclose(fid);
-        
-else
-    fprintf('NOTE: consiter plotting with ggplot in ''R'', \nNOTE: by setting ''R'' to true.\n')
-end
 end
