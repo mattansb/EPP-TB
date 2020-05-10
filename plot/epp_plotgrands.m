@@ -19,7 +19,7 @@
 %                             (default: no error). (e.g. 'CI90' will have
 %                             an error of CI 95%).
 %           'minusUp'       - if true, plot is flipped so minus is up
-%                             (false my default).
+%                             (false by default).
 %           'R'             - if true, plot data is saved into a csv file
 %                             in the current directory + an R file with
 %                             code to plot your ERPs. (in R you can
@@ -34,6 +34,7 @@
 %{
 Change log:
 -----------
+10-05-2020  Moved plotting to p_grands
 14-05-2018  Improvment to exporting plot data
             Performace improvment
 14-04-2018  Fixed error when plotting more than 6 conditions
@@ -90,12 +91,7 @@ for c = 1:length(study)
     study(c).Data   = squeeze(mean(study(c).Data(electrodes,:,:),1));    % Mean across electrodes
     study(c).mean   = mean(study(c).Data,2);                    % Mean across subjects
     study(c).N      = size(study(c).Data,2);                    % number of subjects
-    
-    maxA(c) = max(study(c).mean(:));
-    minA(c) = min(study(c).mean(:));
 end
-maxA = max(maxA);
-minA = min(minA);
 
 if ~strcmpi(errorType,'NaN')
     % Compute SD
@@ -138,115 +134,35 @@ if ~strcmpi(errorType,'NaN')
         end
     end
     
-    % Prep for plotting
-    % -----------------
-    TT  = [study(1).timeLine, fliplr(study(1).timeLine)];
+    % Prep Errors
+    % -----------
     for c = 1:length(study)
         switch lower(errorType(1:2))
             case 'sd'
-                YY = study(c).sd;
+                EE(c,:) = study(c).sd;
             case 'se'
-                YY = study(c).se;
+                EE(c,:) = study(c).se;
             case 'ci'
-                YY = study(c).ci;
+                EE(c,:) = study(c).ci;
         end
-        ymin = (study(c).mean - YY)';
-        ymax = (study(c).mean + YY)';
-
-        EE(c,:) = [ymin fliplr(ymax)];
     end
-    maxA = max(EE(:));
-    minA = min(EE(:));
 end
 
 %% Plot
-fig         = figure();
-fig.Color   = [1 1 1];
-co          = get(gca,'ColorOrder');
-hold on;
-clf
 
-for c = 1:length(study)
-    co_ind = mod(c,length(co));
-    if co_ind==0, co_ind = length(co); end
-    color = co(co_ind,:);
-    
-    % Plot Error(s)
-    % =============
-    if ~strcmpi(errorType,'NaN')
-        errorPlot(c)    = fill(TT, EE(c,:), color,...
-                               'EdgeColor', 'none', 'FaceAlpha', 0.25);
-    end
-    hold on;
-    
-    % Plot Mean(s)
-    % ============
-    MM(c) = plot(study(c).timeLine, study(c).mean, 'color', color);
-end
+grands      = cat(2,study.mean);
+timeLine    = study(1).timeLine;
+condLabels  = {study.Condition};
 
-% plot Axies
-% ==========
-plot(study(1).timeLine([1,end]), [0 0],'Color', 'k');   % plot time line
-plot([0 0],[minA maxA],'Color', 'k');                   % plot y-axis (at t=0)
-ylim([minA maxA]);                                      % set Y limits
-xlabel('Time')
-ylabel('\muV')
-if p.Results.minusUp, set(gca,'YDir','reverse'); end
-
-% Add Legend
-legend(MM,{study.Condition}, 'Interpreter', 'none');
-
-
-
-%% Export to R
-if p.Results.R
-    % Save the data in long format
-    % ----------------------------
-    save_data.Condition = {};
-    save_data.Time      = [];
-    save_data.N         = [];
-    save_data.mean      = [];
-    save_data.sd        = [];
-
-    for c = 1:length(study) % for each condition
-        temp_cond   = repmat({study(c).Condition},  size(study(c).mean));
-        temp_N      = repmat(study(c).N,            size(study(c).mean));
-        try
-            temp_SD = study(c).sd;
-        catch
-            temp_SD = nan(size(study(c).mean));
-        end
-
-        save_data.Condition = [save_data.Condition; temp_cond(:)];
-        save_data.Time      = [save_data.Time;      study(c).timeLine'];
-        save_data.N         = [save_data.N;         temp_N(:)];
-        save_data.mean      = [save_data.mean;     study(c).mean(:)];
-        save_data.sd        = [save_data.sd;        temp_SD(:)];
-    end
-
-    T = struct2table(save_data);
-    
-    % Save to CSV
-    % -----------
-    fn  = ['erpplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
-    writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true) % save as csv
-    
-    
-    % Make and save R code file
-    % -------------------------
-    Rpath = strrep(which(mfilename),[mfilename '.m'],'');
-    fid  = fopen([Rpath '\epp_plotgrands.R'],'rt');
-    f = fread(fid,'*char')';
-    fclose(fid);
-    
-    f = strrep(f,'@filename@',[fn '_data.csv']);
-    
-    fid  = fopen([fn '_code.R'],'wt');
-    fprintf(fid,'%s',f);
-    fclose(fid);
-        
+if ~strcmpi(errorType,'NaN')
+    errors = EE';
 else
-    fprintf('NOTE: consiter plotting with ggplot in ''R'', \nNOTE: by setting ''R'' to true.\n')
+    errors = [];
 end
+
+p_grands(grands, errors, timeLine, condLabels, ...
+    'minusUp', p.Results.minusUp, ...
+    'save', p.Results.R,...
+    'errorType', p.Results.errorType)
 
 end
