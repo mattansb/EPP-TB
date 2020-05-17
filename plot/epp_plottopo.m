@@ -82,9 +82,8 @@ nTimes = size(timePoints,2);
 % find time point indecies
 timePoints  = sort(timePoints,2); % sort time points
 for t = 1:nTimes
-    temp_tp1 = dsearchn(study(1).timeLine',timePoints(1,t)); % approximated to existing time points
-    temp_tp2 = dsearchn(study(1).timeLine',timePoints(size(timePoints,1),t)); % approximated to existing time points
-    tP_ind{t} = temp_tp1:temp_tp2;
+    TW = [timePoints(1,t), timePoints(size(timePoints,1),t)];
+    tP_ind{t} = f_timewindowIndex(TW, 'times', study(1).timeLine);
 end
 
 % Get Values to Plot:
@@ -121,14 +120,15 @@ topo_args = {'style',     'map',... 'both'
             'electrodes', p.Results.plotlabels, ... 'labels' / 'numpoint'
             'whitebk','on'};
 
-for c = 1:size(meanData,3) % each condition
-    fig = figure();
-    clf
-    hold on;
-    set(gca,'Color',get(fig,'Color'));
-    
+        
+fig = figure();
+clf
+hold on;
+set(gca,'Color',get(fig,'Color'));
+nConds = size(meanData,3);
+for c = 1:nConds % each condition   
     for t = 1:nTimes % each time point
-        subplot(1,nTimes,t);
+        subplot(nConds,nTimes,(c-1)*nTimes+t);
 
         % Plot the Data 
         % -------------
@@ -140,7 +140,7 @@ for c = 1:size(meanData,3) % each condition
         
         % Add Color Bar
         % -------------
-        if t==1
+        if t==1 && c==1
             cl = colorbar('west','AxisLocation','out');
             cl.Position(1)  = cl.Position(1)*0.4;
             cl.Position(3)  = cl.Position(3)*0.3;

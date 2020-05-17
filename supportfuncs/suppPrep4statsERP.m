@@ -17,11 +17,7 @@ studyIn = studyIn(cInd);
 
 
 %% Find Time Window
-T    = dsearchn(studyIn(1).timeLine',timeWindow(1)); % closest point to start of defined time window
-if length(timeWindow)==2
-    T(2)    = dsearchn(studyIn(1).timeLine',timeWindow(2)); % closest point to end of defined time window
-    T       = T(1):T(2);
-end
+T = f_timewindowIndex(timeWindow, 'times', studyIn(1).timeLine);
 
 
 for c = 1:length(studyIn)
