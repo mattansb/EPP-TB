@@ -19,6 +19,7 @@
 % The available parameters are as follows:
 %       'minusUp'	- if true, plot is flipped so minus is up (false by
 %                     default). 
+%       'ylab'      - Label to give the y-axis.
 %       'save'      - if true, plot data is saved into a csv file in the
 %                     current directory + an R file with code to plot your
 %                     ERPs. (in R you can continue to format you plot -
@@ -33,6 +34,7 @@
 %{
 Change log:
 -----------
+21-05-2020  Allow setting of yaxis label
 10-05-2020  New function (written in MATLAB R2017b)
 %}
 function p_grands(grands, errors, timeLine, condLabels, varargin)
@@ -43,6 +45,7 @@ p = inputParser;
     addRequired(p,'timeLine',@isnumeric);
     addRequired(p,'condLabels',@iscell);
     addParameter(p,'minusUp',false);
+    addParameter(p,'ylab','', @ischar);
     addParameter(p,'save',false);
     addParameter(p,'errorType','errors',@isstr);
 parse(p, grands, errors, timeLine, condLabels, varargin{:}); % validate
@@ -50,6 +53,7 @@ parse(p, grands, errors, timeLine, condLabels, varargin{:}); % validate
 minusUp     = p.Results.minusUp;
 save        = p.Results.save;
 errorType   = p.Results.errorType;
+ylab        = p.Results.ylab;
 
 timeemit  = [timeLine, fliplr(timeLine)];
 
@@ -96,7 +100,7 @@ plot([0 0],[minA maxA],'Color', 'k');           % plot y-axis (at t=0)
 ylim([minA maxA]);                              % set Y limits
 xlim(timeLine([1 end]));                        % set X limits
 xlabel('Time');
-ylabel('\muV');
+ylabel(ylab);
 if minusUp, set(gca,'YDir','reverse'); end
 
 % Add Legend

@@ -33,6 +33,7 @@
 %{
 Change log:
 -----------
+21-05-2020  Fix some bugs.
 14-05-2018  New function (written in MATLAB R2017a)
 %}
 function epp_plotchannels(study,conditions,electrodes,varargin)
@@ -100,7 +101,7 @@ fig.Color   = [1 1 1];
 hold on;
 clf
 
-for ch = electrodes
+for ch = 1:length(electrodes)
     if isempty(chanlocs)
         subplot(a,b,ch); % for each subplot:
         
@@ -120,7 +121,7 @@ for ch = electrodes
 
         chan_plot = plot(squeeze(plot_data(ch,:,:)));
         hold on
-        text(ind0,maxA,chanlocs(ch).labels)
+        text(double(ind0),double(maxA),chanlocs(ch).labels)
 
         % time & amp axis
         plot([0 nTimes], [0 0],'Color', 'k');

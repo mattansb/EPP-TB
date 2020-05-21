@@ -35,6 +35,7 @@
 %{
 Change log:
 -----------
+21-05-2020  Added informative error when eeglab not attached.
 18-11-2018  Better error when eeglab not loaded
 14-05-2018  Improvment to exporting plot data
             Silenced topoplot();
@@ -66,7 +67,9 @@ p = inputParser;
     addParameter(p,'R',false,@islogical)
 parse(p, study,chanlocs,conditions,timePoints,varargin{:}); % validate
 
-
+if exist('topoplot', 'file')~=2
+    error('eeglab must be loaded for this function to work...')
+end
 %% Prepare Data for Plotting
 
 

@@ -8,6 +8,7 @@ This doc details user-facing changes only.
 |---------:|:-------|:------|
 | `epp_exportData` | NEW | Function for saving data structure to a `.csv` file. |
 | `epp_appendID` | NEW | Function for adding more info to the `IDs` table. Can be used for filtering, etc. |
+| `epp_plotgrandsTF` | NEW | Plot grand averages for TF bands. |
 | `epp_loadeeglab` | IMPROVEMENT | more options for file imports |
 | `epp_plot*` | IMPROVEMENT | All `epp_plot*` functions now have an accompanying `p_*` function, that can be used with non `EPP-TB` data. |
 | `epp_plottopo` | IMPROVEMENT | Now plots conditions in a single figure. |

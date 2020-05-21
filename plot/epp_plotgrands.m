@@ -34,6 +34,7 @@
 %{
 Change log:
 -----------
+21-05-2020  Allow setting of yaxis label
 10-05-2020  Moved plotting to p_grands
 14-05-2018  Improvment to exporting plot data
             Performace improvment
@@ -59,6 +60,7 @@ p = inputParser;
     addParameter(p,'errorType','NaN',@(x) strcmpi(x,'SE') || strcmpi(x,'SD') || strcmpi(x(1:2),'CI'))
     addParameter(p,'minusUp', false, @islogical)
     addParameter(p,'R', false, @islogical)
+    addParameter(p,'ylab', '\muV', @ischar)
 parse(p, study, conditions, electrodes, varargin{:}); % validate
 
 errorType = p.Results.errorType;
@@ -163,6 +165,7 @@ end
 p_grands(grands, errors, timeLine, condLabels, ...
     'minusUp', p.Results.minusUp, ...
     'save', p.Results.R,...
-    'errorType', p.Results.errorType)
+    'errorType', p.Results.errorType,...
+    'ylab', p.Results.ylab)
 
 end

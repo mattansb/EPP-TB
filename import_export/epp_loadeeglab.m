@@ -48,6 +48,7 @@
 %{
 Change log:
 -----------
+21-05-2020  Added informative error when eeglab not attached.
 05-05-2020  Added more options for file imports.
             Show warning when the same condition is being loaded more than
             once.
@@ -75,6 +76,10 @@ parse(p, varargin{:}); % validate
 
 if ~(p.Results.wavelet || p.Results.erp || p.Results.combine)
     error('You seem to have called the function without asking it to make ERPs or Wavelets. Oops?')
+end
+
+if (p.Results.wavelet || p.Results.erp) && exist('pop_loadset','file')~=2
+    error('eeglab must be loaded for this function to work...')
 end
 
 if ~iscell(EEG_list)
