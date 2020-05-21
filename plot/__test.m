@@ -8,6 +8,8 @@ end
 
 WAV = epp_loadeeglab(true, 'wavelet', true, 'combine', true);
 
+load('doc\sample data\chanlocs.mat')
+
 
 %% butterfly
 
