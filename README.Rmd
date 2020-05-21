@@ -52,11 +52,12 @@ The resulting structure array has `length(struct)` equal to the number of condit
 - **Condition**: the name of the conditions.
 - **timeLine**: a vector of time points.
 - **IDs**: a table with two variables - _**ID**_ and _**nTrials**_ (the number of trials a ERP has been averaged across).
-- **Data**: a channels$\times$`length(timeLine)`$\times$`length(IDs)` matrix for ERP data.
+- **Data**: a `channels` *x* `time points` *x* `Subjects` matrix for ERP data.
 
 If a wavelet analysis has been preformed, the Data field is replaced with:
 
-- **ersp** and **itc**: channels$\times$`length(Freqs)`$\times$`length(timeLine)`$\times$`length(IDs)` matrices.
+- **ersp** and **itc**: `channels` *x* `frequencies` *x* `time points` *x* `Subjects` matrices.
+
 - **Freqs**: a vector of frequencies used.
 
 
@@ -75,7 +76,7 @@ These functions can be used to compute new conditions or manipulate existing dat
 ### Working with ID data
 
 - Add data to `study.IDs` from a table with `epp_appendID()`.
-- Retain subjects that have data in all spefified conditions with `epp_matchsubjects()`.
+- Retain subjects that have data in all specified conditions with `epp_matchsubjects()`.
 - Select data from specific subjects by some variable in `study.IDs` with `epp_filter_by()`.
 - Pull data from `study.IDs` with `epp_extractIDs()`.
 
@@ -324,7 +325,7 @@ Grid plots are called using the same call, without providing `chanlocs`.
 
 ### TF Plots
 
-#### Time-Frequancy Plot
+#### Time-Frequency Plot
 
 Time Frequency plots plot both ersp and itc:
 
@@ -487,8 +488,6 @@ The function `epp_getAmp` implements the methods for measuring amplitudes descri
  - Integral
  - Area
 
-_Please note that `epp_getamplitude` is no longer supported and should not be used._
-
 ### ERP Latency
 
 The function `epp_getLat` implements the methods for measuring latencies described in chapter 9 of [Steven J. Luck's intro to ERP book](https://mitpress.mit.edu/books/introduction-event-related-potential-technique-0), as well as those described in [Kiesel et al.'s Jakknife paper](http://onlinelibrary.wiley.com/doi/10.1111/j.1469-8986.2007.00618.x/abstract).
@@ -498,8 +497,6 @@ The function `epp_getLat` implements the methods for measuring latencies describ
 - Fractional area
 - Baseline deviation
 - Absolute criterion
-
-_Please note that `epp_getlatency` is no longer supported and should not be used._
 
 ### TF Power
 

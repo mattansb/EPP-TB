@@ -53,16 +53,15 @@ of conditions, and contains the following fields, per condition:
   - **timeLine**: a vector of time points.
   - **IDs**: a table with two variables - ***ID*** and ***nTrials***
     (the number of trials a ERP has been averaged across).
-  - **Data**: a
-    channels\(\times\)`length(timeLine)`\(\times\)`length(IDs)` matrix
-    for ERP data.
+  - **Data**: a `channels` *x* `time points` *x* `Subjects` matrix for
+    ERP data.
 
 If a wavelet analysis has been preformed, the Data field is replaced
 with:
 
-  - **ersp** and **itc**:
-    channels\(\times\)`length(Freqs)`\(\times\)`length(timeLine)`\(\times\)`length(IDs)`
-    matrices.
+  - **ersp** and **itc**: `channels` *x* `frequencies` *x* `time points`
+    *x* `Subjects` matrices.
+
   - **Freqs**: a vector of frequencies used.
 
 ### Data Reduction / Reshaping
@@ -81,7 +80,7 @@ existing data:
 ### Working with ID data
 
   - Add data to `study.IDs` from a table with `epp_appendID()`.
-  - Retain subjects that have data in all spefified conditions with
+  - Retain subjects that have data in all specified conditions with
     `epp_matchsubjects()`.
   - Select data from specific subjects by some variable in `study.IDs`
     with `epp_filter_by()`.
@@ -169,7 +168,7 @@ Grid plots are called using the same call, without providing `chanlocs`.
 
 ### TF Plots
 
-#### Time-Frequancy Plot
+#### Time-Frequency Plot
 
 Time Frequency plots plot both ersp and itc:
 
@@ -229,9 +228,6 @@ book](https://mitpress.mit.edu/books/introduction-event-related-potential-techni
   - Integral
   - Area
 
-*Please note that `epp_getamplitude` is no longer supported and should
-not be used.*
-
 ### ERP Latency
 
 The function `epp_getLat` implements the methods for measuring latencies
@@ -245,9 +241,6 @@ paper](http://onlinelibrary.wiley.com/doi/10.1111/j.1469-8986.2007.00618.x/abstr
   - Fractional area
   - Baseline deviation
   - Absolute criterion
-
-*Please note that `epp_getlatency` is no longer supported and should not
-be used.*
 
 ### TF Power
 
