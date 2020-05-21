@@ -26,7 +26,17 @@
 %                             continue to format you plot - colors,
 %                             annotations, etc.)
 %
-% See also epp_plotbutterfly, epp_plotTF, epp_plottopo, epp_plottopoTF, epp_plotchannels
+% When study is a time-frequency structure, two additional parameters must
+% be supplied:
+%           'type'          - 'erps' or 'itc'.
+%           'freqs'         - matrix of frequencies, with each row
+%                             containing a range of frequencies to group
+%                             together (1st column is lower limit, 2nd
+%                             column is upper limit of each range). e.g.
+%                             freqs = [1 3; 4 15; 16 28]; 
+%                             A given band is selected as so: [low <= freq <= high]
+%
+% See also epp_plotbutterfly, epp_plotTF, epp_plottopo, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -34,7 +44,7 @@
 %{
 Change log:
 -----------
-21-05-2020  Allow setting of yaxis label
+21-05-2020  Added support for TF plotting.
 10-05-2020  Moved plotting to p_grands
 14-05-2018  Improvment to exporting plot data
             Performace improvment
@@ -60,7 +70,10 @@ p = inputParser;
     addParameter(p,'errorType','NaN',@(x) strcmpi(x,'SE') || strcmpi(x,'SD') || strcmpi(x(1:2),'CI'))
     addParameter(p,'minusUp', false, @islogical)
     addParameter(p,'R', false, @islogical)
-    addParameter(p,'ylab', '\muV', @ischar)
+    if ~isfield(study, 'Data')
+        addParameter(p,'freqs', [], @isnumeric)
+        addParameter(p,'type', '', @ischar)
+    end
 parse(p, study, conditions, electrodes, varargin{:}); % validate
 
 errorType = p.Results.errorType;
@@ -69,6 +82,11 @@ errorType = p.Results.errorType;
 
 cInd    = cellfun(@(x) find(strcmp(x,{study(:).Condition})), conditions);
 study   = study(cInd);
+
+if ~isfield(study, 'Data')
+    study = epp_reshapeTF(study, p.Results.freqs, p.Results.type);
+    conditions = {study.Condition};
+end
 
 % determine if to compute within
 if ~strcmpi(errorType,'NaN')
@@ -165,7 +183,6 @@ end
 p_grands(grands, errors, timeLine, condLabels, ...
     'minusUp', p.Results.minusUp, ...
     'save', p.Results.R,...
-    'errorType', p.Results.errorType,...
-    'ylab', p.Results.ylab)
+    'errorType', p.Results.errorType)
 
 end

@@ -27,7 +27,17 @@
 %                             continue to format you plot - colors,
 %                             annotations, etc.)
 %
-% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopoTF, epp_plotchannels
+% When study is a time-frequency structure, two additional parameters must
+% be supplied:
+%           'type'          - 'erps' or 'itc'.
+%           'freqs'         - matrix of frequencies, with each row
+%                             containing a range of frequencies to group
+%                             together (1st column is lower limit, 2nd
+%                             column is upper limit of each range). e.g.
+%                             freqs = [1 3; 4 15; 16 28]; 
+%                             A given band is selected as so: [low <= freq <= high]
+%
+% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -36,6 +46,7 @@
 Change log:
 -----------
 21-05-2020  Added informative error when eeglab not attached.
+            Added support for TF plotting.
 18-11-2018  Better error when eeglab not loaded
 14-05-2018  Improvment to exporting plot data
             Silenced topoplot();
@@ -65,6 +76,10 @@ p = inputParser;
     addParameter(p,'plotlabels','on',@isstr)
     addParameter(p,'maplimits',nan,@isnumeric)
     addParameter(p,'R',false,@islogical)
+    if ~isfield(study, 'Data')
+        addParameter(p,'freqs', [], @isnumeric)
+        addParameter(p,'type', '', @ischar)
+    end
 parse(p, study,chanlocs,conditions,timePoints,varargin{:}); % validate
 
 if exist('topoplot', 'file')~=2
@@ -77,7 +92,11 @@ end
 % ----------------------------------------
 cInd  = cellfun(@(x) find(strcmp(x,{study(:).Condition})), conditions);
 study = study(cInd);
-clear cInd
+
+if ~isfield(study, 'Data')
+    study = epp_reshapeTF(study, p.Results.freqs, p.Results.type);
+    conditions = {study.Condition};
+end
 
 % Get Time Points
 % ---------------

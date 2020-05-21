@@ -25,7 +25,17 @@
 %                             continue to format you plot - colors,
 %                             annotations, etc.)
 %
-% See also epp_plotbutterfly, epp_plotTF, epp_plottopo, epp_plottopoTF, epp_plotgrands
+% When study is a time-frequency structure, two additional parameters must
+% be supplied:
+%           'type'          - 'erps' or 'itc'.
+%           'freqs'         - matrix of frequencies, with each row
+%                             containing a range of frequencies to group
+%                             together (1st column is lower limit, 2nd
+%                             column is upper limit of each range). e.g.
+%                             freqs = [1 3; 4 15; 16 28]; 
+%                             A given band is selected as so: [low <= freq <= high]
+%
+% See also epp_plotbutterfly, epp_plotTF, epp_plottopo, epp_plotgrands
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -33,7 +43,8 @@
 %{
 Change log:
 -----------
-21-05-2020  Fix some bugs.
+21-05-2020  Fix some bugs
+            Added support for TF plotting..
 14-05-2018  New function (written in MATLAB R2017a)
 %}
 function epp_plotchannels(study,conditions,electrodes,varargin)
@@ -46,6 +57,10 @@ p = inputParser;
     addParameter(p,'chanlocs', false, @isstruct)    
     addParameter(p,'minusUp', false, @islogical)
     addParameter(p,'R', false, @islogical)    
+    if ~isfield(study, 'Data')
+        addParameter(p,'freqs', [], @isnumeric)
+        addParameter(p,'type', '', @ischar)
+    end
 parse(p, study, conditions, electrodes, varargin{:}); % validate
 
 
@@ -53,6 +68,11 @@ parse(p, study, conditions, electrodes, varargin{:}); % validate
 
 cInd    = cellfun(@(x) find(ismember({study(:).Condition}, x)), conditions);
 study   = study(cInd);
+
+if ~isfield(study, 'Data')
+    study = epp_reshapeTF(study, p.Results.freqs, p.Results.type);
+    conditions = {study.Condition};
+end
 
 if isempty(electrodes), electrodes = 1:size(study(1).Data,1); end % select channels
 

@@ -27,7 +27,17 @@
 %                             continue to format you plot - colors,
 %                             annotations, etc.)
 %
-% See also epp_plotgrands, epp_plotTF, epp_plottopo, epp_plottopoTF, epp_plotchannels
+% When study is a time-frequency structure, two additional parameters must
+% be supplied:
+%           'type'          - 'erps' or 'itc'.
+%           'freqs'         - matrix of frequencies, with each row
+%                             containing a range of frequencies to group
+%                             together (1st column is lower limit, 2nd
+%                             column is upper limit of each range). e.g.
+%                             freqs = [1 3; 4 15; 16 28]; 
+%                             A given band is selected as so: [low <= freq <= high]
+%
+% See also epp_plotgrands, epp_plotTF, epp_plottopo, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -35,6 +45,7 @@
 %{
 Change log:
 -----------
+21-05-2020  Added support for TF plotting.
 29-05-2018  Bug fix when jackknifing
 14-05-2018  Improvment to exporting plot data
 13-05-2018  Fix to trace plot + added ability to plot trace plots with
@@ -62,13 +73,21 @@ p = inputParser;
     addParameter(p,'trace', false, @islogical)
     addParameter(p,'all', false, @islogical)
     addParameter(p,'R', false, @islogical)
+    if ~isfield(study, 'Data')
+        addParameter(p,'freqs', [], @isnumeric)
+        addParameter(p,'type', '', @ischar)
+    end
 parse(p, study, conditions, electrodes, varargin{:}); % validate
 
 %% Get only relevant conditions (in order!)
 
 cInd = cellfun(@(x) find(ismember({study(:).Condition}, x)), conditions);
-
 study = study(cInd);
+
+if ~isfield(study, 'Data')
+    study = epp_reshapeTF(study, p.Results.freqs, p.Results.type);
+    conditions = {study.Condition};
+end
 
 if p.Results.jackknife % jackknife data
     for c = 1:length(study)

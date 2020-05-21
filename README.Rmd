@@ -56,23 +56,28 @@ The resulting structure array has `length(struct)` equal to the number of condit
 
 If a wavelet analysis has been preformed, the Data field is replaced with:
 
-- **Freqs**: a vector of frequencies used.
 - **ersp** and **itc**: channels$\times$`length(Freqs)`$\times$`length(timeLine)`$\times$`length(IDs)` matrices.
+- **Freqs**: a vector of frequencies used.
 
-### Data Reduction
+
+### Data Reduction / Reshaping
 
 These functions can be used to compute new conditions or manipulate existing data:
 
-- Merge 2 or more conditions with `epp_combineconds`.
-- Make grand-average ERP/ERSP/ITC with `epp_makegrands` (useful for plotting large data sets).
-- Compute differences between 2 conditions with `epp_diffwave`.
-- Compute LRP with `epp_LRP`
-- Compute global field potentials with `epp_GFP`.
-- Retain subjects that have data in all spefified conditions with `epp_matchsubjects`.  
-- Filter data in a study by some variable in study.IDs with `epp_filter_by`.
+- Merge 2 or more conditions with `epp_combineconds()`.
+- Compute differences between 2 conditions with `epp_diffwave()`.
+- Compute LRP with `epp_LRP()`
+- Compute global field potentials with `epp_GFP()`.
+- Collapse TF data to frequency waveforms with `epp_reshapeTF()`.
+- Make grand-average ERP/ERSP/ITC with `epp_makegrands()` (useful for plotting large data sets).
 
 
+### Working with ID data
 
+- Add data to `study.IDs` from a table with `epp_appendID()`.
+- Retain subjects that have data in all spefified conditions with `epp_matchsubjects()`.
+- Select data from specific subjects by some variable in `study.IDs` with `epp_filter_by()`.
+- Pull data from `study.IDs` with `epp_extractIDs()`.
 
 ## Plotting
 
@@ -279,7 +284,7 @@ Trace plots are similar to butterfly plots, but the mean activation (across subj
 
 ```Matlab
 channel_inds = []; % if left blank, all channels are plotted.
-epp_plotbutterfly(study,conds,,'trace',true)
+epp_plotbutterfly(study,conds,channel_inds,'trace',true)
 ```
 ```{r trace_plot}
 
@@ -359,16 +364,17 @@ ersp_plot/itc_plot
 
 ```
 
-#### Power Topo-Plots
+#### Other Plots
 
-`epp_plottopoTF` is a wrapper around `epp_plottopo` for plotting topo plots of selected frequency bands.
+All the listed above plotting methods also support TF data. For example:
 
 ```Matlab
 times = [160 410];
 bands = [4 8; 8 12];
 % a matrix of frequencies, with each row containing a range of frequencies
 % to plot (1st column is lower limit, 2nd column is upper limit of band).
-epp_plottopoTF(study,chanlocs,conds,channel_inds,times,bands)
+epp_plottopo(study,chanlocs,conds,channel_inds,times,...
+    'freqs',bands, 'type', 'ersp')
 ```
 ```{r TFtopo}
 raw.data <- read.csv("doc/TFtopo_data.csv") %>%

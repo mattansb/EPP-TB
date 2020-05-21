@@ -32,6 +32,7 @@
 %{
 Change log:
 -----------
+21-05-2020  Change yaxis to 'value'
 10-05-2020  New function (written in MATLAB R2017b)
 %}
 function p_butterfly(waves, timeLine, condLabels, varargin)
@@ -101,7 +102,7 @@ for c = 1:nConds % for each condition
     if minusUp, set(gca,'YDir','reverse'); end
     if c == 1 % for first plot only
         xlabel('Time');
-        ylabel('\muV');
+        ylabel('Value');
     end
 end
 
