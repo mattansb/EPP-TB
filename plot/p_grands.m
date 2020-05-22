@@ -104,7 +104,7 @@ legend(MM,condLabels, 'Interpreter', 'none');
 
 
 %% Export to R
-if p.Results.save
+if p.Results.R
     % Save the data in long format
     % ----------------------------
     save_data.Condition     = {};
@@ -132,7 +132,7 @@ if p.Results.save
     
     % Save to CSV
     % -----------
-    fn  = ['erpplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
+    fn  = ['grandplot_' datestr(datetime, 'yyyymmdd_HHMMSS')];
     writetable(T,[fn '_data.csv'],'Delimiter',',','QuoteStrings',true) % save as csv
     
     

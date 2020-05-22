@@ -1,13 +1,14 @@
 library(tidyverse) # required to work
 
-alpha <- 0.95 # confidence level
 
-erp.plot.data <- read_csv("@filename@") %>%    # load the data file
-  as_tibble() %>%
-  mutate_at(.vars = c("Time", "mean", "@error@"), .funs = as.numeric) %>%
-  mutate(Condition = as.factor(Condition))     # calculate CI width
+# load the data file
+grand_data <- read_csv("@filename@") %>%
+  mutate(
+    across(c(Time, mean, @error@), as.numeric),
+    Condition = factor(Condition, levels = unique(Condition))
+  )
 
-ERPplot <- erp.plot.data %>% 
+p_grand <- grand_data %>% 
   ggplot(aes(x = Time, y = mean,
              color = Condition, fill = Condition,
              group = Condition)) +
@@ -23,4 +24,4 @@ ERPplot <- erp.plot.data %>%
   scale_x_continuous(expand = c(0, 0)) + # remove padding around time line axis
   labs(x = "Time", y = "Value")
 
-ERPplot
+p_grand

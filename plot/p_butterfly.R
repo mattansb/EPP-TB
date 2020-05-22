@@ -1,11 +1,11 @@
 library(tidyverse)
 
-butterfly.data <- read_csv("@filename@") %>% # load the data file
+butterfly_data <- read_csv("@filename@") %>% # load the data file
   group_by(Condition, Time) %>%
   mutate(meanAmp = mean(amp)) %>%
   ungroup()
 
-butterfly_plot <- butterfly.data %>% 
+p_butterfly <- butterfly_data %>% 
   ggplot(aes(x = Time, y = amp,
              color = Condition,
              group = ID)) + 
@@ -21,4 +21,4 @@ butterfly_plot <- butterfly.data %>%
   scale_x_continuous(expand = c(0, 0)) + # remove padding around time line axis
   labs(x = "Time", y = "Value")
 
-butterfly_plot
+p_butterfly

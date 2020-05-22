@@ -1,11 +1,12 @@
 library(tidyverse)
 
-df <- read_csv("@filename@")
+changrid_data <- read_csv("@filename@")
 
 
 # Plot Grid ---------------------------------------------------------------
 
-chan_plot <- ggplot(df,aes(Time,amp, color = Condition, group = Condition)) + 
+p_changrid <- changrid_data %>% 
+  ggplot(aes(Time, amp, color = Condition, group = Condition)) + 
   ## Axes
   geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
@@ -15,7 +16,7 @@ chan_plot <- ggplot(df,aes(Time,amp, color = Condition, group = Condition)) +
   # scale_y_reverse() + # minus up?
   scale_x_continuous(expand = c(0, 0)) + # remove padding around time line axis
   labs(x = "Time", y = "Value") +
-  facet_wrap(~Channel)
+  facet_wrap( ~ Channel)
 
-chan_plot
+p_changrid
 
