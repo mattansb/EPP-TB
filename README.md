@@ -88,6 +88,11 @@ existing data:
 
 ## Plotting
 
+> For all `epp_plot*` functions, which allow plotting data from `epp`
+> structures, there is an accompanying general `p_*` function, that
+> allows plotting from other data structures (with a little bit of
+> wrangling).
+
 ### ERP Plots
 
 #### Grand averages
