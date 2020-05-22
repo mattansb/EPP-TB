@@ -19,8 +19,7 @@
 % The available parameters are as follows:
 %       'minusUp'	- if true, plot is flipped so minus is up (false by
 %                     default). 
-%       'ylab'      - Label to give the y-axis.
-%       'save'      - if true, plot data is saved into a csv file in the
+%       'R'         - if true, plot data is saved into a csv file in the
 %                     current directory + an R file with code to plot your
 %                     ERPs. (in R you can continue to format you plot -
 %                     colors, annotations, etc.) 
@@ -45,12 +44,10 @@ p = inputParser;
     addRequired(p,'timeLine',@isnumeric);
     addRequired(p,'condLabels',@iscell);
     addParameter(p,'minusUp',false);
-    addParameter(p,'save',false);
+    addParameter(p,'R',false);
     addParameter(p,'errorType','errors',@isstr);
 parse(p, grands, errors, timeLine, condLabels, varargin{:}); % validate
 
-minusUp     = p.Results.minusUp;
-save        = p.Results.save;
 errorType   = p.Results.errorType;
 
 timeemit  = [timeLine, fliplr(timeLine)];
@@ -99,7 +96,7 @@ ylim([minA maxA]);                              % set Y limits
 xlim(timeLine([1 end]));                        % set X limits
 xlabel('Time');
 ylabel('Value');
-if minusUp, set(gca,'YDir','reverse'); end
+if p.Results.minusUp, set(gca,'YDir','reverse'); end
 
 % Add Legend
 legend(MM,condLabels, 'Interpreter', 'none');
@@ -107,7 +104,7 @@ legend(MM,condLabels, 'Interpreter', 'none');
 
 
 %% Export to R
-if save
+if p.Results.save
     % Save the data in long format
     % ----------------------------
     save_data.Condition     = {};

@@ -17,7 +17,7 @@
 % The available parameters are as follows:
 %       'minusUp'	- if true, plot is flipped so minus is up (false by
 %                     default). 
-%       'save'      - if true, plot data is saved into a csv file in the
+%       'R'         - if true, plot data is saved into a csv file in the
 %                     current directory + an R file with code to plot your
 %                     ERPs. (in R you can continue to format you plot -
 %                     colors, annotations, etc.) 
@@ -42,12 +42,9 @@ p = inputParser;
     addRequired(p,'timeLine',@isnumeric);
     addRequired(p,'condLabels',@iscell);
     addParameter(p,'minusUp',false);
-    addParameter(p,'save',false);
+    addParameter(p,'R',false);
     addParameter(p,'IDs',[]);
 parse(p, waves, timeLine, condLabels, varargin{:}); % validate
-
-minusUp     = p.Results.minusUp;
-save        = p.Results.save;
 
 
 
@@ -99,7 +96,7 @@ for c = 1:nConds % for each condition
     xlim([timeLine([1 end])]); % set x-Axis limit
     ylim([minA maxA]); 
     view(0,90) % change view angle
-    if minusUp, set(gca,'YDir','reverse'); end
+    if p.Results.minusUp, set(gca,'YDir','reverse'); end
     if c == 1 % for first plot only
         xlabel('Time');
         ylabel('Value');
@@ -107,7 +104,7 @@ for c = 1:nConds % for each condition
 end
 
 %% Export to R
-if save
+if p.Results.R
     % Save the data in long format
     % ----------------------------
     save_data.Condition = {};
