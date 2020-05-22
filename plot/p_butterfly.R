@@ -19,6 +19,6 @@ butterfly_plot <- butterfly.data %>%
   ## Theme, Scales and Labels
   # scale_y_reverse() + # minus up?
   scale_x_continuous(expand = c(0, 0)) + # remove padding around time line axis
-  labs(x = "Time", y = expression(paste(mu, "V")))
+  labs(x = "Time", y = "Value")
 
 butterfly_plot
