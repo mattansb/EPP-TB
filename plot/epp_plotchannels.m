@@ -89,14 +89,12 @@ if isempty(chanlocs)
     chan_labels = arrayfun(@(X) ['Channel ' num2str(X)], electrodes, 'UniformOutput', false);
 else
     chanlocs = chanlocs(electrodes);
-    chan_w = 0.05;
-    chan_h = 0.08; 
     
     % convert theta+radius to x*y
     radianTheta = pi/180*[chanlocs.theta];
     chan_x      = [chanlocs.radius].*sin(radianTheta);
     chan_y      = [chanlocs.radius].*cos(radianTheta);
-    
+
     chan_x = num2cell(chan_x);
     chan_y = num2cell(chan_y);
     [chanlocs.x] = chan_x{:};
@@ -109,7 +107,7 @@ if isempty(chanlocs)
         'minusUp', p.Results.minusUp, ...
         'R', p.Results.R);
 else
-    p_channels_array(plot_data, chanlocs, [chan_w chan_h], study(1).timeLine, conditions,...
+    p_channels_array(plot_data, chanlocs, study(1).timeLine, conditions,...
         'minusUp', p.Results.minusUp, ...
         'R', p.Results.R);
 end

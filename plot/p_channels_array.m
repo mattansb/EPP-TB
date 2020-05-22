@@ -10,7 +10,6 @@
 % plot_data     - A channels * time * conditions matrix.
 % chanlocs      - A structure with labels (channel label) and x and y
 %                 (lower case, marking 2D position!!)
-% chan_wh       - width an height of the channel plot.
 % times         - vector of times.
 % cond_labels   - a cell list of the conditions' labels.
 %
@@ -32,24 +31,20 @@ Change log:
 -----------
 22-05-2020  New function (written in MATLAB R2017b)
 %}
-function p_channels_array(plot_data, chanlocs, chan_wh, times, cond_labels, varargin)
+function p_channels_array(plot_data, chanlocs, times, cond_labels, varargin)
 
 %% Validate input data
 p = inputParser;
     addRequired(p,'plot_data',@isnumeric);
     addRequired(p,'chanlocs',@isstruct);
-    addRequired(p,'chan_wh',@isnumeric);
     addRequired(p,'times',@isnumeric);
     addRequired(p,'cond_labels',@iscell);
     
     addParameter(p,'minusUp', false, @islogical)
     addParameter(p,'R', false, @islogical)    
-parse(p, plot_data, chanlocs, chan_wh, times, cond_labels, varargin{:}); % validate
+parse(p, plot_data, chanlocs, times, cond_labels, varargin{:}); % validate
 
 %% Params
-
-chan_w = chan_wh(1);
-chan_h = chan_wh(2);
 
 nChans = size(plot_data, 1);
 nTimes = size(plot_data, 2);
@@ -62,13 +57,26 @@ maxA = max(plot_data(:));
 
 chan_x = [chanlocs.x];
 chan_y = [chanlocs.y];
+
 % standardize x,y positions:
-chan_x = chan_x - min(chan_x) + chan_w; % subtract min
-chan_y = chan_y - min(chan_y) + chan_h;
+chan_x = chan_x - min(chan_x); % subtract min
+chan_y = chan_y - min(chan_y);
 
-chan_x = chan_x/(max(chan_x)+chan_w); % divide by max
-chan_y = chan_y/(max(chan_y)+chan_h);
+chan_x = chan_x/max(chan_x); % divide by max
+chan_y = chan_y/max(chan_y);
 
+chan_x = 0.1 + chan_x * 0.8;
+chan_y = 0.1 + chan_y * 0.8;
+
+% hight and width
+% d = dist([chan_x; chan_y]);
+% d = tril(d);
+% d(d==0) = nan;
+% chan_w = min(d(:));
+% chan_h = chan_w * 5 / 8;
+
+chan_h = 0.05; 
+chan_w = 0.08;
 
 %% Plots
 
@@ -78,8 +86,6 @@ hold on;
 clf
 
 for ch = 1:nChans
-%     pos = [chan_x(ch) chan_y(ch)] - [chan_w chan_h]/2;
-%     pos = [pos chan_w chan_h];
     pos = [chan_x(ch) chan_y(ch) chan_w chan_h];
     ax = axes('Position',pos);
 
