@@ -39,6 +39,9 @@
 % 'combine'     - if true (defult) will combine all files in 'savePath'
 %                 into study structure. Else, won't - will only convert
 %                 eeglab files to '.eppf' files.
+% 'split'       - If true, will split each condition to '*_splitOdd' and
+%                 '*_splitEven'. This is useful for measuring split half
+%                 relability.
 %
 % See also epp_loaderplab, epp_loadegimat
 %
@@ -72,6 +75,7 @@ p = inputParser;
     addParameter(p,'savePath', '', @ischar)
     addParameter(p,'waveletVars', [], @isstruct)
     addParameter(p,'combine', true, @islogical)
+    addParameter(p,'split', false, @islogical)
 parse(p, varargin{:}); % validate
 
 if ~(p.Results.wavelet || p.Results.erp || p.Results.combine)
@@ -186,52 +190,69 @@ if p.Results.wavelet || p.Results.erp
             error('EEG.subject not speficied.')
         end
         
-        cond_parts          = {temp_EEG.condition,temp_EEG.group};
-        cond_parts          = cond_parts(~cellfun(@isempty, cond_parts));
-        output.Condition    = strjoin(cond_parts,'_');
-        output.IDs          = table({temp_EEG.subject},temp_EEG.trials,'VariableNames',{'ID' 'nTrials'});
+        cond_parts          = {temp_EEG.condition, temp_EEG.group};
+        cond_parts          = cond_parts(~cellfun(@isempty, cond_parts));        
         
-        
-        
-        % ERP
-        %====
-        if p.Results.erp
-            output.Data     = mean(temp_EEG.data,3);
-            output.timeLine = temp_EEG.times;
+        if p.Results.split
+            n_trial = temp_EEG.trials;
+            i_odd   = 1:2:n_trial;
+            i_even  = 2:2:n_trial;
+            
+            output(1).Condition    = [strjoin(cond_parts,'_') '_splitOdd'];
+            output(2).Condition    = [strjoin(cond_parts,'_') '_splitEven'];
+            
+            output(1).IDs          = table({temp_EEG.subject},length(i_odd),'VariableNames',{'ID' 'nTrials'});
+            output(2).IDs          = table({temp_EEG.subject},length(i_even),'VariableNames',{'ID' 'nTrials'});
+            
+            evalc('go_EEG = pop_select( temp_EEG, ''trial'',i_odd);');
+            evalc('go_EEG(2) = pop_select( temp_EEG, ''trial'',i_even);');
+        else
+            output.Condition    = strjoin(cond_parts,'_');
+            output.IDs          = table({temp_EEG.subject},temp_EEG.trials,'VariableNames',{'ID' 'nTrials'});
+            
+            go_EEG = temp_EEG;
         end
+            
+        for sp = 1:length(go_EEG)
+            % ERP
+            % ===
+            if p.Results.erp
+                output(sp).Data     = mean(go_EEG(sp).data,3);
+                output(sp).timeLine = go_EEG(sp).times;
+            end
 
-        % Wavelet
-        % =======
-        if p.Results.wavelet
-            [power,itpc,frex,times] = f_WaveletConv(temp_EEG,res_wave{:});
-
-            output.ersp     = power;
-            output.itc      = itpc;
-            output.freqs    = frex;
-            output.timeLine = times;
-
-            clear power itpc frex times
+            % Wavelet
+            % =======
+            if p.Results.wavelet
+                [power,itpc,frex,times] = f_WaveletConv(go_EEG(sp),res_wave{:});
+    
+                output(sp).ersp     = power;
+                output(sp).itc      = itpc;
+                output(sp).freqs    = frex;
+                output(sp).timeLine = times;
+    
+                clear power itpc frex times
+            end
         end
+            
+        
 
         %% Save
-        fname = [output.IDs.ID{:} '.eppf'];
+        fname = [output(1).IDs.ID{:} '.eppf'];
 
         if exist(fullfile(savePath, fname))==2
             output1 = output;
             load(fullfile(savePath, fname), '-mat')
-            match_cond = strcmp(output1.Condition,{output.Condition});
+            match_cond = strcmp({output1.Condition},{output.Condition});
             if any(match_cond)
-                warning(sprintf(['Condition ' output1.Condition 'appears more than once for ID ' num2str(temp_EEG.subject)...
-                    '.\nOverriding the old with the new.']))
-                output(match_cond) = output1;
-            else
-                output(end+1) = output1;
+                error(sprintf(['Condition ' output1.Condition 'appears more than once for ID ' num2str(temp_EEG.subject)]))
             end
+            output = [output, output1];
         end
 
         save(fullfile(savePath, fname), 'output','-mat');
 
-        clear output output1 fname fname_parts cond_parts temp_EEG
+        clear output output1 fname fname_parts cond_parts temp_EEG go_EEG
     end
 end
 

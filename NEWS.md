@@ -2,7 +2,7 @@
 
 This doc details user-facing changes only.
 
-## Version 3.2.x
+## Version 3.3.0
 
 | Function | Update | Notes |
 |---------:|:-------|:------|
@@ -10,6 +10,7 @@ This doc details user-facing changes only.
 | `epp_appendID` | NEW | Function for adding more info to the `IDs` table. Can be used for filtering, etc. |
 | `epp_plot*` | NEW | All `epp_plot*` functions allow for plotting TF data.
 | `epp_loadeeglab` | IMPROVEMENT | more options for file imports |
+| `epp_loadeeglab` | IMPROVEMENT | Gain ability to split the imported files to odd and even numbers. Useful for reliability. |
 | `epp_plot*` | IMPROVEMENT | Most `epp_plot*` functions now have an accompanying `p_*` function, that can be used with non `EPP-TB` data. |
 | `epp_plottopo` | IMPROVEMENT | Now plots conditions in a single figure. |
 
