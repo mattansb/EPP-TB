@@ -243,9 +243,9 @@ if p.Results.wavelet || p.Results.erp
         if exist(fullfile(savePath, fname))==2
             output1 = output;
             load(fullfile(savePath, fname), '-mat')
-            match_cond = strcmp({output1.Condition},{output.Condition});
+            match_cond = cellfun(@(cond) any(strcmp(cond,{output.Condition})), {output1.Condition});
             if any(match_cond)
-                error(sprintf(['Condition ' output1.Condition 'appears more than once for ID ' num2str(temp_EEG.subject)]))
+                error(sprintf(['Condition ' output1(match_cond).Condition ' appears more than once for ID ' num2str(temp_EEG.subject)]))
             end
             output = [output, output1];
         end
