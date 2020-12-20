@@ -8,8 +8,13 @@
 %
 % INPUTS
 % ------
-% EEG_list      - a cell-array of '.set' (full) file locations. If empty
-%                 will skip, and will combine the files in 'savePath.
+% EEG_list      One of the following:
+%               1. A cell-array - (full) '.set' file locations. 
+%               2. A string - name of a folder in which to select the
+%                  '.set' files.
+%               3. A logial [true] - will prompt a file selection window.
+%               4. An empty cell - will skip to combine the files in 
+%                  'savePath'.
 %
 % Condition names are taken from EEG.condition and EEG.group. Thus it is
 % assumed that each file contains only a single condition.
@@ -34,6 +39,9 @@
 % 'combine'     - if true (defult) will combine all files in 'savePath'
 %                 into study structure. Else, won't - will only convert
 %                 eeglab files to '.eppf' files.
+% 'split'       - If true, will split each condition to '*_splitOdd' and
+%                 '*_splitEven'. This is useful for measuring split half
+%                 relability.
 %
 % See also epp_loaderplab, epp_loadegimat
 %
@@ -43,6 +51,10 @@
 %{
 Change log:
 -----------
+21-05-2020  Added informative error when eeglab not attached.
+05-05-2020  Added more options for file imports.
+            Show warning when the same condition is being loaded more than
+            once.
 18-11-2018  Better error when eeglab not loaded
 06-07-2018  Minor printing adjustment
 10-05-2018  Support for new baseline correction methods in f_WaveletConv
@@ -58,16 +70,40 @@ function [study, savePath, waveletVars] = epp_loadeeglab(EEG_list,varargin)
 
 %% Validate and initiate
 p = inputParser;
-    addRequired(p,'EEG_list',@iscell);
     addParameter(p,'erp', false, @islogical)
     addParameter(p,'wavelet', false, @islogical)
     addParameter(p,'savePath', '', @ischar)
     addParameter(p,'waveletVars', [], @isstruct)
     addParameter(p,'combine', true, @islogical)
-parse(p, EEG_list, varargin{:}); % validate
+    addParameter(p,'split', false, @islogical)
+parse(p, varargin{:}); % validate
 
 if ~(p.Results.wavelet || p.Results.erp || p.Results.combine)
     error('You seem to have called the function without asking it to make ERPs or Wavelets. Oops?')
+end
+
+if (p.Results.wavelet || p.Results.erp) && exist('pop_loadset','file')~=2
+    error('eeglab must be loaded for this function to work...')
+end
+
+if ~iscell(EEG_list)
+    if islogical(EEG_list) && EEG_list
+        [file,path,indx] = uigetfile('*.set', 'Select EEGLAB set files','MultiSelect','on');
+        
+        if ~indx, error('No files selected.'); end
+        
+        EEG_list = fullfile(path,file);
+    elseif ischar(EEG_list)
+        listing = dir(EEG_list);
+        listing = fullfile({listing.folder},{listing.name});
+        
+        ix = regexp(listing, '\.set$','start','forceCellOutput');
+        ix = ~cellfun(@isempty, ix);
+        
+        EEG_list = listing(ix);
+    else
+        error('Wrong input for EEG_list. See help.')
+    end
 end
 
 
@@ -117,8 +153,6 @@ if p.Results.wavelet
         'baseline',waveletVars.baseline_method,...
         'downsample',waveletVars.Downsample,...
         };
-else
-    waveletVars = p.Results.waveletVars;
 end
 
 %% Set up temp dir
@@ -156,45 +190,69 @@ if p.Results.wavelet || p.Results.erp
             error('EEG.subject not speficied.')
         end
         
-        cond_parts          = {temp_EEG.condition,temp_EEG.group};
-        cond_parts          = cond_parts(~cellfun(@isempty, cond_parts));
-        output.Condition    = strjoin(cond_parts,'_');
-        output.IDs          = table({temp_EEG.subject},temp_EEG.trials,'VariableNames',{'ID' 'nTrials'});
+        cond_parts          = {temp_EEG.condition, temp_EEG.group};
+        cond_parts          = cond_parts(~cellfun(@isempty, cond_parts));        
         
-        
-        
-        % ERP
-        %====
-        if p.Results.erp
-            output.Data     = mean(temp_EEG.data,3);
-            output.timeLine = temp_EEG.times;
+        if p.Results.split
+            n_trial = temp_EEG.trials;
+            i_odd   = 1:2:n_trial;
+            i_even  = 2:2:n_trial;
+            
+            output(1).Condition    = [strjoin(cond_parts,'_') '_splitOdd'];
+            output(2).Condition    = [strjoin(cond_parts,'_') '_splitEven'];
+            
+            output(1).IDs          = table({temp_EEG.subject},length(i_odd),'VariableNames',{'ID' 'nTrials'});
+            output(2).IDs          = table({temp_EEG.subject},length(i_even),'VariableNames',{'ID' 'nTrials'});
+            
+            evalc('go_EEG = pop_select( temp_EEG, ''trial'',i_odd);');
+            evalc('go_EEG(2) = pop_select( temp_EEG, ''trial'',i_even);');
+        else
+            output.Condition    = strjoin(cond_parts,'_');
+            output.IDs          = table({temp_EEG.subject},temp_EEG.trials,'VariableNames',{'ID' 'nTrials'});
+            
+            go_EEG = temp_EEG;
         end
+            
+        for sp = 1:length(go_EEG)
+            % ERP
+            % ===
+            if p.Results.erp
+                output(sp).Data     = mean(go_EEG(sp).data,3);
+                output(sp).timeLine = go_EEG(sp).times;
+            end
 
-        % Wavelet
-        % =======
-        if p.Results.wavelet
-            [power,itpc,frex,times] = f_WaveletConv(temp_EEG,res_wave{:});
-
-            output.ersp     = power;
-            output.itc      = itpc;
-            output.freqs    = frex;
-            output.timeLine = times;
-
-            clear power itpc frex times
+            % Wavelet
+            % =======
+            if p.Results.wavelet
+                [power,itpc,frex,times] = f_WaveletConv(go_EEG(sp),res_wave{:});
+    
+                output(sp).ersp     = power;
+                output(sp).itc      = itpc;
+                output(sp).freqs    = frex;
+                output(sp).timeLine = times;
+    
+                clear power itpc frex times
+            end
         end
+            
+        
 
         %% Save
-        fname = [output.IDs.ID{:} '.eppf'];
+        fname = [output(1).IDs.ID{:} '.eppf'];
 
         if exist(fullfile(savePath, fname))==2
             output1 = output;
             load(fullfile(savePath, fname), '-mat')
-            output(end+1) = output1;
+            match_cond = strcmp({output1.Condition},{output.Condition});
+            if any(match_cond)
+                error(sprintf(['Condition ' output1.Condition 'appears more than once for ID ' num2str(temp_EEG.subject)]))
+            end
+            output = [output, output1];
         end
 
         save(fullfile(savePath, fname), 'output','-mat');
 
-        clear output output1 fname fname_parts cond_parts temp_EEG
+        clear output output1 fname fname_parts cond_parts temp_EEG go_EEG
     end
 end
 

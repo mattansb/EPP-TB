@@ -27,7 +27,17 @@
 %                             continue to format you plot - colors,
 %                             annotations, etc.)
 %
-% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plottopoTF, epp_plotchannels
+% When study is a time-frequency structure, two additional parameters must
+% be supplied:
+%           'type'          - 'erps' or 'itc'.
+%           'freqs'         - matrix of frequencies, with each row
+%                             containing a range of frequencies to group
+%                             together (1st column is lower limit, 2nd
+%                             column is upper limit of each range). e.g.
+%                             freqs = [1 3; 4 15; 16 28]; 
+%                             A given band is selected as so: [low <= freq <= high]
+%
+% See also epp_plotbutterfly, epp_plotgrands, epp_plotTF, epp_plotchannels
 %
 %
 % Author: Mattan S. Ben Shachar, BGU, Israel
@@ -35,6 +45,8 @@
 %{
 Change log:
 -----------
+21-05-2020  Added informative error when eeglab not attached.
+            Added support for TF plotting.
 18-11-2018  Better error when eeglab not loaded
 14-05-2018  Improvment to exporting plot data
             Silenced topoplot();
@@ -64,9 +76,15 @@ p = inputParser;
     addParameter(p,'plotlabels','on',@isstr)
     addParameter(p,'maplimits',nan,@isnumeric)
     addParameter(p,'R',false,@islogical)
+    if ~isfield(study, 'Data')
+        addParameter(p,'freqs', [], @isnumeric)
+        addParameter(p,'type', '', @ischar)
+    end
 parse(p, study,chanlocs,conditions,timePoints,varargin{:}); % validate
 
-
+if exist('topoplot', 'file')~=2
+    error('eeglab must be loaded for this function to work...')
+end
 %% Prepare Data for Plotting
 
 
@@ -74,7 +92,11 @@ parse(p, study,chanlocs,conditions,timePoints,varargin{:}); % validate
 % ----------------------------------------
 cInd  = cellfun(@(x) find(strcmp(x,{study(:).Condition})), conditions);
 study = study(cInd);
-clear cInd
+
+if ~isfield(study, 'Data')
+    study = epp_reshapeTF(study, p.Results.freqs, p.Results.type);
+    conditions = {study.Condition};
+end
 
 % Get Time Points
 % ---------------
@@ -82,9 +104,8 @@ nTimes = size(timePoints,2);
 % find time point indecies
 timePoints  = sort(timePoints,2); % sort time points
 for t = 1:nTimes
-    temp_tp1 = dsearchn(study(1).timeLine',timePoints(1,t)); % approximated to existing time points
-    temp_tp2 = dsearchn(study(1).timeLine',timePoints(size(timePoints,1),t)); % approximated to existing time points
-    tP_ind{t} = temp_tp1:temp_tp2;
+    TW = [timePoints(1,t), timePoints(size(timePoints,1),t)];
+    tP_ind{t} = f_timewindowIndex(TW, 'times', study(1).timeLine);
 end
 
 % Get Values to Plot:
@@ -121,14 +142,15 @@ topo_args = {'style',     'map',... 'both'
             'electrodes', p.Results.plotlabels, ... 'labels' / 'numpoint'
             'whitebk','on'};
 
-for c = 1:size(meanData,3) % each condition
-    fig = figure();
-    clf
-    hold on;
-    set(gca,'Color',get(fig,'Color'));
-    
+        
+fig = figure();
+clf
+hold on;
+set(gca,'Color',get(fig,'Color'));
+nConds = size(meanData,3);
+for c = 1:nConds % each condition   
     for t = 1:nTimes % each time point
-        subplot(1,nTimes,t);
+        subplot(nConds,nTimes,(c-1)*nTimes+t);
 
         % Plot the Data 
         % -------------
@@ -140,7 +162,7 @@ for c = 1:size(meanData,3) % each condition
         
         % Add Color Bar
         % -------------
-        if t==1
+        if t==1 && c==1
             cl = colorbar('west','AxisLocation','out');
             cl.Position(1)  = cl.Position(1)*0.4;
             cl.Position(3)  = cl.Position(3)*0.3;

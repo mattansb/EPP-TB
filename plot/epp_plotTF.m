@@ -33,6 +33,7 @@
 %{
 Change log:
 -----------
+21-05-2018  Make bg white.
 14-05-2018  Improvment to exporting plot data
 01-05-2018  Fixed bug that caused time-line to be flipped!
             Changed ersp colormap
@@ -98,7 +99,8 @@ end
     
 %% Plot
 
-figure() % open new fig
+fig         = figure(); % open new fig
+fig.Color   = [1 1 1];
 for c = 1:length(conditions) % for each condition
     
     % Plot ERSP

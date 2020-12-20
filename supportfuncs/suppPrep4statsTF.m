@@ -15,9 +15,7 @@ cInd    = cellfun(@(x) find(ismember({studyIn(:).Condition}, x)), conditions);
 studyIn = studyIn(cInd);
 
 %% Find Closest time window
-TW      = dsearchn(studyIn(1).timeLine',timeWindow(1)); % closest point to start of defined time window
-TW(2)   = dsearchn(studyIn(1).timeLine',timeWindow(2)); % closest point to end of defined time window
-TW      = TW(1):TW(2);
+TW = f_timewindowIndex(timeWindow, 'times', studyIn(1).timeLine);
 
 % Find Closest Frequencies
 freqs_ind   = cell(1,size(freqs,1));
