@@ -512,6 +512,6 @@ The function `epp_getTF` measure the *mean* ersp / itc from selected channels, w
 
 ## Acknowledgments
 
-- **Mike X. Cohen** - who's [code](http://www.mikexcohen.com/) was implemented in `suppWaveletConv3.m`.
-- **Matt Craddock** - who's [code](https://craddm.github.io/blog/2017/02/25/EEG-topography) was implemented in `epp_plottopo.R`.
-- **Winston Chang** - who's [code](http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/) for computing within-subject (and mixed model) CI's was implemented in `epp_plotgrands.m`.
+- **Mike X. Cohen** - who's [code](http://mikexcohen.com/lectures.html) was implemented in [`f_WaveletConv.m`](https://github.com/mattansb/EPP-TB/blob/master/supportfuncs/f_WaveletConv.m).
+- **Matt Craddock** - who's [code](https://craddm.github.io/blog/2017/02/25/EEG-topography) was implemented in [`epp_plottopo.R`](https://github.com/mattansb/EPP-TB/blob/master/plot/epp_plottopo.R).
+- **Winston Chang** - who's [code](http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/) for computing within-subject (and mixed model) CI's was implemented in [`epp_plotgrands.m`](https://github.com/mattansb/EPP-TB/blob/master/plot/epp_plotgrands.m).
